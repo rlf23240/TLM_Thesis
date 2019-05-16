@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+D:/IIM/TLM_Thesis/Lable_selection_method/LSM.cpp
+LSM.h
+D:/IIM/TLM_Thesis/Lable_selection_method/LSM.h
+
+D:/IIM/TLM_Thesis/Lable_selection_method/LSM.h
+
+D:/IIM/TLM_Thesis/Lable_selection_method/LSM_main.cpp
+iostream
+-
+
+D:/IIM/TLM_Thesis/main.cpp
+iostream
+-
+
