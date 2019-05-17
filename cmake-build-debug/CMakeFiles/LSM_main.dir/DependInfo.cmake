@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "D:/IIM/TLM_Thesis/Lable_selection_method/LSM_main.cpp" "D:/IIM/TLM_Thesis/cmake-build-debug/CMakeFiles/LSM_main.dir/Lable_selection_method/LSM_main.cpp.obj"
+  "C:/Users/Tim/CLionProjects/TLM_Thesis/Lable_selection_method/LSM_main.cpp" "C:/Users/Tim/CLionProjects/TLM_Thesis/cmake-build-debug/CMakeFiles/LSM_main.dir/Lable_selection_method/LSM_main.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
