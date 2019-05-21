@@ -5,13 +5,18 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
   "D:/IIM/TLM_Thesis/Lable_selection_method/LSM.cpp" "D:/IIM/TLM_Thesis/cmake-build-debug/CMakeFiles/TLM_Thesis.dir/Lable_selection_method/LSM.cpp.obj"
-  "D:/IIM/TLM_Thesis/Lable_selection_method/LSM_main.cpp" "D:/IIM/TLM_Thesis/cmake-build-debug/CMakeFiles/TLM_Thesis.dir/Lable_selection_method/LSM_main.cpp.obj"
   "D:/IIM/TLM_Thesis/main.cpp" "D:/IIM/TLM_Thesis/cmake-build-debug/CMakeFiles/TLM_Thesis.dir/main.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
+# Preprocessor definitions for this target.
+set(CMAKE_TARGET_DEFINITIONS_CXX
+  "HAS_GUROBI"
+  )
+
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
+  "C:/gurobi810/win64/include"
   )
 
 # Targets to which this target links.

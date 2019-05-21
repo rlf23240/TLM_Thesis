@@ -6,17 +6,29 @@
 
 #IncludeRegexTransform: 
 
+C:/gurobi810/win64/include/gurobi_c++.h
+iostream
+-
+vector
+-
+string
+-
+gurobi_c.h
+C:/gurobi810/win64/include/gurobi_c.h
+
+C:/gurobi810/win64/include/gurobi_c.h
+stdio.h
+-
+
 D:/IIM/TLM_Thesis/Lable_selection_method/LSM.cpp
 LSM.h
 D:/IIM/TLM_Thesis/Lable_selection_method/LSM.h
 
 D:/IIM/TLM_Thesis/Lable_selection_method/LSM.h
 
-D:/IIM/TLM_Thesis/Lable_selection_method/LSM_main.cpp
-iostream
--
-
 D:/IIM/TLM_Thesis/main.cpp
 iostream
 -
+gurobi_c++.h
+D:/IIM/TLM_Thesis/gurobi_c++.h
 

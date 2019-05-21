@@ -1,4 +1,4 @@
-ToolSet: 5.0@C:\MinGW
-Options: msvc.arch=amd64
+ToolSet: w64 6.0@C:\MinGW\mingw64
+Options: 
 
 Options:

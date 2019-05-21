@@ -169,7 +169,6 @@ Lable_selection_method/LSM_main.obj: Lable_selection_method/LSM_main.cpp.obj
 # target to build an object file
 Lable_selection_method/LSM_main.cpp.obj:
 	$(MAKE) -f CMakeFiles\LSM_main.dir\build.make CMakeFiles/LSM_main.dir/Lable_selection_method/LSM_main.cpp.obj
-	$(MAKE) -f CMakeFiles\TLM_Thesis.dir\build.make CMakeFiles/TLM_Thesis.dir/Lable_selection_method/LSM_main.cpp.obj
 .PHONY : Lable_selection_method/LSM_main.cpp.obj
 
 Lable_selection_method/LSM_main.i: Lable_selection_method/LSM_main.cpp.i
@@ -179,7 +178,6 @@ Lable_selection_method/LSM_main.i: Lable_selection_method/LSM_main.cpp.i
 # target to preprocess a source file
 Lable_selection_method/LSM_main.cpp.i:
 	$(MAKE) -f CMakeFiles\LSM_main.dir\build.make CMakeFiles/LSM_main.dir/Lable_selection_method/LSM_main.cpp.i
-	$(MAKE) -f CMakeFiles\TLM_Thesis.dir\build.make CMakeFiles/TLM_Thesis.dir/Lable_selection_method/LSM_main.cpp.i
 .PHONY : Lable_selection_method/LSM_main.cpp.i
 
 Lable_selection_method/LSM_main.s: Lable_selection_method/LSM_main.cpp.s
@@ -189,7 +187,6 @@ Lable_selection_method/LSM_main.s: Lable_selection_method/LSM_main.cpp.s
 # target to generate assembly for a file
 Lable_selection_method/LSM_main.cpp.s:
 	$(MAKE) -f CMakeFiles\LSM_main.dir\build.make CMakeFiles/LSM_main.dir/Lable_selection_method/LSM_main.cpp.s
-	$(MAKE) -f CMakeFiles\TLM_Thesis.dir\build.make CMakeFiles/TLM_Thesis.dir/Lable_selection_method/LSM_main.cpp.s
 .PHONY : Lable_selection_method/LSM_main.cpp.s
 
 main.obj: main.cpp.obj

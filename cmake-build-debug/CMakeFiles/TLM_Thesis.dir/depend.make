@@ -4,7 +4,7 @@
 CMakeFiles/TLM_Thesis.dir/Lable_selection_method/LSM.cpp.obj: ../Lable_selection_method/LSM.cpp
 CMakeFiles/TLM_Thesis.dir/Lable_selection_method/LSM.cpp.obj: ../Lable_selection_method/LSM.h
 
-CMakeFiles/TLM_Thesis.dir/Lable_selection_method/LSM_main.cpp.obj: ../Lable_selection_method/LSM_main.cpp
-
+CMakeFiles/TLM_Thesis.dir/main.cpp.obj: C:/gurobi810/win64/include/gurobi_c++.h
+CMakeFiles/TLM_Thesis.dir/main.cpp.obj: C:/gurobi810/win64/include/gurobi_c.h
 CMakeFiles/TLM_Thesis.dir/main.cpp.obj: ../main.cpp
 

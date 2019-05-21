@@ -1,6 +1,9 @@
 #include <iostream>
+#include "gurobi_c++.h"
 using namespace std;
 int main() {
-    cout << "Hello, World!";
-return 0;
+    GRBEnv env = GRBEnv();
+
+//    GRBModel model = GRBModel(env);
+    return 0;
 }

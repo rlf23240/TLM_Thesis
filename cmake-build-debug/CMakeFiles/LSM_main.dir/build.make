@@ -59,15 +59,15 @@ include CMakeFiles/LSM_main.dir/flags.make
 CMakeFiles/LSM_main.dir/Lable_selection_method/LSM_main.cpp.obj: CMakeFiles/LSM_main.dir/flags.make
 CMakeFiles/LSM_main.dir/Lable_selection_method/LSM_main.cpp.obj: ../Lable_selection_method/LSM_main.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\IIM\TLM_Thesis\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/LSM_main.dir/Lable_selection_method/LSM_main.cpp.obj"
-	C:\MinGW\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\LSM_main.dir\Lable_selection_method\LSM_main.cpp.obj -c D:\IIM\TLM_Thesis\Lable_selection_method\LSM_main.cpp
+	C:\MinGW\mingw64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\LSM_main.dir\Lable_selection_method\LSM_main.cpp.obj -c D:\IIM\TLM_Thesis\Lable_selection_method\LSM_main.cpp
 
 CMakeFiles/LSM_main.dir/Lable_selection_method/LSM_main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/LSM_main.dir/Lable_selection_method/LSM_main.cpp.i"
-	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\IIM\TLM_Thesis\Lable_selection_method\LSM_main.cpp > CMakeFiles\LSM_main.dir\Lable_selection_method\LSM_main.cpp.i
+	C:\MinGW\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\IIM\TLM_Thesis\Lable_selection_method\LSM_main.cpp > CMakeFiles\LSM_main.dir\Lable_selection_method\LSM_main.cpp.i
 
 CMakeFiles/LSM_main.dir/Lable_selection_method/LSM_main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/LSM_main.dir/Lable_selection_method/LSM_main.cpp.s"
-	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\IIM\TLM_Thesis\Lable_selection_method\LSM_main.cpp -o CMakeFiles\LSM_main.dir\Lable_selection_method\LSM_main.cpp.s
+	C:\MinGW\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\IIM\TLM_Thesis\Lable_selection_method\LSM_main.cpp -o CMakeFiles\LSM_main.dir\Lable_selection_method\LSM_main.cpp.s
 
 # Object files for target LSM_main
 LSM_main_OBJECTS = \
