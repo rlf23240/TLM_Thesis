@@ -3,8 +3,7 @@ project(TLM_Thesis)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(TLM_Thesis main.cpp Lable_selection_method/LSM.cpp Lable_selection_method/LSM.h )
-add_executable(LSM_main Lable_selection_method/LSM_main.cpp)
+add_executable(TLM_Thesis main.cpp src/EntireNetwork.cpp src/EntireNetwork.h src/Network.cpp src/Network.h src/Node.cpp src/Node.h src/Arc.cpp src/Arc.h src/param.h)
 
 #-------set gurobi environment-------------#
 include(./Cmake/FindGurobi.cmake)
