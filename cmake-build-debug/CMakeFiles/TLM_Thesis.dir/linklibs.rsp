@@ -1,1 +1,0 @@
-C:/gurobi810/win64/lib/libgurobi_c++.a C:/gurobi810/win64/lib/gurobi81.lib -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 
