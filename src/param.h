@@ -5,17 +5,18 @@
 #ifndef TLM_THESIS_PARAM_H
 #define TLM_THESIS_PARAM_H
 
-//#include "Node.h"
-//#include "Arc.h"
-//#include "Network.h"
-//#include "EntireNetwork.h"
-
 #include <string>
 #include <iostream>
 #include <vector>
 #include <unordered_map>
+#include <fstream>
+#include <sstream>
 
-static const int NUM_TIME_PERIOD = 24;
-static const int NUM_HOBOR = 10;
+
+static const int FLIGHT_TIME_PERIOD = 14;
+static const int TIME_SLOT_A_DAY = 3;
+static const int TOTAL_TIME_SLOT = FLIGHT_TIME_PERIOD * TIME_SLOT_A_DAY;
+
+
 
 #endif //TLM_THESIS_PARAM_H
