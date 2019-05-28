@@ -7,23 +7,28 @@
 
 #include "string"
 #include "unordered_map"
-#include "Arc.h"
+#include "vector"
 
-class Node {
-private:
-    std::string name;
-    int cost = 0;
+    class Node;
+
+    struct Arc{
+        Arc(Node *start_node, Node *end_node, int cost);
+
+        Node* start_node;
+        Node* end_node;
+        int cost;
+    };
+
+    class Node {
+    public:
+        Node(int cost);
+
+    private:
+        int cost = 0;
 
 public:
-    std::unordered_map<std::string, Arc*> out_arc;
-    std::unordered_map<std::string, Arc*> in_arc;
+    std::vector<Arc*> out_arc;
+    std::vector<Arc*> in_arc;
 
-    Node(const std::string &name);
-
-    const std::string &getName() const;
-
-    int getCost() const;
-
-    void setCost(int cost);
 };
 #endif //TLM_THESIS_NODE_H

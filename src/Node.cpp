@@ -3,16 +3,7 @@
 //
 #include "Node.h"
 
-const std::string &Node::getName() const {
-    return name;
-}
 
-Node::Node(const std::string &name) : name(name) {}
+Node::Node(int cost) : cost(cost) {}
 
-int Node::getCost() const {
-    return cost;
-}
-
-void Node::setCost(int cost) {
-    Node::cost = cost;
-}
+Arc::Arc(Node *start_node, Node *end_node, int cost) : start_node(start_node), end_node(end_node), cost(cost) {}
