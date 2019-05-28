@@ -11,24 +11,26 @@
 
     class Node;
 
-    struct Arc{
-        Arc(Node *start_node, Node *end_node, int cost);
+struct Arc{
+    Arc(Node *start_node, Node *end_node, int cost);
 
-        Node* start_node;
-        Node* end_node;
-        int cost;
-    };
+    Node* start_node;
+    Node* end_node;
+    int cost;
+};
 
-    class Node {
-    public:
-        Node(int cost);
-
-    private:
-        int cost = 0;
-
+class Node {
 public:
+    explicit Node(int cost);
+
+    Node(const std::string &name, int cost);
+
     std::vector<Arc*> out_arc;
     std::vector<Arc*> in_arc;
+
+private:
+    int cost = 0;
+    std::string name;
 
 };
 #endif //TLM_THESIS_NODE_H

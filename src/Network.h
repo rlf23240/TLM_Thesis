@@ -22,7 +22,20 @@ struct Flight{
     int cycle_time;
 };
 
+
+struct Route{
+    Route(const vector<string> &nodes, int cost);
+
+    Route();
+
+    friend ostream &operator<<(ostream &os, const Route &route);
+
+    vector<string> nodes;
+    int cost = INT_MAX;
+};
+
 class Network {
+
 private:
     int num_nodes;
     int* stop_cost;
@@ -30,8 +43,8 @@ private:
     unordered_map<char, vector<Node*>> nodes;
     int** arc_cost;
     int** time_cost;
-public:
 
+public:
     Network();
     void add_nodes();
     void add_edges();
@@ -42,6 +55,10 @@ public:
     void read_stop_cost(std::string cost_data_path);
     void read_flights_param(std::string flights_data);
     void read_time_cost(std::string time_data_path);
+
+    Route* DP_shortest_path(char start_node, int start_time, char end_node, int end_time);
+
+
 };
 
 

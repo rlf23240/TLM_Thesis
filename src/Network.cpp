@@ -8,18 +8,45 @@
 
 using namespace std;
 
-
+/*-----------------Flight struct------------------------------*/
 Flight::Flight(const string &start_node, int gap, int freq, int cycle_time) : start_node(start_node), gap(gap),
                                                                               freq(freq), cycle_time(cycle_time) {}
-
 ostream &operator<<(ostream &os, const Flight &flight) {
     os << "start_node: " << flight.start_node << " gap: " << flight.gap << " freq: " << flight.freq << " cycle_time: "
        << flight.cycle_time;
     return os;
 }
 
-Network::Network() {
+
+/*-----------------Route struct------------------------------*/
+Route::Route(const vector<string> &nodes, int cost) : nodes(nodes), cost(cost) {}
+
+Route::Route() = default;
+
+ostream &operator<<(ostream &os, const Route &route) {
+
+    if(!route.nodes.empty()) {
+        os << "nodes: ";
+        for (const string &node : route.nodes) {
+            os << node << "->";
+        }
+        os << "<  cost : ";
+        os << route.cost << endl;
+    }
+    else {
+        os << "Empty route" << endl;
+    }
+
+    return os;
 }
+
+
+
+/*-----------------------Network class------------------------*/
+Network::Network(){
+    read_data("../Data/Data1");
+    DP_shortest_path('A', 0, 'A', 5);
+};
 
 bool Network::add_edge(Node* start, Node* end, int cost) {
     Arc* new_arc = new Arc(start, end, cost);
@@ -176,25 +203,27 @@ void Network::read_time_cost(std::string time_data_path) {
 
 
 void Network::add_nodes() {
-    // add time space network
+    // add time space network nodes
     for(int i = 0; i < num_nodes; i++){
-        nodes[(char) 'A'+i] = vector<Node*>();
+        char letter = (char) (65+i);
+        nodes[letter] = vector<Node*>();
 
-        for(int node = 1; node <= TOTAL_TIME_SLOT; node++){
-            Node* newNode = new Node(stop_cost[i]);
-            nodes[(char) 'A'+i].push_back(newNode);
+        for(int node = 0; node < TOTAL_TIME_SLOT; node++){
+            string name = letter+to_string(node); //node name
+            Node* newNode = new Node(name, stop_cost[i]);
+            nodes[letter].push_back(newNode);
         }
     }
 }
 
 void Network::add_edges() {
 
-    for(int t = 1; t <= TOTAL_TIME_SLOT; t++){
+    for(int t = 1; t < TOTAL_TIME_SLOT; t++){
         for(int i = 0; i < num_nodes; i++){
             for(int out = 0; out < num_nodes; out++){
                 if(arc_cost[i][out] < INT_MAX && t+time_cost[i][out] < TOTAL_TIME_SLOT){
-                    cout << (char) (65+i) <<t<< " To " << (char) (65+out)<<t+time_cost[i][out]
-                    << "  Arc Cost :" <<arc_cost[i][out]<<endl;
+//                    cout << (char) (65+i) <<t<< " To " << (char) (65+out)<<t+time_cost[i][out]
+//                    << "  Arc Cost :" <<arc_cost[i][out]<<endl;
                     add_edge(nodes[(char) 'A'+i][t], nodes[(char) 'A'+out][t + time_cost[i][out]], arc_cost[i][out]);
                             // start                  end                                            cost
                 }
@@ -203,3 +232,23 @@ void Network::add_edges() {
     }
 }
 
+Route* Network::DP_shortest_path(char start_node, int start_time, char end_node, int end_time) {
+    Route** dp = new Route*[num_nodes];
+    for(int i = 0; i < num_nodes; i++)
+        dp[i] = new Route[TOTAL_TIME_SLOT];
+
+    int start_node_idx = (int) start_node - 'A';
+    int end_node_idx = (int) end_node - 'A';
+
+    vector<string> init_node = vector<string>();
+    init_node.push_back(start_node+to_string(start_time));
+
+    dp[start_node_idx][start_time] = Route(init_node, stop_cost[start_node_idx]);
+//    cout << dp[start_node_idx][start_time] << endl;
+    for(int t = start_time; t <= end_time; t++){
+
+    }
+
+
+    return nullptr;
+}
