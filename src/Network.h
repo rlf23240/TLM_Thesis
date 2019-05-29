@@ -27,7 +27,6 @@ struct Route{
     Route(const vector<string> &nodes, int cost);
 
     Route();
-
     friend ostream &operator<<(ostream &os, const Route &route);
 
     vector<string> nodes;
@@ -56,7 +55,8 @@ public:
     void read_flights_param(std::string flights_data);
     void read_time_cost(std::string time_data_path);
 
-    Route* DP_shortest_path(char start_node, int start_time, char end_node, int end_time);
+    Route DP_shortest_path(char start_node, int start_time, char end_node, int end_time);
+    void forward_update(Route** dp, int node, int time);
 
 
 };

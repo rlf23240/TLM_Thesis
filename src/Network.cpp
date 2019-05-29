@@ -40,18 +40,17 @@ ostream &operator<<(ostream &os, const Route &route) {
     return os;
 }
 
-
-
 /*-----------------------Network class------------------------*/
 Network::Network(){
     read_data("../Data/Data1");
-    DP_shortest_path('A', 0, 'A', 5);
+    Route best_route = DP_shortest_path('A', 0, 'A', 5);
+    cout << best_route ;
 };
 
 bool Network::add_edge(Node* start, Node* end, int cost) {
     Arc* new_arc = new Arc(start, end, cost);
-    start->out_arc.push_back(new_arc);
-    end->in_arc.push_back(new_arc);
+    start->out_arcs.push_back(new_arc);
+    end->in_arcs.push_back(new_arc);
 
     return true;
 }
@@ -218,7 +217,7 @@ void Network::add_nodes() {
 
 void Network::add_edges() {
 
-    for(int t = 1; t < TOTAL_TIME_SLOT; t++){
+    for(int t = 0; t < TOTAL_TIME_SLOT; t++){
         for(int i = 0; i < num_nodes; i++){
             for(int out = 0; out < num_nodes; out++){
                 if(arc_cost[i][out] < INT_MAX && t+time_cost[i][out] < TOTAL_TIME_SLOT){
@@ -232,7 +231,7 @@ void Network::add_edges() {
     }
 }
 
-Route* Network::DP_shortest_path(char start_node, int start_time, char end_node, int end_time) {
+Route Network::DP_shortest_path(char start_node, int start_time, char end_node, int end_time) {
     Route** dp = new Route*[num_nodes];
     for(int i = 0; i < num_nodes; i++)
         dp[i] = new Route[TOTAL_TIME_SLOT];
@@ -244,11 +243,42 @@ Route* Network::DP_shortest_path(char start_node, int start_time, char end_node,
     init_node.push_back(start_node+to_string(start_time));
 
     dp[start_node_idx][start_time] = Route(init_node, stop_cost[start_node_idx]);
-//    cout << dp[start_node_idx][start_time] << endl;
-    for(int t = start_time; t <= end_time; t++){
+    forward_update(dp, start_node_idx, start_time);
+
+    for(int t = start_time+1; t < end_time; t++){
+        for(int node = 0; node < num_nodes; node++){
+            if(dp[node][t].nodes.empty() == 0)
+                forward_update(dp, node, t);
+        }
 
     }
-
-
-    return nullptr;
+    return dp[end_node_idx][end_time];
 }
+
+void Network::forward_update(Route** dp, int node, int time) {
+    char node_char = (char) ('A' + node) ;
+    Node* cur_node = nodes[node_char][time];
+
+    for (auto& arc : cur_node->out_arcs){
+        Node* end_node = arc->end_node;
+        char end_node_char = end_node->getName()[0];
+        int end_node_idx = (int) end_node_char - 65;
+        int end_time = stoi(end_node->getName().substr(1));
+
+        //Calculate cost if append end node to current route
+        Route cur_route = dp[node][time];
+        Route end_route = dp[end_node_idx][end_time];
+        int new_cost = cur_route.cost + arc->cost + end_node->getCost();
+
+        // if yes, replace old route.
+        if (new_cost < end_route.cost){
+            vector<string> new_nodes;
+            new_nodes.assign(cur_route.nodes.begin(), cur_route.nodes.end());
+            new_nodes.push_back(end_node_char + to_string(end_time));
+//            cout << end_node_idx << " " << end_time <<endl;
+
+            dp[end_node_idx][end_time] = Route(new_nodes, new_cost);
+        }
+    }
+}
+
