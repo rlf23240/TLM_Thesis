@@ -9,7 +9,7 @@
 using namespace std;
 
 /*-----------------Flight struct------------------------------*/
-Flight::Flight(const string &start_node, int gap, int freq, int cycle_time) : start_node(start_node), gap(gap),
+Flight::Flight(char start_node, int gap, int freq, int cycle_time) : start_node(start_node), gap(gap),
                                                                               freq(freq), cycle_time(cycle_time) {}
 ostream &operator<<(ostream &os, const Flight &flight) {
     os << "start_node: " << flight.start_node << " gap: " << flight.gap << " freq: " << flight.freq << " cycle_time: "
@@ -26,11 +26,11 @@ Route::Route() = default;
 ostream &operator<<(ostream &os, const Route &route) {
 
     if(!route.nodes.empty()) {
-        os << "nodes: ";
+        os << "Route : ";
         for (const string &node : route.nodes) {
             os << node << "->";
         }
-        os << "<  cost : ";
+        os << "<\tcost : ";
         os << route.cost << endl;
     }
     else {
@@ -43,8 +43,15 @@ ostream &operator<<(ostream &os, const Route &route) {
 /*-----------------------Network class------------------------*/
 Network::Network(){
     read_data("../Data/Data1");
-    Route best_route = DP_shortest_path('A', 0, 'A', 5);
-    cout << best_route ;
+    for(auto flight : flights) {
+        for(int i = 0; i <= 7 * TIME_SLOT_A_DAY - flight.gap * flight.freq; i++) {
+            for (int freq = 0 ; freq < flight.freq; freq ++) {
+                Route best_route = DP_shortest_path(flight.start_node, i+freq*flight.gap , flight.start_node, i + freq*flight.gap + flight.cycle_time);
+                cout << best_route;
+            }
+            cout << endl;
+        }
+    }
 };
 
 bool Network::add_edge(Node* start, Node* end, int cost) {
@@ -124,7 +131,6 @@ void Network::read_stop_cost(std::string cost_data_path) {
 
 void Network::read_flights_param(std::string flights_data) {
 
-    vector<Flight> flights;
     fstream file;
     file.open(flights_data);
 
@@ -140,7 +146,7 @@ void Network::read_flights_param(std::string flights_data) {
             string token;
 
             getline(iss, token, ' ');
-            string flight_name = token;
+            char flight_name = token[0];
 
             getline(iss, token, ' ');
             int flight_gap = stoi(token);

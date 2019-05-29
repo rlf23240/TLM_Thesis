@@ -12,11 +12,11 @@
 using namespace std;
 
 struct Flight{
-    Flight(const string &start_node, int gap, int freq, int cycle_time);
+    Flight(char start_node, int gap, int freq, int cycle_time);
 
     friend ostream &operator<<(ostream &os, const Flight &flight);
 
-    string start_node;
+    char start_node;
     int gap;
     int freq;
     int cycle_time;
