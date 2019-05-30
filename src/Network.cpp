@@ -281,7 +281,7 @@ void Network::forward_update(Route** dp, int node, int time) {
             vector<string> new_nodes;
             new_nodes.assign(cur_route.nodes.begin(), cur_route.nodes.end());
             new_nodes.push_back(end_node_char + to_string(end_time));
-//            cout << end_node_idx << " " << end_time <<endl;
+            //cout << end_node_idx << " " << end_time <<endl;
 
             dp[end_node_idx][end_time] = Route(new_nodes, new_cost);
         }
