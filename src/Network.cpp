@@ -42,7 +42,7 @@ ostream &operator<<(ostream &os, const Route &route) {
 
 /*-----------------------Network class------------------------*/
 Network::Network(){
-    read_data("../Data/Data1");
+    read_data("../Data/air1");
     for(auto flight : flights) {
         for(int i = 0; i <= 7 * TIME_SLOT_A_DAY - flight.gap * flight.freq; i++) {
             for (int freq = 0 ; freq < flight.freq; freq ++) {

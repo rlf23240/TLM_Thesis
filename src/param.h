@@ -16,6 +16,7 @@
 static const int FLIGHT_TIME_PERIOD = 14;
 static const int TIME_SLOT_A_DAY = 3;
 static const int TOTAL_TIME_SLOT = FLIGHT_TIME_PERIOD * TIME_SLOT_A_DAY;
+static const int BOAT_STOP_TIME = 1;
 
 
 
