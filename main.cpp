@@ -1,9 +1,11 @@
 #include <iostream>
 
-#include "src/Network.h"
+#include "src/AirNetwork.h"
+#include "src/SeaNetwork.h"
 using namespace std;
 int main() {
-    Network network = Network();
-
+    AirNetwork air_network = AirNetwork("../Data/air1");
+    cout << endl ;
+    SeaNetwork sea_network = SeaNetwork("../Data/sea1");
     return 0;
 }

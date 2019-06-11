@@ -1,0 +1,7 @@
+5
+B	C	100	1	H	L
+C	A	200	20	L	H
+D	B	500	2	H	H
+B	A	300	1	L	L
+D	B	100	15	L	H
+
