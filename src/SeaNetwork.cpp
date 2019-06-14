@@ -62,8 +62,10 @@ void SeaNetwork::read_ship_param(string ships_data) {
 }
 
 void SeaNetwork::run_algo() {
-    Route route = DP_shortest_path('D', 5, 'D', 5 + 42);
-    cout << route;
+    for(auto ship : ships) {
+        Route route = DP_shortest_path(ship.start_node, ship.start_time, ship.start_node, ship.start_time+ship.cycle_time);
+        cout << route;
+    }
 }
 
 void SeaNetwork::forward_update(Route **dp, int node, int time) {
