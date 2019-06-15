@@ -6,10 +6,12 @@
 
 #include "SeaNetwork.h"
 
-Ship::Ship(char start_node, int start_time, int frequency, int cycle_time) : start_node(start_node),
-                                                                             start_time(start_time),
-                                                                             frequency(frequency),
-                                                                             cycle_time(cycle_time) {}
+
+Ship::Ship(char start_node, int start_time, int frequency, int cycle_time, int weight_ub) : start_node(start_node),
+                                                                                            start_time(start_time),
+                                                                                            frequency(frequency),
+                                                                                            cycle_time(cycle_time),
+                                                                                            weight_ub(weight_ub) {}
 
 SeaNetwork::SeaNetwork(string data_path) {
     read_data(data_path);
@@ -34,7 +36,6 @@ void SeaNetwork::read_ship_param(string ships_data) {
         string line;
         getline(file, line);
         int num_ships = stoi(line);
-
         for(int i = 0; i < num_ships ; i++){
             getline(file, line);
             istringstream iss(line);
@@ -52,7 +53,10 @@ void SeaNetwork::read_ship_param(string ships_data) {
             getline(iss, token, '\t');
             int ships_cycle_time = stoi(token);
 
-            Ship new_ship = Ship(stating_node, starting_time, ships_freq, ships_cycle_time);
+            getline(iss, token, '\t');
+            int weight_ub = stoi(token);
+
+            Ship new_ship = Ship(stating_node, starting_time, ships_freq, ships_cycle_time, weight_ub);
             ships.push_back(new_ship);
         }
     }
@@ -62,9 +66,9 @@ void SeaNetwork::read_ship_param(string ships_data) {
 }
 
 void SeaNetwork::run_algo() {
-    for(auto ship : ships) {
+    for(auto &ship : ships) {
         Route route = DP_shortest_path(ship.start_node, ship.start_time, ship.start_node, ship.start_time+ship.cycle_time);
-        cout << route;
+        ship.route = route;
     }
 }
 
@@ -101,5 +105,8 @@ void SeaNetwork::forward_update(Route **dp, int node, int time) {
     }
 }
 
+const vector<Ship> &SeaNetwork::getShips() const {
+    return ships;
+}
 
 

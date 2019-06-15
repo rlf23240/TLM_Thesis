@@ -231,3 +231,16 @@ void Network::forward_update(Route** dp, int node, int time) {
 }
 
 
+unsigned int Network::getNum_nodes() const {
+    return num_nodes;
+}
+
+int *Network::getStop_cost() const {
+    return stop_cost;
+}
+
+int **Network::getArc_cost() const {
+    return arc_cost;
+}
+
+

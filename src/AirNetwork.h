@@ -8,7 +8,7 @@
 #include "Network.h"
 
 struct Flight{
-    Flight(char start_node, int gap, int freq, int cycle_time);
+    Flight(char start_node, int gap, int freq, int cycle_time, int weight_ub, int volume_ub);
 
     friend ostream &operator<<(ostream &os, const Flight &flight);
 
@@ -16,6 +16,9 @@ struct Flight{
     int gap;
     int freq;
     int cycle_time;
+    int weight_ub;
+    int volume_ub;
+    vector<Route> routes;
 };
 
 class AirNetwork : public Network{
@@ -26,6 +29,8 @@ public:
     explicit AirNetwork(string data_path);
     void read_data(std::string data_path) override;
     void run_algo() override;
+
+    const vector<Flight> &getFlights() const;
 };
 
 #endif //TLM_THESIS_AIRNETWORK_H

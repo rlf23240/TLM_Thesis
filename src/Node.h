@@ -14,29 +14,30 @@
 struct Arc{
     Arc(Node *start_node, Node *end_node, int cost);
 
+    Arc(Node *start_node, Node *end_node, int cost, int weight_ub);
+
+    Arc(Node *start_node, Node *end_node, int cost, int weight_ub, int volume_ub);
+
     Node* start_node;
     Node* end_node;
     int cost;
+    int weight_ub;
+    int volume_ub;
 };
 
 class Node {
 public:
-    explicit Node(int cost);
-
     Node(const std::string &name, int cost);
 
+    int getCost() const;
+    const std::string &getName() const;
     std::vector<Arc*> out_arcs;
     std::vector<Arc*> in_arcs;
 
-private:
-    int cost = 0;
-public:
-    int getCost() const;
 
 private:
+    int cost = 0;
     std::string name;
-public:
-    const std::string &getName() const;
 
 };
 #endif //TLM_THESIS_NODE_H

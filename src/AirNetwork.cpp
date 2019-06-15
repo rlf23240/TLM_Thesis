@@ -6,13 +6,15 @@
 #include <string>
 
 /*-----------------Flight struct------------------------------*/
-Flight::Flight(char start_node, int gap, int freq, int cycle_time) : start_node(start_node), gap(gap),
-                                                                     freq(freq), cycle_time(cycle_time) {}
+
 ostream &operator<<(ostream &os, const Flight &flight) {
     os << "start_node: " << flight.start_node << " gap: " << flight.gap << " freq: " << flight.freq << " cycle_time: "
        << flight.cycle_time;
     return os;
 }
+
+Flight::Flight(char start_node, int gap, int freq, int cycle_time, int weight_ub, int volume_ub) : start_node(
+        start_node), gap(gap), freq(freq), cycle_time(cycle_time), weight_ub(weight_ub), volume_ub(volume_ub) {}
 
 
 AirNetwork::AirNetwork(const string data_path) {
@@ -53,7 +55,13 @@ void AirNetwork::read_flights_param(std::string flights_data) {
             getline(iss, token, '\t');
             int flight_cycle_time = stoi(token);
 
-            Flight new_flight = Flight(flight_name, flight_gap, flight_freq, flight_cycle_time);
+            getline(iss, token, '\t');
+            int weight_ub = stoi(token);
+
+            getline(iss, token, '\t');
+            int volume_ub = stoi(token);
+
+            Flight new_flight = Flight(flight_name, flight_gap, flight_freq, flight_cycle_time, weight_ub, volume_ub);
             flights.push_back(new_flight);
         }
     }
@@ -63,8 +71,9 @@ void AirNetwork::read_flights_param(std::string flights_data) {
 }
 
 void AirNetwork::run_algo() {
-    vector<Route> best_routes;
-    for(auto flight : flights) {
+
+    for(auto &flight : flights) {
+        vector<Route> best_routes;
         int best_cost = INT_MAX;
         for(int i = 0; i <= 7 * TIME_SLOT_A_DAY - flight.gap * flight.freq; i++) {
             int acc_cost = 0;
@@ -76,11 +85,17 @@ void AirNetwork::run_algo() {
             }
             if(acc_cost < best_cost){
                 best_cost = acc_cost;
-                best_routes.insert(best_routes.end(),routes.begin(), routes.end());
+                best_routes = routes;
             }
         }
+        flight.routes = best_routes;
+        for(const auto &route : flight.routes){
+            cout << route ;
+        }
     }
-    for(const auto &route : best_routes){
-        cout << route;
-    }
+
+}
+
+const vector<Flight> &AirNetwork::getFlights() const {
+    return flights;
 }
