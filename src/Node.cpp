@@ -16,10 +16,15 @@ int Node::getCost() const {
 
 
 
-Arc::Arc(Node *start_node, Node *end_node, int cost) : start_node(start_node), end_node(end_node), cost(cost) {}
+Arc::Arc(Node *start_node, Node *end_node, int cost) : start_node(start_node), end_node(end_node), cost(cost) {
+    weight_ub = INT_MAX;
+    volume_ub = INT_MAX;
+}
 
 Arc::Arc(Node *start_node, Node *end_node, int cost, int weight_ub) : start_node(start_node), end_node(end_node),
-                                                                   cost(cost), weight_ub(weight_ub) {}
+                                                                   cost(cost), weight_ub(weight_ub) {
+    volume_ub = INT_MAX;
+}
 
 Arc::Arc(Node *start_node, Node *end_node, int cost, int weight_ub, int volume_ub) : start_node(start_node),
                                                                                 end_node(end_node), cost(cost),

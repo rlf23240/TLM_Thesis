@@ -27,6 +27,9 @@ private:
     void read_flights_param(std::string flights_data);
 public:
     explicit AirNetwork(string data_path);
+
+    AirNetwork();
+
     void read_data(std::string data_path) override;
     void run_algo() override;
 

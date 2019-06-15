@@ -16,7 +16,7 @@ ostream &operator<<(ostream &os, const Flight &flight) {
 Flight::Flight(char start_node, int gap, int freq, int cycle_time, int weight_ub, int volume_ub) : start_node(
         start_node), gap(gap), freq(freq), cycle_time(cycle_time), weight_ub(weight_ub), volume_ub(volume_ub) {}
 
-
+AirNetwork::AirNetwork() {}
 AirNetwork::AirNetwork(const string data_path) {
     read_data(data_path);
     run_algo();
@@ -99,3 +99,5 @@ void AirNetwork::run_algo() {
 const vector<Flight> &AirNetwork::getFlights() const {
     return flights;
 }
+
+

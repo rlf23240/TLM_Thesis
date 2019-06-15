@@ -26,6 +26,7 @@ private:
     vector<Ship> ships;
 public:
     explicit SeaNetwork(string data_path);
+    SeaNetwork();
     void read_data(string data_path) override;
     void read_ship_param(string ships_data);
     void run_algo() override;

@@ -21,6 +21,15 @@ private :
     void read_data(string data);
     void add_designed_ships(string data);
     void add_designed_flights(string data);
+    void add_virtual_network(string data);
+    void add_current_ships(string data);
+    void add_current_flights(string data);
+    int* read_stop_cost(string data_path);
+    void print_all_arcs();
+
+    AirNetwork air_network;
+    SeaNetwork sea_network;
+
 
     unsigned int num_nodes;
     vector<Arc*> arcs;

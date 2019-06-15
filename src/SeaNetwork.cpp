@@ -12,7 +12,7 @@ Ship::Ship(char start_node, int start_time, int frequency, int cycle_time, int w
                                                                                             frequency(frequency),
                                                                                             cycle_time(cycle_time),
                                                                                             weight_ub(weight_ub) {}
-
+SeaNetwork::SeaNetwork() {}
 SeaNetwork::SeaNetwork(string data_path) {
     read_data(data_path);
     run_algo();
@@ -108,5 +108,7 @@ void SeaNetwork::forward_update(Route **dp, int node, int time) {
 const vector<Ship> &SeaNetwork::getShips() const {
     return ships;
 }
+
+
 
 

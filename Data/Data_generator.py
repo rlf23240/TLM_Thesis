@@ -3,10 +3,12 @@ import numpy
 from math import floor
 
 def data_generator(name = "A", n = 10, num_ships = 20, num_flights = 20, num_cargos = 100):
-    random.seed(0)
+    random.seed(10)
     sea_data_generator(name, n, num_ships)
     air_data_generator(name, n, num_flights)
+    virtual_data_generator(name, n)
     cargo_data_generator(name, n, num_cargos)
+
 
 
 def sea_data_generator(name, n, num_ships):
@@ -125,6 +127,15 @@ def air_data_generator(name, n, num_flights):
     air_arc_time_cost()
     air_stop_cost()
     air_ships_param(num_flights)
+
+def virtual_data_generator(name,n) :
+    virtual_file = open("virtual%s.txt"% name, 'w')
+    for i in range(n) :
+        transfer_cost = random.randint(5,15) * 10
+        virtual_file.write(str(transfer_cost))
+        if i < n-1 :
+            virtual_file.write('\t')
+    virtual_file.close()
 
 def cargo_data_generator(name, n,num_cargos):
     cargo_file = open("cargo%s.txt"% name, 'w')

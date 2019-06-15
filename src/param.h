@@ -14,10 +14,11 @@
 
 static const int TIME_SLOT_A_DAY = 3;
 
-static const int TIME_PERIOD = 35;  //days
+static const int TIME_PERIOD = 30;  //days
 static const unsigned int TOTAL_TIME_SLOT = TIME_PERIOD * TIME_SLOT_A_DAY;
 
 static const int SHIP_STOP_DAY = 1;
+static const int FIX_COST_OF_VIRTUAL_ARC = 100;
 
 
 
