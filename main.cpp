@@ -7,6 +7,5 @@
 using namespace std;
 int main() {
     EntireNetwork network = EntireNetwork("A");
-
     return 0;
 }

@@ -20,6 +20,13 @@ AirNetwork::AirNetwork() {}
 AirNetwork::AirNetwork(const string data_path) {
     read_data(data_path);
     run_algo();
+    generate_cur_flights(flights.size());
+
+    cout << "----------Designed flights routes----------" << endl;
+    print_flights(flights);
+    cout << "-----------Exist flights routes-----------" << endl;
+    print_flights(cur_flights);
+
 }
 
 void AirNetwork::read_data(std::string data_path) {
@@ -89,15 +96,93 @@ void AirNetwork::run_algo() {
             }
         }
         flight.routes = best_routes;
-        for(const auto &route : flight.routes){
-            cout << route ;
-        }
+//        for(const auto &route : flight.routes){
+//            cout << route ;
+//        }
     }
 
 }
 
 const vector<Flight> &AirNetwork::getFlights() const {
     return flights;
+}
+
+void AirNetwork::generate_cur_flights(int n) {
+    random_device rd;
+    mt19937 gen = mt19937(rd());
+    uniform_int_distribution<int> dis(0, INT_MAX);
+
+
+
+    for (int i = 0; i < n; i++) {
+        vector<Route> routes;
+        int cycle_time = 5 + dis(gen) % 3;
+        int gap = (dis(gen) % 10 < 8) ? cycle_time +1 : cycle_time+2;
+
+        int start_node = dis(gen) % num_nodes;
+        int start_time = dis(gen) % 8;
+        int cur_node = start_node;
+        int cur_time = start_time;
+        int next_node, next_time;
+        int total_cost = 0;
+
+        int freq =  (18-start_time)/gap ;
+
+
+        vector<string> nodes;
+        nodes.push_back((char) (65 + cur_node) + to_string(cur_time));
+        total_cost = stop_cost[cur_node];
+
+        while (cur_time - start_time < cycle_time) {
+            do {
+                next_node = dis(gen) % num_nodes;
+            } while (cur_node == next_node);
+
+            next_time = cur_time + time_cost[cur_node][next_node];
+            total_cost += stop_cost[next_node];
+            total_cost += arc_cost[cur_node][next_node];
+
+            nodes.push_back((char) (65 + next_node) + to_string(next_time));
+
+            cur_node = next_node;
+            cur_time = next_time;
+        }
+        //back to start node
+        if(cur_node != start_node) {
+            next_node = start_node;
+            next_time = cur_time + time_cost[cur_node][next_node];
+            total_cost += stop_cost[next_node];
+            total_cost += arc_cost[cur_node][next_node];
+            nodes.push_back((char) (65 + next_node) + to_string(next_time));
+        }
+
+        Route route = Route(nodes, total_cost);
+        int weight_ub = (10 + dis(gen) % 11) * 100 ;
+        int volume_ub = (10 + dis(gen) % 11) * 100 ;
+        Flight new_flight = Flight((char) (65 + start_node), gap, freq, cycle_time,weight_ub, volume_ub);
+        routes.push_back(route);
+        for(int f = 1; f< freq; f++){
+            Route next_route = Route(route, gap * f);
+            routes.push_back(next_route);
+        }
+        new_flight.routes = routes;
+        cur_flights.push_back(new_flight);
+
+    }
+
+}
+
+void AirNetwork::print_flights(vector<Flight> flights) {
+    for(const auto &flight : flights) {
+        for(const auto &route : flight.routes){
+            cout << route;
+        }
+    }
+
+}
+
+const vector<Flight> &AirNetwork::getCur_flights() const {
+    return cur_flights;
 }
 
 

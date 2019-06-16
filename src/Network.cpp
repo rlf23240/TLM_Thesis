@@ -23,7 +23,7 @@ ostream &operator<<(ostream &os, const Route &route) {
         for (const string &node : route.nodes) {
             os << node << "->";
         }
-        os << "<\tcost : ";
+        os << "<\t\tcost : ";
         os << route.cost << endl;
     }
     else {
@@ -31,6 +31,17 @@ ostream &operator<<(ostream &os, const Route &route) {
     }
 
     return os;
+}
+
+Route::Route(Route route, int gap) {
+    for(const string &node : route.nodes){
+        char n = node[0];
+        int time = stoi(node.substr(1)) + gap;
+
+        this->nodes.push_back(n + to_string(time));
+        this->cost = route.cost;
+    }
+
 }
 
 /*-----------------------Network class------------------------*/
@@ -68,12 +79,6 @@ void Network::read_node(std::string node_data_path) {
                 }
             }
         }
-//        for(int i = 0; i < 4; i++){
-//            for(int j = 0; j < 4;j++){
-//                cout << arc_cost[i][j] << ' ';
-//            }
-//            cout << endl;
-//        }
     }
     else {
         cout << "Can't read node file !!!" << endl;
@@ -127,13 +132,6 @@ void Network::read_time_cost(std::string time_data_path) {
                 }
             }
         }
-//        cout << endl;
-//        for(int i = 0; i < 4; i++){
-//            for(int j = 0; j < 4;j++){
-//                cout << time_cost[i][j] << '\t';
-//            }
-//            cout << endl;
-//        }
     }
     else {
         cout << "Can't read node file !!!" << endl;
@@ -181,22 +179,23 @@ void Network::add_edges() {
 }
 
 Route Network::DP_shortest_path(char start_node, int start_time, char end_node, int end_time) {
-    Route** dp = new Route*[num_nodes];
-    for(int i = 0; i < num_nodes; i++)
+    Route **dp = new Route *[num_nodes];
+    for (int i = 0; i < num_nodes; i++)
         dp[i] = new Route[TOTAL_TIME_SLOT];
+
 
     int start_node_idx = (int) start_node - 'A';
     int end_node_idx = (int) end_node - 'A';
 
     vector<string> init_node = vector<string>();
-    init_node.push_back(start_node+to_string(start_time));
+    init_node.push_back(start_node + to_string(start_time));
 
     dp[start_node_idx][start_time] = Route(init_node, stop_cost[start_node_idx]);
     forward_update(dp, start_node_idx, start_time);
 
-    for(int t = start_time+1; t < end_time; t++){
-        for(int node = 0; node < num_nodes; node++){
-            if(dp[node][t].nodes.empty() == 0)
+    for (int t = start_time + 1; t < end_time; t++) {
+        for (int node = 0; node < num_nodes; node++) {
+            if (dp[node][t].nodes.empty() == 0)
                 forward_update(dp, node, t);
         }
     }

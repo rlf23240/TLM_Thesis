@@ -2,6 +2,10 @@ import random
 import numpy
 from math import floor
 
+
+sea_time_cost = None
+air_time_cost = None
+
 def data_generator(name = "A", n = 10, num_ships = 20, num_flights = 20, num_cargos = 100):
     random.seed(10)
     sea_data_generator(name, n, num_ships)
@@ -10,33 +14,32 @@ def data_generator(name = "A", n = 10, num_ships = 20, num_flights = 20, num_car
     cargo_data_generator(name, n, num_cargos)
 
 
-
 def sea_data_generator(name, n, num_ships):
     def sea_arc_time_cost():
-        arc_file = open("sea%s_arccost.txt" % name,'w')
-        time_file = open("sea%s_timecost.txt" % name,'w')
+        arc_file = open("%s_sea_arccost.txt" % name,'w')
+        time_file = open("%s_sea_timecost.txt" % name,'w')
         arc_file.write(str(n) + '\n')
         time_file.write(str(n) + '\n')
 
-        arc_cost = [[0 for _ in range(n)] for _ in range(n)]
-        time_cost = [[0 for _ in range(n)] for _ in range(n)]
+        sea_arc_cost = [[0 for _ in range(n)] for _ in range(n)]
+        sea_time_cost = [[0 for _ in range(n)] for _ in range(n)]
 
         for i in range(n) :
-            arc_cost[i][i] = 1000
-            time_cost[i][i] = 1
+            sea_arc_cost[i][i] = 1000
+            sea_time_cost[i][i] = 1
 
         for i in range(n):
             for j in range(i+1,n):
                 cost = random.randint(3,20)
-                arc_cost[i][j] = cost * 10
-                arc_cost[j][i] = cost * 10
-                time_cost[i][j] = cost
-                time_cost[j][i] = cost
+                sea_arc_cost[i][j] = cost * 10
+                sea_arc_cost[j][i] = cost * 10
+                sea_time_cost[i][j] = cost
+                sea_time_cost[j][i] = cost
 
         for i in range(n) :
             for j in range(n) :
-                arc_file.write(str(arc_cost[i][j]))
-                time_file.write(str(time_cost[i][j]))
+                arc_file.write(str(sea_arc_cost[i][j]))
+                time_file.write(str(sea_time_cost[i][j]))
                 if j != n-1 :
                     arc_file.write('\t')
                     time_file.write('\t')
@@ -45,7 +48,7 @@ def sea_data_generator(name, n, num_ships):
         arc_file.close()
         time_file.close()
     def sea_stop_cost() :
-        stop_file = open("sea%s_stopcost.txt" % name,'w')
+        stop_file = open("%s_sea_stopcost.txt" % name,'w')
         stop_cost = [random.randint(15,30) * 10 for _ in range(n)]
         for i in range(n) :
             stop_file.write(str(stop_cost[i]))
@@ -53,7 +56,7 @@ def sea_data_generator(name, n, num_ships):
                 stop_file.write('\t')
         stop_file.close()
     def sea_ships_param(num_ships) :
-        param_file = open("sea%s_ships_param.txt" % name,'w')
+        param_file = open("%s_sea_ships_param.txt" % name,'w')
         param_file.write(str(num_ships) + '\n')
 
         for i in range(num_ships):
@@ -61,7 +64,7 @@ def sea_data_generator(name, n, num_ships):
             starting_time = random.randint(0,20)
             freq = 1
             cycle_time = round(numpy.random.normal(42,5))
-            weight_ub = random.randint(50,100) * 10 #weighte upper bound
+            weight_ub = random.randint(30,50) * 100 #weight upper bound
             param_file.write(node + '\t' + str(starting_time) + '\t' + str(freq) + '\t' + str(cycle_time) + '\t' + str(weight_ub)+ '\n')
         param_file.close()
 
@@ -71,30 +74,30 @@ def sea_data_generator(name, n, num_ships):
 
 def air_data_generator(name, n, num_flights):
     def air_arc_time_cost():
-        arc_file = open("air%s_arccost.txt" % name,'w')
-        time_file = open("air%s_timecost.txt" % name,'w')
+        arc_file = open("%s_air_arccost.txt" % name,'w')
+        time_file = open("%s_air_timecost.txt" % name,'w')
         arc_file.write(str(n) + '\n')
         time_file.write(str(n) + '\n')
 
-        arc_cost = [[0 for _ in range(n)] for _ in range(n)]
-        time_cost = [[0 for _ in range(n)] for _ in range(n)]
+        air_arc_cost = [[0 for _ in range(n)] for _ in range(n)]
+        air_time_cost = [[0 for _ in range(n)] for _ in range(n)]
 
         for i in range(n) :
-            arc_cost[i][i] = 'M'
-            time_cost[i][i] = 'M'
+            air_arc_cost[i][i] = 'M'
+            air_time_cost[i][i] = 'M'
 
         for i in range(n):
             for j in range(i+1,n):
                 cost = random.randint(1,2)
-                arc_cost[i][j] = cost * 80
-                arc_cost[j][i] = cost * 80
-                time_cost[i][j] = cost
-                time_cost[j][i] = cost
+                air_arc_cost[i][j] = cost * 80
+                air_arc_cost[j][i] = cost * 80
+                air_time_cost[i][j] = cost
+                air_time_cost[j][i] = cost
 
         for i in range(n) :
             for j in range(n) :
-                arc_file.write(str(arc_cost[i][j]))
-                time_file.write(str(time_cost[i][j]))
+                arc_file.write(str(air_arc_cost[i][j]))
+                time_file.write(str(air_time_cost[i][j]))
                 if j != n-1 :
                     arc_file.write('\t')
                     time_file.write('\t')
@@ -103,7 +106,7 @@ def air_data_generator(name, n, num_flights):
         arc_file.close()
         time_file.close()
     def air_stop_cost() :
-        stop_file = open("air%s_stopcost.txt" % name,'w')
+        stop_file = open("%s_air_stopcost.txt" % name,'w')
         stop_cost = [random.randint(15,30) * 10 for _ in range(n)]
         for i in range(n) :
             stop_file.write(str(stop_cost[i]))
@@ -111,15 +114,15 @@ def air_data_generator(name, n, num_flights):
                 stop_file.write('\t')
         stop_file.close()
     def air_ships_param(num_flights) :
-        param_file = open("air%s_flights_param.txt" % name,'w')
+        param_file = open("%s_air_flights_param.txt" % name,'w')
         param_file.write(str(num_flights) + '\n')
 
         for i in range(num_flights):
             node = chr(65 + random.randint(0,n-1))
             cycle_time = random.randint(5,8)
-            gap = cycle_time + numpy.random.poisson(0.5) + 1
-            weight_ub = random.randint(15,30)*10
-            volume_ub = random.randint(15,30)*10
+            gap = cycle_time + numpy.random.poisson(0.2) + 1
+            weight_ub = random.randint(10,20)*100
+            volume_ub = random.randint(10,20)*100
             freq = floor(20 / gap)
             param_file.write(node + '\t' + str(gap) + '\t' + str(freq) + '\t' + str(cycle_time)+ '\t' + str(weight_ub)+ '\t' + str(volume_ub) + '\n')
         param_file.close()
@@ -129,7 +132,7 @@ def air_data_generator(name, n, num_flights):
     air_ships_param(num_flights)
 
 def virtual_data_generator(name,n) :
-    virtual_file = open("virtual%s.txt"% name, 'w')
+    virtual_file = open("%s_virtual.txt"% name, 'w')
     for i in range(n) :
         transfer_cost = random.randint(5,15) * 10
         virtual_file.write(str(transfer_cost))
@@ -138,7 +141,7 @@ def virtual_data_generator(name,n) :
     virtual_file.close()
 
 def cargo_data_generator(name, n,num_cargos):
-    cargo_file = open("cargo%s.txt"% name, 'w')
+    cargo_file = open("%s_cargo.txt"% name, 'w')
     cargo_file.write(str(num_cargos) + '\n')
 
     for _ in range(num_cargos) :

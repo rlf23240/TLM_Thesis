@@ -14,6 +14,7 @@ using namespace std;
 
 struct Route{
     Route(const vector<string> &nodes, int cost);
+    Route(Route route, int gap);
     Route();
     friend ostream &operator<<(ostream &os, const Route &route);
     vector<string> nodes;
