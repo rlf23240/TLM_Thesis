@@ -9,7 +9,9 @@ EntireNetwork::EntireNetwork(string data) {
     air_network = AirNetwork("../Data/" + data + "_air");
     cout << "===========SEA===========" << endl;
     sea_network = SeaNetwork("../Data/" + data + "_sea");
-//    read_data(data);
+    read_data(data);
+
+    find_all_paths();
 //    print_all_arcs();
 }
 
@@ -252,6 +254,33 @@ void EntireNetwork::add_current_flights(string data) {
 
     }
 }
+
+void EntireNetwork::find_all_paths() {
+    Point point = Point{3,5,0};
+    Path path = Path();
+    find_paths_from_single_node(path,point);
+}
+
+
+void EntireNetwork::find_paths_from_single_node(Path path, Point point) {
+    Node* cur_node = nodes[point.layer][point.node][point.time];
+
+    if(point.time <= 50){
+        for(auto* out_arc : cur_node->out_arcs){
+            path.push_point(point);
+            Point next_point = Point(out_arc->end_node->getName());
+            if(!(path.points.size() == 1 && next_point.layer == 2))
+                find_paths_from_single_node(path, next_point);
+            cout << path;
+            path.pop_point();
+
+        }
+    }
+
+
+
+}
+
 
 void EntireNetwork::print_all_arcs() {
     for(auto* arc : arcs){

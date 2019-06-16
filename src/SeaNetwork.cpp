@@ -177,6 +177,3 @@ void SeaNetwork::print_ships(vector<Ship> ships) {
 const vector<Ship> &SeaNetwork::getCur_ships() const {
     return cur_ships;
 }
-
-
-

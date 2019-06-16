@@ -9,7 +9,7 @@
 #include "unordered_map"
 #include "vector"
 
-    class Node;
+class Node;
 
 struct Arc{
     Arc(Node *start_node, Node *end_node, int cost);

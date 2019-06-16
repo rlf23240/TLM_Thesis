@@ -120,7 +120,7 @@ void AirNetwork::generate_cur_flights(int n) {
         int gap = (dis(gen) % 10 < 8) ? cycle_time +1 : cycle_time+2;
 
         int start_node = dis(gen) % num_nodes;
-        int start_time = dis(gen) % 8;
+        int start_time = dis(gen) % 5;
         int cur_node = start_node;
         int cur_time = start_time;
         int next_node, next_time;
