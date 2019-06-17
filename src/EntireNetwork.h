@@ -26,7 +26,8 @@ private :
     int* read_stop_cost(string data_path);
     void add_arc(Node* out, Node* in, int cost);
     void find_all_paths();
-    void find_paths_from_single_node(Path path, Point point);
+    void find_paths_from_single_node(Path path, Point point, int*** color);
+    int*** create_3d_array(int x, int y, int z);
 
     void print_all_arcs();
 

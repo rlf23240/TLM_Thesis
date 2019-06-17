@@ -12,7 +12,7 @@ struct Path{
     Path(Path& path) {
         this->points.assign(path.points.begin(), path.points.end());
         this->stay_at_virtual = path.stay_at_virtual;
-        this->stay_at_same_node = path.stay_at_same_node;
+        this->virtual_entry_time = path.virtual_entry_time;
     }
 
     Path() = default;
@@ -33,6 +33,11 @@ struct Path{
         else
             this->stay_at_virtual = 0;
 
+        if(!enter_virtual_twice && (point.layer == 2 && this->points.end()->layer != 2))
+            virtual_entry_time = point.time;
+        else if(virtual_entry_time > -1 && (point.layer == 2 && this->points.end()->layer != 2))
+            enter_virtual_twice = true;
+
         this->points.push_back(point);
     }
 
@@ -40,16 +45,24 @@ struct Path{
         if(this->points.end()->layer == 2)
             this->stay_at_virtual--;
 
+        if(enter_virtual_twice && this->points.end()->layer == 2)
+            enter_virtual_twice = false;
+        else if(!enter_virtual_twice && this->points.end()->time == virtual_entry_time)
+            virtual_entry_time = -1;
 
         this->points.pop_back();
     }
 
     bool is_feasible(){
-        if(this->stay_at_virtual > 5)
+        if(this->stay_at_virtual > 10)
             return false;
-        if(this->size() > 20)
+        if(this->size() > 25)
             return false;
         if(this->size() == 2 && this->points.end()->layer == 2)
+            return false;
+        if(this->points.begin()->layer == 2)
+            return false;
+        if(enter_virtual_twice == true)
             return false;
         return true;
     }
@@ -59,6 +72,7 @@ struct Path{
     }
     std::vector<Point> points{};
     int stay_at_virtual = 0;
-    int stay_at_same_node = 0;
+    int virtual_entry_time = -1;
+    bool enter_virtual_twice = false;
 
 };
