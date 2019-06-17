@@ -33,5 +33,6 @@ struct Path{
     }
 
     std::vector<Point> points{};
+    int stay_at_virtual = 0;
 
 };

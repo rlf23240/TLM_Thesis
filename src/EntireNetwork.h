@@ -26,6 +26,7 @@ private :
     void add_current_ships(string data);
     void add_current_flights(string data);
     int* read_stop_cost(string data_path);
+    void add_arc(Node* out, Node* in, int cost);
     void find_all_paths();
     void find_paths_from_single_node(Path path, Point point);
 

@@ -105,59 +105,6 @@ void EntireNetwork::add_designed_flights(string data) {
 
 }
 
-void EntireNetwork::add_virtual_network(string data) {
-    int layer = 2;
-    nodes[layer] = vector<vector<Node*>>(num_nodes);
-
-    //add nodes
-    int* virtual_node_cost = read_stop_cost("../Data/" + data +"_virtual.txt");
-    for(int i = 0; i < num_nodes; i++){
-        nodes[layer][i] = vector<Node*>(TOTAL_TIME_SLOT);
-        for(int t = 0 ; t < TOTAL_TIME_SLOT; t++){
-            nodes[layer][i][t] = new Node(to_string(layer) + (char) (65 + i) + to_string(t), virtual_node_cost[i]);
-        }
-    }
-
-    //add horizontal arcs
-    for(int i = 0; i < num_nodes; i++){
-        for(int t = 0; t < TOTAL_TIME_SLOT - 1; t++){
-            Arc *arc = new Arc(nodes[layer][i][t], nodes[layer][i][t+1], FIX_COST_OF_VIRTUAL_ARC);
-
-            arcs.push_back(arc);
-            nodes[layer][i][t]->out_arcs.push_back(arc);
-            nodes[layer][i][t+1]->in_arcs.push_back(arc);
-        }
-    }
-
-    //add vertical arcs(only from ship to flight)
-    for(int i = 0; i < num_nodes; i++){
-        for(int t = 0; t < TOTAL_TIME_SLOT-1; t++){
-            //from design ship to virtual
-            Arc *arc = new Arc(nodes[0][i][t], nodes[layer][i][t+1], 0);
-            arcs.push_back(arc);
-            nodes[0][i][t]->out_arcs.push_back(arc);
-            nodes[layer][i][t+1]->in_arcs.push_back(arc);
-            //from virtual to design flight
-            arc = new Arc(nodes[layer][i][t], nodes[1][i][t], 0);
-            arcs.push_back(arc);
-            nodes[layer][i][t]->out_arcs.push_back(arc);
-            nodes[1][i][t]->in_arcs.push_back(arc);
-            //from current ship to virtual
-            arc = new Arc(nodes[3][i][t], nodes[layer][i][t+1], 0);
-            arcs.push_back(arc);
-            nodes[3][i][t]->out_arcs.push_back(arc);
-            nodes[layer][i][t+1]->in_arcs.push_back(arc);
-            //from current flight to virtual
-            arc = new Arc(nodes[layer][i][t], nodes[4][i][t], 0);
-            arcs.push_back(arc);
-            nodes[layer][i][t]->out_arcs.push_back(arc);
-            nodes[4][i][t]->in_arcs.push_back(arc);
-        }
-    }
-
-
-}
-
 int* EntireNetwork::read_stop_cost(const string cost_data_path) {
     fstream file;
     file.open(cost_data_path);
@@ -213,6 +160,72 @@ void EntireNetwork::add_current_ships(string data) {
     }
 }
 
+void EntireNetwork::add_virtual_network(string data) {
+    int layer = 2;
+    nodes[layer] = vector<vector<Node*>>(num_nodes);
+
+    //add nodes
+    int* virtual_node_cost = read_stop_cost("../Data/" + data +"_virtual.txt");
+    for(int i = 0; i < num_nodes; i++){
+        nodes[layer][i] = vector<Node*>(TOTAL_TIME_SLOT);
+        for(int t = 0 ; t < TOTAL_TIME_SLOT; t++){
+            nodes[layer][i][t] = new Node(to_string(layer) + (char) (65 + i) + to_string(t), virtual_node_cost[i]);
+        }
+    }
+
+    //add horizontal arcs
+    for(int i = 0; i < num_nodes; i++){
+        for(int t = 0; t < TOTAL_TIME_SLOT - 1; t++){
+            Arc *arc = new Arc(nodes[layer][i][t], nodes[layer][i][t+1], FIX_COST_OF_VIRTUAL_ARC);
+
+            arcs.push_back(arc);
+            nodes[layer][i][t]->out_arcs.push_back(arc);
+            nodes[layer][i][t+1]->in_arcs.push_back(arc);
+        }
+    }
+    Arc* arc;
+    //add vertical arcs(only from ship to flight)
+    for(int i = 0; i < num_nodes; i++){
+        for(int t = 0; t < TOTAL_TIME_SLOT-1; t++) {
+            //from design ship to virtual
+            if (!nodes[0][i][t]->out_arcs.empty()) {
+                //out arc
+                add_arc(nodes[0][i][t], nodes[layer][i][t+1], 0);
+                //in arc
+                add_arc(nodes[layer][i][t], nodes[0][i][t], 0);
+            }
+            //from virtual to design flight
+            if (!nodes[1][i][t]->out_arcs.empty()) {
+                //out arc
+                add_arc(nodes[1][i][t], nodes[layer][i][t + 1], 0);
+                //in arc
+                add_arc(nodes[layer][i][t], nodes[1][i][t], 0);
+            }
+            //from current ship to virtual
+            if (!nodes[3][i][t]->out_arcs.empty()) {
+                //out arc
+                add_arc(nodes[3][i][t], nodes[layer][i][t+1], 0);
+                //in arc
+                add_arc(nodes[layer][i][t], nodes[3][i][t], 0);
+            }
+            //from current flight to virtual
+            if (!nodes[4][i][t]->out_arcs.empty()) {
+                //out arc
+                add_arc(nodes[4][i][t], nodes[layer][i][t + 1], 0);
+                //in arc
+                add_arc(nodes[layer][i][t], nodes[4][i][t], 0);
+            }
+        }
+    }
+}
+
+void EntireNetwork::add_arc(Node *out, Node *in, int cost) {
+    Arc* arc = new Arc(out, in, cost);
+    arcs.push_back(arc);
+    out->out_arcs.push_back(arc);
+    in->in_arcs.push_back(arc);
+}
+
 void EntireNetwork::add_current_flights(string data) {
     int layer = 4;
     nodes[layer] = vector<vector<Node*>>(num_nodes);
@@ -256,7 +269,7 @@ void EntireNetwork::add_current_flights(string data) {
 }
 
 void EntireNetwork::find_all_paths() {
-    Point point = Point{3,5,0};
+    Point point = Point{3,2,3};
     Path path = Path();
     find_paths_from_single_node(path,point);
 }
@@ -264,12 +277,12 @@ void EntireNetwork::find_all_paths() {
 
 void EntireNetwork::find_paths_from_single_node(Path path, Point point) {
     Node* cur_node = nodes[point.layer][point.node][point.time];
-
-    if(point.time <= 50){
+    if(point.layer == 2) path.stay_at_virtual++;
+    if(point.time <= 60){
         for(auto* out_arc : cur_node->out_arcs){
             path.push_point(point);
             Point next_point = Point(out_arc->end_node->getName());
-            if(!(path.points.size() == 1 && next_point.layer == 2))
+            if(!(path.points.size() == 1 && next_point.layer == 2) && path.stay_at_virtual < 3)
                 find_paths_from_single_node(path, next_point);
             cout << path;
             path.pop_point();
@@ -287,3 +300,5 @@ void EntireNetwork::print_all_arcs() {
         cout << arc->start_node->getName() << "->" << arc->end_node->getName() << endl;
     }
 }
+
+
