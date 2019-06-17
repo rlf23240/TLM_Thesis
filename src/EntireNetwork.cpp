@@ -269,31 +269,30 @@ void EntireNetwork::add_current_flights(string data) {
 }
 
 void EntireNetwork::find_all_paths() {
-    Point point = Point{3,2,3};
+    Point point = Point{3,5,0};
     Path path = Path();
+    path.push_point(point);
     find_paths_from_single_node(path,point);
 }
 
 
 void EntireNetwork::find_paths_from_single_node(Path path, Point point) {
     Node* cur_node = nodes[point.layer][point.node][point.time];
-    if(point.layer == 2) path.stay_at_virtual++;
-    if(point.time <= 60){
+
+    if(path.is_feasible()){
         for(auto* out_arc : cur_node->out_arcs){
-            path.push_point(point);
-            Point next_point = Point(out_arc->end_node->getName());
-            if(!(path.points.size() == 1 && next_point.layer == 2) && path.stay_at_virtual < 3)
-                find_paths_from_single_node(path, next_point);
+            auto next_point = Point(out_arc->end_node->getName());
+            path.push_point(next_point);
+            find_paths_from_single_node(path, next_point);
             cout << path;
             path.pop_point();
-
         }
     }
-
-
+    else{
+        return ;
+    }
 
 }
-
 
 void EntireNetwork::print_all_arcs() {
     for(auto* arc : arcs){

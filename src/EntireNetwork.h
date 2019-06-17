@@ -13,8 +13,6 @@
 
 using namespace std;
 
-
-
 class EntireNetwork {
 public:
     explicit EntireNetwork(string data);
@@ -29,7 +27,6 @@ private :
     void add_arc(Node* out, Node* in, int cost);
     void find_all_paths();
     void find_paths_from_single_node(Path path, Point point);
-
 
     void print_all_arcs();
 

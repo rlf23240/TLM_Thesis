@@ -6,6 +6,6 @@
 //#include "gurobi_c++.h"
 using namespace std;
 int main() {
-    EntireNetwork network = EntireNetwork("B");
+    EntireNetwork network = EntireNetwork("A");
     return 0;
 }
