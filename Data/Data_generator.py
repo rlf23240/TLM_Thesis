@@ -155,5 +155,6 @@ def cargo_data_generator(name, n,num_cargos):
     cargo_file.close()
 
 if __name__ == "__main__" :
-    data_generator(name = "A", n = 10, num_flights= 10, num_ships=10, num_cargos=100)
-    data_generator(name = "B", n = 4, num_flights= 2, num_ships=2, num_cargos=20)
+    # data_generator(name = "A", n = 10, num_flights= 10, num_ships=10, num_cargos=100)
+    # data_generator(name = "B", n = 4, num_flights= 2, num_ships=2, num_cargos=20)
+    data_generator(name = "C", n = 20, num_flights= 15, num_ships=15, num_cargos=200)

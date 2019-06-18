@@ -27,13 +27,15 @@ private :
     void add_arc(Node* out, Node* in, int cost);
     void find_all_paths();
     void find_paths_from_single_node(Path path, Point point, int*** color);
+    void add_path(Path* path);
     int*** create_3d_array(int x, int y, int z);
 
     void print_all_arcs();
 
     AirNetwork air_network;
     SeaNetwork sea_network;
-    vector<Path> all_paths;
+    vector<Path*> all_paths;
+    vector<Path*>** paths_categories;
     unsigned int num_nodes;
     vector<Arc*> arcs;
     vector<vector<Node*>>* nodes = new vector<vector<Node*>>[5]; //total 5 time space network

@@ -11,16 +11,21 @@ EntireNetwork::EntireNetwork(string data) {
     sea_network = SeaNetwork("../Data/" + data + "_sea");
     read_data(data);
 
-//    for(int l = 0; l < 5; l++){
-//        for(int n = 0; n < num_nodes; n++){
-//            for(int t = 0; t < TOTAL_TIME_SLOT; t++){
-//                cout <<l<<" "<<n<<" "<<t <<":" << nodes[l][n][t]->out_arcs.size()<<endl;
-//            }
-//        }
-//    }
-//
+
     find_all_paths();
+
+    cout << all_paths.size() << endl ;
 //    print_all_arcs();
+    for(int i = 0; i < num_nodes; i++){
+        for(int j = 0; j < num_nodes; j++) {
+            cout << paths_categories[i][j].size() << "\t";
+        }
+        cout << endl;
+    }
+
+//    for(auto path : paths_categories[2][3]){
+//        cout << *path;
+//    }
 }
 
 void EntireNetwork::read_data(string data) {
@@ -30,7 +35,6 @@ void EntireNetwork::read_data(string data) {
     add_current_ships(data);
     add_current_flights(data);
     add_virtual_network(data);
-
 }
 
 void EntireNetwork::add_designed_ships(string data) {
@@ -197,6 +201,8 @@ void EntireNetwork::add_virtual_network(string data) {
         for(int t = 0; t < TOTAL_TIME_SLOT-1; t++) {
             //from design ship to virtual
             if (!nodes[0][i][t]->out_arcs.empty()) {
+                //in arc
+                add_arc(nodes[layer][i][t], nodes[0][i][t], 0);
                 //out arc
                 add_arc(nodes[0][i][t], nodes[layer][i][t+1], 0);
             }
@@ -207,6 +213,8 @@ void EntireNetwork::add_virtual_network(string data) {
             }
             //from current ship to virtual
             if (!nodes[3][i][t]->out_arcs.empty()) {
+                //in arc
+                add_arc(nodes[layer][i][t], nodes[3][i][t], 0);
                 //out arc
                 add_arc(nodes[3][i][t], nodes[layer][i][t+1], 0);
             }
@@ -264,36 +272,60 @@ void EntireNetwork::add_current_flights(string data) {
                 }
             }
         }
-
     }
 }
 
 void EntireNetwork::find_all_paths() {
-    Point point = Point{3,5,0};
-    int*** color = create_3d_array(5, num_nodes, 84);
-    Path path = Path();
-    path.push_point(point);
-    find_paths_from_single_node(path, point, color);
+    paths_categories = new vector<Path*>*[num_nodes];
+    for(int i = 0; i < num_nodes; i++)
+        paths_categories[i] = new vector<Path*>[num_nodes];
+
+    for(int l = 0; l < 1; l++) {
+        for (int n = 0; n < num_nodes; n++) {
+            for (int t = 0; t < TOTAL_TIME_SLOT; t++) {
+                Point point = Point{2, n, t};
+                int ***visited = create_3d_array(5, num_nodes, TOTAL_TIME_SLOT);
+                Path path = Path(point);
+                find_paths_from_single_node(path, point, visited);
+            }
+        }
+    }
+
+
 }
 
 
-void EntireNetwork::find_paths_from_single_node(Path path, Point point, int*** color) {
+void EntireNetwork::find_paths_from_single_node(Path path, Point point, int*** visited) {
 
     Node* cur_node = nodes[point.layer][point.node][point.time];
-    color[point.layer][point.node][point.time] = 1;
+    visited[point.layer][point.node][point.time] = 1;
     if(path.is_feasible()){
-        cout << path;
+//        cout << path ;
+        add_path(new Path(path));
         for(auto* out_arc : cur_node->out_arcs){
             auto next_point = Point(out_arc->end_node->getName());
             path.push_point(next_point);
-            if (color[next_point.layer][next_point.node][next_point.time] == 0)
-                find_paths_from_single_node(path, next_point, color);
+            if (visited[next_point.layer][next_point.node][next_point.time] == 0)
+                find_paths_from_single_node(path, next_point, visited);
             path.pop_point();
         }
     }
     else{
         return ;
     }
+}
+
+void EntireNetwork::add_path(Path *path) {
+    Point front = path->points.front();
+    Point back = path->points.back();
+
+    if(front.node == back.node)
+        return;
+
+//    cout << front.node << back.node << endl;
+
+    all_paths.push_back(path);
+    paths_categories[front.node][back.node].push_back(path);
 }
 
 int ***EntireNetwork::create_3d_array(int x, int y, int z) {
@@ -318,7 +350,5 @@ void EntireNetwork::print_all_arcs() {
         cout << arc->start_node->getName() << "->" << arc->end_node->getName() << endl;
     }
 }
-
-
 
 
