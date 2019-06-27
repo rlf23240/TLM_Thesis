@@ -145,13 +145,19 @@ def cargo_data_generator(name, n,num_cargos):
     cargo_file.write(str(num_cargos) + '\n')
 
     for _ in range(num_cargos) :
-        start, end = random.sample([chr(i) for i in range(65, 65+n)], 2)
-        weight = random.randint(1,10) * 100
-        volume = random.randint(1,15)
-        time_sensitivity = random.choice(['H','L'])
-        sensitivity = random.choice(['H','L'])
+        departure, destination = random.sample([chr(i) for i in range(65, 65+n)], 2)
 
-        cargo_file.write("%s\t%s\t%s\t%s\t%s\t%s\n" % (start, end, str(weight), str(volume), time_sensitivity, sensitivity))
+        starting_time = random.randint(1,20)
+        end_time = random.randint(25,60)
+
+        weight = random.randint(50,99) * 10
+        volume = random.randint(10,99) * 10
+
+        time_sensitivity = 'H' if end_time - starting_time <=  20 else 'L'
+        product_value = 'H' if  volume <= 500 else 'L'
+
+        cargo_file.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" %
+                         (departure, destination,str(starting_time), str(end_time), str(weight), str(volume), time_sensitivity, product_value))
     cargo_file.close()
 
 if __name__ == "__main__" :
