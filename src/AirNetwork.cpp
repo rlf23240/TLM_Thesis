@@ -17,14 +17,14 @@ Flight::Flight(char start_node, int gap, int freq, int cycle_time, int weight_ub
         start_node), gap(gap), freq(freq), cycle_time(cycle_time), weight_ub(weight_ub), volume_ub(volume_ub) {}
 
 AirNetwork::AirNetwork() {}
-AirNetwork::AirNetwork(const string data_path) {
+AirNetwork::AirNetwork(const string data_path, int num_cur_flights) {
     read_data(data_path);
     run_algo();
-    generate_cur_flights(flights.size());
+    generate_cur_flights(num_cur_flights);
 
     cout << "----------Designed flights routes----------" << endl;
     print_flights(flights);
-    cout << "-----------Exist flights routes-----------" << endl;
+    cout << "-----------Exist flights routes------------" << endl;
     print_flights(cur_flights);
 
 }
@@ -167,7 +167,6 @@ void AirNetwork::generate_cur_flights(int n) {
         }
         new_flight.routes = routes;
         cur_flights.push_back(new_flight);
-
     }
 
 }
@@ -184,5 +183,6 @@ void AirNetwork::print_flights(vector<Flight> flights) {
 const vector<Flight> &AirNetwork::getCur_flights() const {
     return cur_flights;
 }
+
 
 

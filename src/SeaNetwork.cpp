@@ -13,10 +13,10 @@ Ship::Ship(char start_node, int start_time, int frequency, int cycle_time, int w
                                                                                             cycle_time(cycle_time),
                                                                                             weight_ub(weight_ub) {}
 SeaNetwork::SeaNetwork() {}
-SeaNetwork::SeaNetwork(string data_path) {
+SeaNetwork::SeaNetwork(string data_path, int num_cur_ships) {
     read_data(data_path);
     run_algo();
-    generate_cur_ships(ships.size());
+    generate_cur_ships(num_cur_ships);
     cout << "----------Designed ship routes----------" << endl;
     print_ships(ships);
     cout << "-----------Exist ship routes-----------" << endl;

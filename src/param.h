@@ -12,6 +12,7 @@
 #include <fstream>
 #include <sstream>
 #include <random>
+#include <unordered_set>
 
 #include "Path.cpp"
 

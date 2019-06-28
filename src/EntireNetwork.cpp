@@ -5,36 +5,55 @@
 #include "EntireNetwork.h"
 
 EntireNetwork::EntireNetwork(string data) {
+    read_param_data(data);
+
     cout << "===========AIR===========" << endl;
-    air_network = AirNetwork("../Data/" + data + "_air");
+    air_network = AirNetwork("../Data/" + data + "_air", num_cur_flights);
     cout << "===========SEA===========" << endl;
-    sea_network = SeaNetwork("../Data/" + data + "_sea");
+    sea_network = SeaNetwork("../Data/" + data + "_sea", num_cur_ships);
     read_data(data);
 
 
     find_all_paths();
 
-    cout << all_paths.size() << endl ;
-//    print_all_arcs();
-    for(int i = 0; i < num_nodes; i++){
-        for(int j = 0; j < num_nodes; j++) {
-            cout << paths_categories[i][j].size() << "\t";
-        }
-        cout << endl;
-    }
-
-//    for(auto path : paths_categories[2][3]){
-//        cout << *path;
+//    cout << all_paths.size() << endl ;
+////    print_all_arcs();
+//    for(int i = 0; i < num_nodes; i++){
+//        for(int j = 0; j < num_nodes; j++) {
+//            cout << paths_categories[i][j].size() << "\t";
+//        }
+//        cout << endl;
 //    }
 }
 
+EntireNetwork::EntireNetwork() = default;
+
+
 void EntireNetwork::read_data(string data) {
     // 5 layers of time space network
+//    read_param_data(data);
     add_designed_ships(data);
     add_designed_flights(data);
     add_current_ships(data);
     add_current_flights(data);
     add_virtual_network(data);
+}
+
+void EntireNetwork::read_param_data(string data) {
+
+    fstream file;
+    file.open("../Data/" + data + "_param.txt");
+    string line;
+    getline(file, line);
+    istringstream iss(line);
+    string token;
+
+    getline(iss, token, '\t');
+    num_cur_ships = stoi(token);
+    getline(iss, token, '\t');
+    num_cur_flights = stoi(token);
+    getline(iss, token, '\t');
+
 }
 
 void EntireNetwork::add_designed_ships(string data) {
@@ -350,5 +369,12 @@ void EntireNetwork::print_all_arcs() {
         cout << arc->start_node->getName() << "->" << arc->end_node->getName() << endl;
     }
 }
+
+vector<Path *> **EntireNetwork::getPaths_categories() const {
+    return paths_categories;
+}
+
+
+
 
 

@@ -16,8 +16,12 @@ using namespace std;
 class EntireNetwork {
 public:
     explicit EntireNetwork(string data);
+    EntireNetwork();
+    vector<Path *> **getPaths_categories() const;
+
 private :
     void read_data(string data);
+    void read_param_data(string data);
     void add_designed_ships(string data);
     void add_designed_flights(string data);
     void add_virtual_network(string data);
@@ -36,6 +40,11 @@ private :
     SeaNetwork sea_network;
     vector<Path*> all_paths;
     vector<Path*>** paths_categories;
+    int num_cur_flights;
+    int num_cur_ships;
+
+
+
     unsigned int num_nodes;
     vector<Arc*> arcs;
     vector<vector<Node*>>* nodes = new vector<vector<Node*>>[5]; //total 5 time space network
