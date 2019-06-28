@@ -23,20 +23,19 @@ struct Flight{
 
 class AirNetwork : public Network{
 private:
+    bool is_target;
     vector<Flight> flights;
     vector<Flight> cur_flights;
     void read_flights_param(std::string flights_data);
 
 
 public:
-    explicit AirNetwork(string data_path, int num_cur_flights);
-    explicit AirNetwork(string data_path, int num_cur_flights, int seed);
+    explicit AirNetwork(string data_path, int num_cur_flights, bool is_target);
     AirNetwork();
     void read_data(std::string data_path) override;
     void run_algo() override;
-    void print_flights(vector<Flight> flights);
+    void print_flights(vector<Flight> flights, bool is_designed, bool is_target);
     void generate_cur_flights(int n);
-    void clear_flights();
 
     const vector<Flight> &getFlights() const;
     const vector<Flight> &getCur_flights() const;

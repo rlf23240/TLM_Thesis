@@ -12,7 +12,7 @@ def data_generator(name = "A", n = 10, num_ships = 20, num_flights = 20, num_car
     air_data_generator(name, n, 1)
     virtual_data_generator(name, n)
     cargo_data_generator(name, n, num_cargos)
-    param(name, num_ships, num_flights, total_time_slot)
+    param(name, n, num_ships, num_flights, total_time_slot)
 
 
 
@@ -162,9 +162,9 @@ def cargo_data_generator(name, n,num_cargos):
                          (departure, destination,str(starting_time), str(end_time), str(weight), str(volume), time_sensitivity, product_value))
     cargo_file.close()
 
-def param(name, num_ships, num_flights, total_time_slot) :
+def param(name, n, num_ships, num_flights, total_time_slot) :
     param_file = open("%s_param.txt"% name, 'w')
-    param_file.write("%s\t%s\t%s" %(num_ships, num_flights, total_time_slot))
+    param_file.write("%s\t%s\t%s\t%s" %(n,num_ships, num_flights, total_time_slot))
     param_file.close()
 
 

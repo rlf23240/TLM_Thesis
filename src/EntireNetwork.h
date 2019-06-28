@@ -15,8 +15,7 @@ using namespace std;
 
 class EntireNetwork {
 public:
-    explicit EntireNetwork(string data);
-    explicit EntireNetwork(string data, int seed);
+    explicit EntireNetwork(string data, bool is_target);
     EntireNetwork();
     vector<Path *> **getPaths_categories() const;
 
@@ -43,6 +42,7 @@ private :
     vector<Path*>** paths_categories;
     int num_cur_flights;
     int num_cur_ships;
+    bool is_target;
 
     unsigned int num_nodes;
     vector<Arc*> arcs;

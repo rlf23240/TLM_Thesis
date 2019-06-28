@@ -13,22 +13,22 @@ Ship::Ship(char start_node, int start_time, int frequency, int cycle_time, int w
                                                                                             cycle_time(cycle_time),
                                                                                             weight_ub(weight_ub) {}
 SeaNetwork::SeaNetwork() {}
-SeaNetwork::SeaNetwork(string data_path, int num_cur_ships) {
+SeaNetwork::SeaNetwork(string data_path, int num_cur_ships, bool is_target) {
+    this->is_target = is_target;
     read_data(data_path);
-    run_algo();
+    if(is_target)
+        run_algo();
+    if(!is_target)
+        ships.clear();
     generate_cur_ships(num_cur_ships);
-    cout << "----------Target Designed ship routes----------" << endl;
-    print_ships(ships);
-    cout << "-----------Target Exist ship routes-----------" << endl;
-    print_ships(cur_ships);
+
+    print_ships(ships,true,is_target);
+    print_ships(cur_ships,false,is_target);
+
+
 }
 
-SeaNetwork::SeaNetwork(string data_path, int num_cur_ships, int seed) {
-    read_data(data_path);
-    generate_cur_ships(num_cur_ships);
-    cout << "-----------Rival Exist ship routes-----------" << endl;
-    print_ships(cur_ships);
-}
+
 
 void SeaNetwork::read_data(std::string data_path) {
     Network::read_node(data_path + "_arccost.txt");
@@ -129,7 +129,7 @@ const vector<Ship> &SeaNetwork::getShips() const {
 
 void SeaNetwork::generate_cur_ships(int n) {
     random_device rd;
-    mt19937 gen = mt19937(rd());
+    mt19937 gen = is_target? mt19937(rd()) : mt19937(0);
     uniform_int_distribution<int> dis(0, INT_MAX);
 
     for (int i = 0; i < n; i++) {
@@ -173,11 +173,22 @@ void SeaNetwork::generate_cur_ships(int n) {
     }
 }
 
-void SeaNetwork::clear_ships() {
-    ships.clear();
-}
+void SeaNetwork::print_ships(vector<Ship> ships, bool is_designed, bool is_target) {
 
-void SeaNetwork::print_ships(vector<Ship> ships) {
+    cout << "---------------";
+    if(is_target){
+        cout << "Target ";
+    }
+    else {
+        cout << "Rival ";
+    }
+
+    if (is_designed){
+        cout << "Designed ships routes-----------" <<endl;
+    }
+    else{
+        cout << "Exist ships routes-----------" << endl;
+    }
     for(const auto& ship : ships){
         cout << ship.route;
     }

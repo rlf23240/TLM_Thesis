@@ -17,24 +17,23 @@ Flight::Flight(char start_node, int gap, int freq, int cycle_time, int weight_ub
         start_node), gap(gap), freq(freq), cycle_time(cycle_time), weight_ub(weight_ub), volume_ub(volume_ub) {}
 
 AirNetwork::AirNetwork() {}
-AirNetwork::AirNetwork(const string data_path, int num_cur_flights) {
+AirNetwork::AirNetwork(const string data_path, int num_cur_flights, bool is_target) {
+    this->is_target = is_target;
     read_data(data_path);
-    run_algo();
+    if(is_target)
+        run_algo();
+    if(!is_target)
+        flights.clear();
+
     generate_cur_flights(num_cur_flights);
 
-    cout << "----------Target Designed flights routes----------" << endl;
-    print_flights(flights);
-    cout << "-----------Target  Exist flights routes------------" << endl;
-    print_flights(cur_flights);
+
+    print_flights(flights, true, is_target);
+    print_flights(cur_flights, false, is_target);
+
+
 }
 
-AirNetwork::AirNetwork(string data_path, int num_cur_flights, int seed) {
-    read_data(data_path);
-    generate_cur_flights(num_cur_flights);
-
-    cout << "-----------Rival Exist flights routes------------" << endl;
-    print_flights(cur_flights);
-}
 
 void AirNetwork::read_data(std::string data_path) {
     Network::read_data(data_path);
@@ -116,7 +115,7 @@ const vector<Flight> &AirNetwork::getFlights() const {
 
 void AirNetwork::generate_cur_flights(int n) {
     random_device rd;
-    mt19937 gen = mt19937(rd());
+    mt19937 gen = is_target? mt19937(rd()) : mt19937(0);
     uniform_int_distribution<int> dis(0, INT_MAX);
 
 
@@ -177,11 +176,22 @@ void AirNetwork::generate_cur_flights(int n) {
 
 }
 
-void AirNetwork::clear_flights() {
-    flights.clear();
-}
+void AirNetwork::print_flights(vector<Flight> flights, bool is_designed, bool is_target) {
+    cout << "---------------";
+    if(is_target){
+        cout << "Target ";
+    }
+    else {
+        cout << "Rival ";
+    }
 
-void AirNetwork::print_flights(vector<Flight> flights) {
+    if (is_designed){
+        cout << "Designed flights routes-----------" <<endl;
+    }
+    else{
+        cout << "Exist flights routes-----------" << endl;
+    }
+
     for(const auto &flight : flights) {
         for(const auto &route : flight.routes){
             cout << route;

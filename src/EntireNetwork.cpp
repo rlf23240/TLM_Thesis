@@ -4,42 +4,18 @@
 
 #include "EntireNetwork.h"
 
-EntireNetwork::EntireNetwork(string data) {
+EntireNetwork::EntireNetwork(string data, bool is_target) {
     read_param_data(data);
-
+    this->is_target = is_target;
     cout << "===========AIR===========" << endl;
-    air_network = AirNetwork("../Data/" + data + "_air", num_cur_flights);
+    air_network = AirNetwork("../Data/" + data + "_air", num_cur_flights, is_target);
     cout << "===========SEA===========" << endl;
-    sea_network = SeaNetwork("../Data/" + data + "_sea", num_cur_ships);
-    create_networks(data);
-
-
-    find_all_paths();
-
-//    cout << all_paths.size() << endl ;
-////    print_all_arcs();
-//    for(int i = 0; i < num_nodes; i++){
-//        for(int j = 0; j < num_nodes; j++) {
-//            cout << paths_categories[i][j].size() << "\t";
-//        }
-//        cout << endl;
-//    }
-}
-
-EntireNetwork::EntireNetwork(string data, int seed) {
-    read_param_data(data);
-
-    cout << "===========AIR===========" << endl;
-    air_network = AirNetwork("../Data/" + data + "_air", num_cur_flights, seed);
-    cout << "===========SEA===========" << endl;
-    sea_network = SeaNetwork("../Data/" + data + "_sea", num_cur_ships, seed);
-
-    air_network.clear_flights();
-    sea_network.clear_ships();
+    sea_network = SeaNetwork("../Data/" + data + "_sea", num_cur_ships, is_target);
 
     create_networks(data);
 
     find_all_paths();
+
 }
 
 EntireNetwork::EntireNetwork() = default;
@@ -48,7 +24,6 @@ EntireNetwork::EntireNetwork() = default;
 void EntireNetwork::create_networks(string data) {
     // 5 layers of time space network
 //    read_param_data(data);
-    cout << air_network.getFlights().empty() << sea_network.getShips().empty() << endl;
     if (!air_network.getFlights().empty() && !sea_network.getShips().empty()) {
         add_designed_ships();
         add_designed_flights();
@@ -57,8 +32,6 @@ void EntireNetwork::create_networks(string data) {
     add_current_ships();
     add_current_flights();
     add_virtual_network(data);
-
-
 }
 
 void EntireNetwork::read_param_data(string data) {
@@ -71,6 +44,8 @@ void EntireNetwork::read_param_data(string data) {
     string token;
 
     getline(iss, token, '\t');
+    num_nodes = stoi(token);
+    getline(iss, token, '\t');
     num_cur_ships = stoi(token);
     getline(iss, token, '\t');
     num_cur_flights = stoi(token);
@@ -79,7 +54,6 @@ void EntireNetwork::read_param_data(string data) {
 }
 
 void EntireNetwork::add_designed_ships() {
-    num_nodes = sea_network.getNum_nodes();
     int layer = 0;
     nodes[layer] = vector<vector<Node*>>(num_nodes); //first time space network layer
 
@@ -241,16 +215,18 @@ void EntireNetwork::add_virtual_network(string data) {
     for(int i = 0; i < num_nodes; i++){
         for(int t = 0; t < TOTAL_TIME_SLOT-1; t++) {
             //from design ship to virtual
-            if (!nodes[0][i][t]->out_arcs.empty()) {
-                //in arc
-                add_arc(nodes[layer][i][t], nodes[0][i][t], 0);
-                //out arc
-                add_arc(nodes[0][i][t], nodes[layer][i][t+1], 0);
-            }
-            //from virtual to design flight
-            if (!nodes[1][i][t]->out_arcs.empty()) {
-                //in arc
-                add_arc(nodes[layer][i][t], nodes[1][i][t], 0);
+            if(this->is_target) {
+                if (!nodes[0][i][t]->out_arcs.empty()) {
+                    //in arc
+                    add_arc(nodes[layer][i][t], nodes[0][i][t], 0);
+                    //out arc
+                    add_arc(nodes[0][i][t], nodes[layer][i][t + 1], 0);
+                }
+                //from virtual to design flight
+                if (!nodes[1][i][t]->out_arcs.empty()) {
+                    //in arc
+                    add_arc(nodes[layer][i][t], nodes[1][i][t], 0);
+                }
             }
             //from current ship to virtual
             if (!nodes[3][i][t]->out_arcs.empty()) {

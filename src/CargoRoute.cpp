@@ -21,17 +21,11 @@ struct pair_hash
 
 CargoRoute::CargoRoute(string data) {
     read_cargo_file(data);
-    target_networks = EntireNetwork(data);
+    target_networks = EntireNetwork(data, true);
     get_available_path(target_networks, target_paths);
 
-    rival_networks = EntireNetwork(data, 2);
+    rival_networks = EntireNetwork(data, false);
     get_available_path(rival_networks, rival_paths);
-
-
-//    for(auto cargo : cargos){
-//        cout << *cargo ;
-//    }
-//    run_model();
 }
 
 void CargoRoute::read_cargo_file(string data) {
@@ -123,6 +117,6 @@ void CargoRoute::get_available_path(EntireNetwork networks, vector<Path*>& paths
         }
         used_OD.insert(OD);
     }
-//    cout << paths.size() << endl;
+    cout << paths.size() << endl;
 //    cout << target_paths.size() << endl;
 }
