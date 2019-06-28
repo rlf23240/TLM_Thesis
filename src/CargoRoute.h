@@ -16,11 +16,13 @@ public:
 
 private:
     vector<Cargo*> cargos;
-    vector<Path*> paths;
-    EntireNetwork networks;
+    vector<Path*> target_paths;
+    vector<Path*> rival_paths;
+    EntireNetwork target_networks;
+    EntireNetwork rival_networks;
     void read_cargo_file(string data);
     void run_model();
-    void get_available_path();
+    void get_available_path(EntireNetwork networks, vector<Path*>& paths);
 };
 
 

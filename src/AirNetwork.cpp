@@ -22,11 +22,18 @@ AirNetwork::AirNetwork(const string data_path, int num_cur_flights) {
     run_algo();
     generate_cur_flights(num_cur_flights);
 
-    cout << "----------Designed flights routes----------" << endl;
+    cout << "----------Target Designed flights routes----------" << endl;
     print_flights(flights);
-    cout << "-----------Exist flights routes------------" << endl;
+    cout << "-----------Target  Exist flights routes------------" << endl;
     print_flights(cur_flights);
+}
 
+AirNetwork::AirNetwork(string data_path, int num_cur_flights, int seed) {
+    read_data(data_path);
+    generate_cur_flights(num_cur_flights);
+
+    cout << "-----------Rival Exist flights routes------------" << endl;
+    print_flights(cur_flights);
 }
 
 void AirNetwork::read_data(std::string data_path) {
@@ -113,7 +120,6 @@ void AirNetwork::generate_cur_flights(int n) {
     uniform_int_distribution<int> dis(0, INT_MAX);
 
 
-
     for (int i = 0; i < n; i++) {
         vector<Route> routes;
         int cycle_time = 5 + dis(gen) % 3;
@@ -171,6 +177,10 @@ void AirNetwork::generate_cur_flights(int n) {
 
 }
 
+void AirNetwork::clear_flights() {
+    flights.clear();
+}
+
 void AirNetwork::print_flights(vector<Flight> flights) {
     for(const auto &flight : flights) {
         for(const auto &route : flight.routes){
@@ -183,6 +193,9 @@ void AirNetwork::print_flights(vector<Flight> flights) {
 const vector<Flight> &AirNetwork::getCur_flights() const {
     return cur_flights;
 }
+
+
+
 
 
 

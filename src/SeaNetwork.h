@@ -29,12 +29,14 @@ private:
 
 public:
     explicit SeaNetwork(string data_path, int num_cur_ships);
+    explicit SeaNetwork(string data_path, int num_cur_ships, int seed);
     SeaNetwork();
     void read_data(string data_path) override;
     void run_algo() override;
     void forward_update(Route **dp, int node, int time) override;
     void generate_cur_ships(int n);
     void print_ships(vector<Ship> ships);
+    void clear_ships();
 
     const vector<Ship> &getShips() const;
     const vector<Ship> &getCur_ships() const;

@@ -17,11 +17,17 @@ SeaNetwork::SeaNetwork(string data_path, int num_cur_ships) {
     read_data(data_path);
     run_algo();
     generate_cur_ships(num_cur_ships);
-    cout << "----------Designed ship routes----------" << endl;
+    cout << "----------Target Designed ship routes----------" << endl;
     print_ships(ships);
-    cout << "-----------Exist ship routes-----------" << endl;
+    cout << "-----------Target Exist ship routes-----------" << endl;
     print_ships(cur_ships);
+}
 
+SeaNetwork::SeaNetwork(string data_path, int num_cur_ships, int seed) {
+    read_data(data_path);
+    generate_cur_ships(num_cur_ships);
+    cout << "-----------Rival Exist ship routes-----------" << endl;
+    print_ships(cur_ships);
 }
 
 void SeaNetwork::read_data(std::string data_path) {
@@ -167,6 +173,10 @@ void SeaNetwork::generate_cur_ships(int n) {
     }
 }
 
+void SeaNetwork::clear_ships() {
+    ships.clear();
+}
+
 void SeaNetwork::print_ships(vector<Ship> ships) {
     for(const auto& ship : ships){
         cout << ship.route;
@@ -177,3 +187,7 @@ void SeaNetwork::print_ships(vector<Ship> ships) {
 const vector<Ship> &SeaNetwork::getCur_ships() const {
     return cur_ships;
 }
+
+
+
+

@@ -30,14 +30,18 @@ private:
 
 public:
     explicit AirNetwork(string data_path, int num_cur_flights);
+    explicit AirNetwork(string data_path, int num_cur_flights, int seed);
     AirNetwork();
     void read_data(std::string data_path) override;
     void run_algo() override;
     void print_flights(vector<Flight> flights);
     void generate_cur_flights(int n);
+    void clear_flights();
 
     const vector<Flight> &getFlights() const;
     const vector<Flight> &getCur_flights() const;
+
+
 };
 
 #endif //TLM_THESIS_AIRNETWORK_H

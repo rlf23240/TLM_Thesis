@@ -20,13 +20,18 @@ struct pair_hash
 
 
 CargoRoute::CargoRoute(string data) {
-    networks = EntireNetwork(data);
     read_cargo_file(data);
-    get_available_path();
+    target_networks = EntireNetwork(data);
+    get_available_path(target_networks, target_paths);
+
+    rival_networks = EntireNetwork(data, 2);
+    get_available_path(rival_networks, rival_paths);
+
+
 //    for(auto cargo : cargos){
 //        cout << *cargo ;
 //    }
-    run_model();
+//    run_model();
 }
 
 void CargoRoute::read_cargo_file(string data) {
@@ -93,8 +98,6 @@ void CargoRoute::run_model() {
         GRBEnv env = GRBEnv();
         GRBModel model = GRBModel(env);
 
-
-
         unsigned int num_cargo = cargos.size();
 
 
@@ -106,14 +109,14 @@ void CargoRoute::run_model() {
     }
 }
 
-void CargoRoute::get_available_path() {
+void CargoRoute::get_available_path(EntireNetwork networks, vector<Path*>& paths) {
     vector<Path*>** path_categories = networks.getPaths_categories();
     unordered_set<pair<char, char>, pair_hash> used_OD;
 
     for(auto cargo : cargos){
         pair<char, char> OD(cargo->departure, cargo->destination);
 
-        if(used_OD.find(OD) != used_OD.end()){ //OD in the set
+        if(used_OD.find(OD) != used_OD.end()){ //OD not in the set
             vector<Path*>  od_available_path = path_categories[(int) cargo->departure - 65][(int) cargo->destination - 65];
 //            cout << od_available_path.size() << endl;
             paths.insert(paths.end(), od_available_path.begin(), od_available_path.end()); //append available path to paths
@@ -121,4 +124,5 @@ void CargoRoute::get_available_path() {
         used_OD.insert(OD);
     }
 //    cout << paths.size() << endl;
+//    cout << target_paths.size() << endl;
 }
