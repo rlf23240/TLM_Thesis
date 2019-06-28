@@ -14,10 +14,10 @@ add_executable(TLM_Thesis main.cpp src/Network.cpp src/Network.h src/Node.cpp sr
 #target_link_libraries(Test gtest gtest_main)
 
 #-------set gurobi environment-------------#
-#include(./Cmake/FindGurobi.cmake)
-#if (GUROBI_FOUND)
-#    target_compile_definitions(TLM_Thesis PUBLIC HAS_GUROBI)
-#
-#    target_include_directories(TLM_Thesis PRIVATE ${GUROBI_INCLUDE_DIRS})
-#    target_link_libraries(TLM_Thesis ${GUROBI_LIBRARIES})
-#endif()
+include(./Cmake/FindGurobi.cmake)
+if (GUROBI_FOUND)
+    target_compile_definitions(TLM_Thesis PUBLIC HAS_GUROBI)
+
+    target_include_directories(TLM_Thesis PRIVATE ${GUROBI_INCLUDE_DIRS})
+    target_link_libraries(TLM_Thesis ${GUROBI_LIBRARIES})
+endif()

@@ -1,11 +1,11 @@
 #include <iostream>
 
-#include "src/AirNetwork.h"
-#include "src/SeaNetwork.h"
 #include "src/EntireNetwork.h"
-//#include "gurobi_c++.h"
+#include "src/CargoRoute.h"
+
 using namespace std;
 int main() {
-    EntireNetwork network = EntireNetwork("C");
+//    EntireNetwork network = EntireNetwork("C");
+    CargoRoute cargo_route = CargoRoute("A");
     return 0;
 }

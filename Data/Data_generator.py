@@ -6,12 +6,14 @@ from math import floor
 sea_time_cost = None
 air_time_cost = None
 
-def data_generator(name = "A", n = 10, num_ships = 20, num_flights = 20, num_cargos = 100):
+def data_generator(name = "A", n = 10, num_ships = 20, num_flights = 20, num_cargos = 100, total_time_slot = 84):
     random.seed(10)
-    sea_data_generator(name, n, num_ships)
-    air_data_generator(name, n, num_flights)
+    sea_data_generator(name, n, 1)
+    air_data_generator(name, n, 1)
     virtual_data_generator(name, n)
     cargo_data_generator(name, n, num_cargos)
+    param(name, num_ships, num_flights, total_time_slot)
+
 
 
 def sea_data_generator(name, n, num_ships):
@@ -160,7 +162,13 @@ def cargo_data_generator(name, n,num_cargos):
                          (departure, destination,str(starting_time), str(end_time), str(weight), str(volume), time_sensitivity, product_value))
     cargo_file.close()
 
+def param(name, num_ships, num_flights, total_time_slot) :
+    param_file = open("%s_param.txt"% name, 'w')
+    param_file.write("%s\t%s\t%s" %(num_ships, num_flights, total_time_slot))
+    param_file.close()
+
+
 if __name__ == "__main__" :
-    # data_generator(name = "A", n = 10, num_flights= 10, num_ships=10, num_cargos=100)
-    # data_generator(name = "B", n = 4, num_flights= 2, num_ships=2, num_cargos=20)
+    data_generator(name = "A", n = 10, num_flights= 10, num_ships=10, num_cargos=100)
+    data_generator(name = "B", n = 4, num_flights= 2, num_ships=2, num_cargos=20)
     data_generator(name = "C", n = 20, num_flights= 15, num_ships=15, num_cargos=200)
