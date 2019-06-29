@@ -16,6 +16,18 @@ EntireNetwork::EntireNetwork(string data, bool is_target) {
 
     find_all_paths();
 
+//    for(int i = 0; i < num_nodes; i++){
+//        for(int j = 0; j < num_nodes; j++) {
+//            cout << paths_categories[i][j].size() << "\t";
+//        }
+//        cout << endl;
+//    }
+//
+//    cout << all_paths.size() << endl;
+//    for(auto path : all_paths){
+//        cout << *path ;
+//    }
+
 }
 
 EntireNetwork::EntireNetwork() = default;
@@ -370,6 +382,10 @@ void EntireNetwork::print_all_arcs() {
 
 vector<Path *> **EntireNetwork::getPaths_categories() const {
     return paths_categories;
+}
+
+unsigned int EntireNetwork::getNumNodes() const {
+    return num_nodes;
 }
 
 

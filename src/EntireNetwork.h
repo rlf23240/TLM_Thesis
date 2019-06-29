@@ -18,6 +18,7 @@ public:
     explicit EntireNetwork(string data, bool is_target);
     EntireNetwork();
     vector<Path *> **getPaths_categories() const;
+    unsigned int getNumNodes() const;
 
 private :
     void create_networks(string data);

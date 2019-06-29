@@ -129,7 +129,7 @@ const vector<Ship> &SeaNetwork::getShips() const {
 
 void SeaNetwork::generate_cur_ships(int n) {
     random_device rd;
-    mt19937 gen = is_target? mt19937(rd()) : mt19937(0);
+    mt19937 gen = is_target? mt19937(0) : mt19937(rd());
     uniform_int_distribution<int> dis(0, INT_MAX);
 
     for (int i = 0; i < n; i++) {
@@ -187,7 +187,7 @@ void SeaNetwork::print_ships(vector<Ship> ships, bool is_designed, bool is_targe
         cout << "Designed ships routes-----------" <<endl;
     }
     else{
-        cout << "Exist ships routes-----------" << endl;
+        cout << "Exist ships routes--------------" << endl;
     }
     for(const auto& ship : ships){
         cout << ship.route;

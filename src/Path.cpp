@@ -21,6 +21,11 @@ struct Path{
 
     Path() = default;
 
+
+    void setIndex(int index) {
+        Path::index = index;
+    }
+
     friend std::ostream &operator<<(std::ostream &os, const Path &path) {
         os << "Path :\t:" ;
         for(auto point : path.points){
@@ -78,4 +83,5 @@ struct Path{
     int stay_at_virtual = 0;
     int virtual_entry_time = -1;
     bool enter_virtual_twice = false;
+    int index;
 };

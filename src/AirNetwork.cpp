@@ -115,7 +115,7 @@ const vector<Flight> &AirNetwork::getFlights() const {
 
 void AirNetwork::generate_cur_flights(int n) {
     random_device rd;
-    mt19937 gen = is_target? mt19937(rd()) : mt19937(0);
+    mt19937 gen = is_target? mt19937(2) : mt19937(0);
     uniform_int_distribution<int> dis(0, INT_MAX);
 
 
@@ -189,7 +189,7 @@ void AirNetwork::print_flights(vector<Flight> flights, bool is_designed, bool is
         cout << "Designed flights routes-----------" <<endl;
     }
     else{
-        cout << "Exist flights routes-----------" << endl;
+        cout << "Exist flights routes-------------" << endl;
     }
 
     for(const auto &flight : flights) {
