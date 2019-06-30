@@ -90,6 +90,12 @@ void CargoRoute::read_cargo_file(string data) {
             getline(iss, token, '\t');
             char product_value = token[0];
 
+            getline(iss, token, '\t');
+            float alpha = stof(token);
+
+            getline(iss, token, '\t');
+            float beta = stof(token);
+
             cargo_type type;
             if(time_sensitivity == 'H' && product_value == 'H') {
                 type = only_air;
@@ -103,6 +109,8 @@ void CargoRoute::read_cargo_file(string data) {
             }
 
             auto * new_cargo = new Cargo(departure, destination, starting_time, end_time, volume, weight, type);
+            new_cargo->setAlpha(alpha);
+            new_cargo->setBeta(beta);
             cargos.push_back(new_cargo);
         }
     }
@@ -202,6 +210,9 @@ void CargoRoute::run_model() {
         cout << "Number of target paths : " << num_target_paths << endl;
         cout << "Number of rival paths : " << num_rival_paths << endl;
 
+        cal_target_v();
+        cal_rival_v();
+
         /*Set variables*/
         //set u
         GRBVar** u = new GRBVar*[cargos.size()];
@@ -230,6 +241,59 @@ void CargoRoute::run_model() {
     } catch(...) {
         cout << "Exception during optimization" << endl;
     }
+}
+
+void CargoRoute::cal_target_v() {
+    v = new double*[cargos.size()];
+    for(int k = 0; k < cargos.size(); k++){
+        v[k] = new double[target_cargo_available_paths[k].size()];
+    }
+
+    for(int k = 0; k < cargos.size(); k++){
+        for(int p = 0; p < target_cargo_available_paths[k].size(); p++){
+            cal_path_cost(target_networks, target_cargo_available_paths[k][p]);
+            v[k][p] = cargos[k]->alpha * target_cargo_available_paths[k][p]->cost +
+                      cargos[k]->beta * target_cargo_available_paths[k][p]->last_time;
+//            cout << v[k][p] << " " << cargos[k]->alpha << " " << cargos[k]->beta << endl;
+        }
+    }
+
+}
+
+void CargoRoute::cal_rival_v() {
+    v_ = new double*[cargos.size()];
+    for(int k = 0; k < cargos.size(); k++){
+        v_[k] = new double[rival_cargo_available_paths[k].size()];
+    }
+
+    for(int k = 0; k < cargos.size(); k++){
+        for(int n = 0; n < rival_cargo_available_paths[k].size(); n++){
+            cal_path_cost(rival_networks, rival_cargo_available_paths[k][n]);
+            v_[k][n] = cargos[k]->alpha * rival_cargo_available_paths[k][n]->cost +
+                      cargos[k]->beta * rival_cargo_available_paths[k][n]->last_time;
+        }
+    }
+}
+
+void CargoRoute::cal_path_cost(EntireNetwork& network, Path *path) {
+
+    Node* pre_node = nullptr;
+    Node* cur_node;
+    int cost = 0;
+    for(const auto &point : path->points){
+        cur_node = network.getNode(point.layer, point.node, point.time);
+        cost += cur_node->getCost();
+        for(const auto &arc : cur_node->in_arcs){
+            if(arc->end_node == pre_node){
+                cost += arc->cost;
+            }
+        }
+        pre_node = cur_node;
+    }
+    path->cost = cost;
+    path->last_time = path->points.back().time - path->points.front().time;
+//    cout << *path;
+//    cout << path->cost << " " << path->last_time << endl;
 }
 
 void CargoRoute::set_constr1(GRBModel &model, GRBVar** z, GRBVar** z_) {
@@ -272,6 +336,10 @@ void CargoRoute::set_constr6(GRBModel &model) {
 void CargoRoute::set_constr7(GRBModel &model) {
 
 }
+
+
+
+
 
 
 

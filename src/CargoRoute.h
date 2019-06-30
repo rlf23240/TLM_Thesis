@@ -16,6 +16,7 @@ public:
 
 private:
     unsigned int num_nodes;
+    double **v, **v_;
     vector<Cargo*> cargos;
     vector<Path*> target_paths;
     vector<Path*> rival_paths;
@@ -29,12 +30,17 @@ private:
     vector<Path*>* target_cargo_available_paths;
     vector<Path*>* rival_cargo_available_paths;
 
+
     void read_cargo_file(string data);
     void get_available_path(vector<Path*>** path_categories, vector<Path*>& paths);
     void combine_paths(vector<Path*> target_paths, vector<Path*> rival_paths);
     void combine_path_categories(vector<Path*>** target_path_categories, vector<Path*>** rival_path_categories);
     void find_cargo_available_paths();
     void run_model();
+
+    void cal_target_v();
+    void cal_rival_v();
+    void cal_path_cost(EntireNetwork& network, Path* path);
 
     void set_constr1(GRBModel& model, GRBVar** z, GRBVar** z_);
     void set_constr2(GRBModel& model, GRBVar** z, GRBVar** u);

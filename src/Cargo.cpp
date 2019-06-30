@@ -17,11 +17,21 @@ struct Cargo{
         return os;
     }
 
+    void setAlpha(double alpha) {
+        Cargo::alpha = alpha;
+    }
+
+    void setBeta(double beta) {
+        Cargo::beta = beta;
+    }
+
     char departure;
     char destination;
     int start_time;
     int arrive_time;
     int volume;
     int weight;
+    float alpha;
+    float beta;
     cargo_type type;
 };

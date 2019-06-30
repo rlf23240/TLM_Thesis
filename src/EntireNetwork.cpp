@@ -388,4 +388,8 @@ unsigned int EntireNetwork::getNumNodes() const {
     return num_nodes;
 }
 
+Node *EntireNetwork::getNode(int layer, int node, int time) {
+    return nodes[layer][node][time];
+}
+
 

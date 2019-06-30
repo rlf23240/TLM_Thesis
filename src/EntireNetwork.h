@@ -19,6 +19,7 @@ public:
     EntireNetwork();
     vector<Path *> **getPaths_categories() const;
     unsigned int getNumNodes() const;
+    Node* getNode(int layer, int node, int time);
 
 private :
     void create_networks(string data);
