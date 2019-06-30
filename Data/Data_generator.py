@@ -158,8 +158,11 @@ def cargo_data_generator(name, n,num_cargos):
         time_sensitivity = 'H' if end_time - starting_time <=  20 else 'L'
         product_value = 'H' if  volume <= 500 else 'L'
 
-        cargo_file.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" %
-                         (departure, destination,str(starting_time), str(end_time), str(weight), str(volume), time_sensitivity, product_value))
+        alpha = random.uniform(0.1,1)
+        beta = random.uniform(0.1,1)
+
+        cargo_file.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" %
+                         (departure, destination,str(starting_time), str(end_time), str(weight), str(volume), time_sensitivity, product_value, str(alpha), str(beta)))
     cargo_file.close()
 
 def param(name, n, num_ships, num_flights, total_time_slot) :

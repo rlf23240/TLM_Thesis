@@ -153,6 +153,8 @@ void CargoRoute::combine_path_categories(vector<Path *> **target_path_categories
 
 void CargoRoute::find_cargo_available_paths() {
     cargo_available_paths = new vector<Path*>[cargos.size()];
+    target_cargo_available_paths = new vector<Path*>[cargos.size()];
+    rival_cargo_available_paths = new vector<Path*>[cargos.size()];
     int cargo_count = 0;
     for(const auto &cargo : cargos){
         int departure_node = (int) cargo->departure - 65;
@@ -165,6 +167,12 @@ void CargoRoute::find_cargo_available_paths() {
             int path_end_time = path->points.back().time;
 
             if(start_time <= path_start_time && arrive_time >= path_end_time){
+                if(path->index < target_paths.size()) {
+                    target_cargo_available_paths[cargo_count].push_back(path);
+                }
+                else{
+                    rival_cargo_available_paths[cargo_count].push_back(path);
+                }
                 cargo_available_paths[cargo_count].push_back(path);
             }
 
@@ -195,7 +203,24 @@ void CargoRoute::run_model() {
         cout << "Number of rival paths : " << num_rival_paths << endl;
 
         /*Set variables*/
-        set_u_variables(model);
+        //set u
+        GRBVar** u = new GRBVar*[cargos.size()];
+        for(int i = 0; i < cargos.size(); i++){
+            u[i] = model.addVars(cargo_available_paths[i].size(), GRB_BINARY);
+        }
+        //set target z
+        GRBVar** z = new GRBVar*[cargos.size()];
+        for(int i = 0; i < cargos.size(); i++){
+            z[i] = model.addVars(target_cargo_available_paths[i].size(), GRB_CONTINUOUS);
+        }
+        //set rival z
+        GRBVar** z_ = new GRBVar*[cargos.size()];
+        for(int i = 0; i < cargos.size(); i++){
+            z_[i] = model.addVars(rival_cargo_available_paths[i].size(), GRB_CONTINUOUS);
+        }
+
+        set_constr1(model, z, z_);
+        set_constr2(model, z, u);
 
 
 
@@ -207,16 +232,44 @@ void CargoRoute::run_model() {
     }
 }
 
-
-void CargoRoute::set_x_variables(GRBModel& model, int num_paths){
-    GRBVar *x;
-    x = model.addVars(num_paths, GRB_BINARY);
-    for(int i = 0; i < num_paths; i++){
-        model.addConstr(x[i] == 1);
+void CargoRoute::set_constr1(GRBModel &model, GRBVar** z, GRBVar** z_) {
+    for(int k = 0; k < cargos.size(); k++){
+        GRBLinExpr z_sum = 0;
+        for(int n = 0; n < rival_cargo_available_paths[k].size(); n++){
+            z_sum += z_[k][n];
+        }
+        for(int p = 0; p < target_cargo_available_paths[k].size(); p++){
+            z_sum += z[k][p];
+        }
+        model.addConstr(z_sum <= 1, "cons1");
     }
 }
 
-void CargoRoute::set_u_variables(GRBModel &model) {
+void CargoRoute::set_constr2(GRBModel& model, GRBVar** z, GRBVar** u) {
+    for(int k = 0; k < cargos.size(); k++){
+        for(int p = 0; p < target_cargo_available_paths[k].size(); p++){
+            model.addConstr(z[k][p] <= u[k][p]);
+        }
+    }
+}
+
+void CargoRoute::set_constr3(GRBModel &model) {
+
+}
+
+void CargoRoute::set_constr4(GRBModel &model) {
+
+}
+
+void CargoRoute::set_constr5(GRBModel &model) {
+
+}
+
+void CargoRoute::set_constr6(GRBModel &model) {
+
+}
+
+void CargoRoute::set_constr7(GRBModel &model) {
 
 }
 
