@@ -5,6 +5,7 @@
 #ifndef TLM_THESIS_PARAM_H
 #define TLM_THESIS_PARAM_H
 
+
 #include <string>
 #include <iostream>
 #include <vector>
@@ -13,6 +14,7 @@
 #include <sstream>
 #include <random>
 #include <unordered_set>
+#include <math.h>
 
 #include "Path.cpp"
 

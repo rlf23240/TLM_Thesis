@@ -101,9 +101,9 @@ void CargoRoute::read_cargo_file(string data) {
                 type = only_air;
             }else if(time_sensitivity == 'H' && product_value == 'L')
             {
-                type = air_both;
-            }else if(time_sensitivity == 'L' && product_value == 'H'){
                 type = sea_both;
+            }else if(time_sensitivity == 'L' && product_value == 'H'){
+                type = air_both;
             }else{
                 type = only_sea;
             }
@@ -212,6 +212,7 @@ void CargoRoute::run_model() {
 
         cal_target_v();
         cal_rival_v();
+        cal_e();
 
         /*Set variables*/
         //set u
@@ -232,6 +233,8 @@ void CargoRoute::run_model() {
 
         set_constr1(model, z, z_);
         set_constr2(model, z, u);
+        set_constr3(model, z, z_, u);
+        set_constr4(model, z, z_, u);
 
 
 
@@ -284,7 +287,8 @@ void CargoRoute::cal_path_cost(EntireNetwork& network, Path *path) {
         cur_node = network.getNode(point.layer, point.node, point.time);
         cost += cur_node->getCost();
         for(const auto &arc : cur_node->in_arcs){
-            if(arc->end_node == pre_node){
+            if(arc->start_node == pre_node){
+//                cout << arc->cost << endl;
                 cost += arc->cost;
             }
         }
@@ -294,6 +298,49 @@ void CargoRoute::cal_path_cost(EntireNetwork& network, Path *path) {
     path->last_time = path->points.back().time - path->points.front().time;
 //    cout << *path;
 //    cout << path->cost << " " << path->last_time << endl;
+}
+
+void CargoRoute::cal_e() {
+    e = new double*[cargos.size()];
+    for(int k = 0; k < cargos.size(); k++){
+        e[k] = new double[target_cargo_available_paths[k].size()];
+    }
+
+    e_ = new double*[cargos.size()];
+    for(int k = 0; k < cargos.size(); k++){
+        e_[k] = new double[rival_cargo_available_paths[k].size()];
+    }
+
+    double denominator_sum = 0;
+    for(int k = 0; k < cargos.size(); k++){
+        for(int n = 0; n < rival_cargo_available_paths[k].size(); n++ ){
+            denominator_sum += exp(v_[k][n]);
+        }
+    }
+    for(int k = 0; k < cargos.size(); k++){
+        for(int p = 0; p < target_cargo_available_paths[k].size(); p++ ){
+            denominator_sum += exp(v[k][p]);
+        }
+    }
+
+    for(int k = 0; k < cargos.size(); k++){
+        for(int n = 0; n < rival_cargo_available_paths[k].size(); n++ ){
+            e_[k][n] = exp(v_[k][n]) / denominator_sum;
+            cout << e_[k][n] << " ";
+        }
+        cout << endl;
+    }
+
+    for(int k = 0; k < cargos.size(); k++){
+        for(int p = 0; p < target_cargo_available_paths[k].size(); p++ ){
+            e[k][p] = exp(v[k][p]) / denominator_sum;
+        }
+
+    }
+}
+
+void CargoRoute::set_obj(GRBModel &model, GRBVar **z) {
+
 }
 
 void CargoRoute::set_constr1(GRBModel &model, GRBVar** z, GRBVar** z_) {
@@ -317,12 +364,32 @@ void CargoRoute::set_constr2(GRBModel& model, GRBVar** z, GRBVar** u) {
     }
 }
 
-void CargoRoute::set_constr3(GRBModel &model) {
-
+void CargoRoute::set_constr3(GRBModel& model, GRBVar** z, GRBVar** z_, GRBVar** u) {
+    for(int k = 0; k < cargos.size(); k++){
+        for(int p = 0; p < target_cargo_available_paths[k].size(); p++){
+            GRBLinExpr left = 0;
+            GRBLinExpr right = 0;
+            for(int n = 0; n < rival_cargo_available_paths[k].size(); n++){
+                left += e_[k][n] * z[k][p];
+                right += z_[k][n];
+            }
+            model.addConstr(left <=  e[k][p] * right);
+        }
+    }
 }
 
-void CargoRoute::set_constr4(GRBModel &model) {
-
+void CargoRoute::set_constr4(GRBModel &model, GRBVar** z, GRBVar** z_, GRBVar** u) {
+    for(int k = 0; k < cargos.size(); k++){
+        for(int p = 0; p < target_cargo_available_paths[k].size(); p++){
+            GRBLinExpr left = 0;
+            GRBLinExpr right = 0;
+            for(int n = 0; n < rival_cargo_available_paths[k].size(); n++){
+                left += e_[k][n] * z[k][p];
+                right += z_[k][n];
+            }
+            model.addConstr(left >=  e[k][p] * right + u[k][p] - 1);
+        }
+    }
 }
 
 void CargoRoute::set_constr5(GRBModel &model) {

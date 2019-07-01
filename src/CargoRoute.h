@@ -17,6 +17,7 @@ public:
 private:
     unsigned int num_nodes;
     double **v, **v_;
+    double **e, **e_;
     vector<Cargo*> cargos;
     vector<Path*> target_paths;
     vector<Path*> rival_paths;
@@ -40,12 +41,14 @@ private:
 
     void cal_target_v();
     void cal_rival_v();
+    void cal_e();
     void cal_path_cost(EntireNetwork& network, Path* path);
 
+    void set_obj(GRBModel& model, GRBVar** z);
     void set_constr1(GRBModel& model, GRBVar** z, GRBVar** z_);
     void set_constr2(GRBModel& model, GRBVar** z, GRBVar** u);
-    void set_constr3(GRBModel& model);
-    void set_constr4(GRBModel& model);
+    void set_constr3(GRBModel& model, GRBVar** z, GRBVar** z_, GRBVar** u);
+    void set_constr4(GRBModel& model, GRBVar** z, GRBVar** z_, GRBVar** u);
     void set_constr5(GRBModel& model);
     void set_constr6(GRBModel& model);
     void set_constr7(GRBModel& model);

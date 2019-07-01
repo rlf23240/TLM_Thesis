@@ -91,7 +91,7 @@ void EntireNetwork::add_designed_ships() {
             Node* start_node = nodes[0][(int) start_node_char -65][start_node_time];
             Node* end_node = nodes[0][(int) end_node_char -65][end_node_time];
 
-            Arc* arc = new Arc(start_node, end_node, arc_cost[(int) end_node_char -65][(int) end_node_char -65], ship.weight_ub);
+            Arc* arc = new Arc(start_node, end_node, arc_cost[(int) start_node_char -65][(int) end_node_char -65], ship.weight_ub);
 
             arcs.push_back(arc);
             start_node->out_arcs.push_back(arc);
@@ -130,7 +130,7 @@ void EntireNetwork::add_designed_flights() {
                     Node *end_node = nodes[layer][(int) end_node_char - 65][end_node_time];
 
                     Arc *arc = new Arc(start_node, end_node,
-                                       arc_cost[(int) end_node_char - 65][(int) end_node_char - 65], flight.weight_ub,
+                                       arc_cost[(int) start_node_char - 65][(int) end_node_char - 65], flight.weight_ub,
                                        flight.volume_ub);
 
                     arcs.push_back(arc);
@@ -190,7 +190,7 @@ void EntireNetwork::add_current_ships() {
             Node* start_node = nodes[layer][(int) start_node_char -65][start_node_time];
             Node* end_node = nodes[layer][(int) end_node_char -65][end_node_time];
 
-            Arc* arc = new Arc(start_node, end_node, arc_cost[(int) end_node_char -65][(int) end_node_char -65], ship.weight_ub);
+            Arc* arc = new Arc(start_node, end_node, arc_cost[(int) start_node_char -65][(int) end_node_char -65], ship.weight_ub);
 
             arcs.push_back(arc);
             start_node->out_arcs.push_back(arc);
@@ -292,7 +292,7 @@ void EntireNetwork::add_current_flights() {
                     Node *end_node = nodes[layer][(int) end_node_char - 65][end_node_time];
 
                     Arc *arc = new Arc(start_node, end_node,
-                                       arc_cost[(int) end_node_char - 65][(int) end_node_char - 65], flight.weight_ub,
+                                       arc_cost[(int) start_node_char - 65][(int) end_node_char - 65], flight.weight_ub,
                                        flight.volume_ub);
 
                     arcs.push_back(arc);
