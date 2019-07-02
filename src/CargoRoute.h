@@ -31,6 +31,8 @@ private:
     vector<Path*>* target_cargo_available_paths;
     vector<Path*>* rival_cargo_available_paths;
 
+    unordered_map<int, unordered_map<int, Arc*>> arcs;
+
 
     void read_cargo_file(string data);
     void get_available_path(vector<Path*>** path_categories, vector<Path*>& paths);

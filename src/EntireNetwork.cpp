@@ -270,7 +270,7 @@ void EntireNetwork::add_arc(Node *out, Node *in, Arc *arc) {
     int out_node_idx = get_node_idx(out->getLayer(), out->getNode(), out->getTime());
     int in_node_idx = get_node_idx(in->getLayer(), in->getNode(), in->getTime());
 //    cout << out->getName() << " " << out_node_idx << " " << in->getName() << " " << in_node_idx << endl;
-    arcs[make_pair(out_node_idx, in_node_idx)] = arc;
+    arcs[out_node_idx][in_node_idx] = arc;
     out->out_arcs.push_back(arc);
     in->in_arcs.push_back(arc);
 }
@@ -456,12 +456,6 @@ int ***EntireNetwork::create_3d_array(int x, int y, int z) {
     return arr;
 }
 
-void EntireNetwork::print_all_arcs() {
-//    for(auto* arc : arcs){
-//        cout << arc->start_node->getName() << "->" << arc->end_node->getName() << endl;
-//    }
-}
-
 vector<Path *> **EntireNetwork::getPaths_categories() const {
     return paths_categories;
 }
@@ -477,6 +471,11 @@ Node *EntireNetwork::getNode(int layer, int node, int time) {
 int EntireNetwork::get_node_idx(int layer, int node, int time) {
     return layer * (num_nodes * TOTAL_TIME_SLOT) + node * TOTAL_TIME_SLOT + time;
 }
+
+const unordered_map<int, unordered_map<int, Arc *>> &EntireNetwork::getArcs() const {
+    return arcs;
+}
+
 
 
 

@@ -6,22 +6,27 @@
 Arc::Arc(Node *start_node, Node *end_node, int cost) : start_node(start_node), end_node(end_node), cost(cost) {
     weight_ub = INT_MAX;
     volume_ub = INT_MAX;
-    set_unit_profit();
+    set_unit_profit(start_node, end_node);
 }
 
 Arc::Arc(Node *start_node, Node *end_node, int cost, int weight_ub) : start_node(start_node), end_node(end_node),
                                                                       cost(cost), weight_ub(weight_ub) {
     volume_ub = INT_MAX;
-    set_unit_profit();
+    set_unit_profit(start_node, end_node);
 }
 
 Arc::Arc(Node *start_node, Node *end_node, int cost, int weight_ub, int volume_ub) : start_node(start_node),
                                                                                      end_node(end_node), cost(cost),
                                                                                      weight_ub(weight_ub), volume_ub(volume_ub) {
-    set_unit_profit();
+    set_unit_profit(start_node, end_node);
 }
 
-void Arc::set_unit_profit() {
+void Arc::set_unit_profit(Node *start_node, Node *end_node) {
+    if(start_node->getLayer() == 2 || start_node->getLayer() == 5 || start_node->getLayer() == 6
+       || end_node->getLayer() == 2 || end_node->getLayer() == 5 || end_node->getLayer() == 6){
+        unit_profit = 0;
+        return;
+    }
     std::random_device rd;
     /* 梅森旋轉演算法 */
     std::mt19937 generator(rd());

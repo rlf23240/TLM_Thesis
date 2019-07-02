@@ -21,6 +21,9 @@ public:
     vector<Path *> **getPaths_categories() const;
     unsigned int getNumNodes() const;
     Node* getNode(int layer, int node, int time);
+    int get_node_idx(int layer, int node, int time);
+    const unordered_map<int, unordered_map<int, Arc *>> &getArcs() const;
+
 
 private :
     void create_networks(string data);
@@ -38,9 +41,8 @@ private :
     void find_paths_from_single_node(Path path, Point point, int*** color);
     void add_path(Path* path);
     int*** create_3d_array(int x, int y, int z);
-    int get_node_idx(int layer, int node, int time);
 
-    void print_all_arcs();
+
 
     AirNetwork air_network;
     SeaNetwork sea_network;
@@ -49,7 +51,7 @@ private :
     int num_cur_flights;
     int num_cur_ships;
     unsigned int num_nodes;
-    map<pair<int,int>, Arc*> arcs;
+    unordered_map<int, unordered_map<int, Arc*>> arcs;
     int num_layers = 7;
     vector<vector<Node*>>* nodes = new vector<vector<Node*>>[num_layers]; //total 7 time space network
 };

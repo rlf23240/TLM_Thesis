@@ -26,10 +26,12 @@ CargoRoute::CargoRoute(string data) {
     path_categories = networks.getPaths_categories();
     get_available_path(path_categories, all_paths);
     num_nodes = networks.getNumNodes();
+    arcs = networks.getArcs();
 
     cout  << all_paths.size() << endl;
 
     cal_paths_profit(all_paths);
+
 
 //    combine_path_categories(target_path_categories, rival_path_categories);
 //    find_cargo_available_paths();
@@ -141,11 +143,18 @@ void CargoRoute::cal_paths_profit(vector<Path*> all_paths){
     }
 }
 void CargoRoute::cal_profit(Path* path){
+    double profit = 0;
     for(int p = 0; p < path->points.size()-1; p++){
         Point cur_node = path->points[p];
         Point next_node = path->points[p+1];
+        profit += arcs[networks.get_node_idx(cur_node.layer,cur_node.node, cur_node.time)]
+                      [networks.get_node_idx(next_node.layer,next_node.node, next_node.time)]->unit_profit;
+//        if(arcs[networks.get_node_idx(cur_node.layer,cur_node.node, cur_node.time)]
+//            [networks.get_node_idx(next_node.layer,next_node.node, next_node.time)]->unit_profit == 0){
+//            cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+//        }
     }
-
+    cout << *path << profit << endl;
 }
 void CargoRoute::combine_path_categories(vector<Path *> **target_path_categories, vector<Path *> **rival_path_categories) {
     num_nodes = networks.getNumNodes();
