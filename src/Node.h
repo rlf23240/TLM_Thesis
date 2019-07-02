@@ -21,6 +21,7 @@ struct Arc{
     Arc(Node *start_node, Node *end_node, int cost, int weight_ub, int volume_ub);
 
     void set_unit_profit(Node *start_node, Node *end_node);
+    void set_unit_cost(Node *start_node, Node *end_node);
 
     Node* start_node;
     Node* end_node;
@@ -28,7 +29,7 @@ struct Arc{
     int weight_ub;
     int volume_ub;
     double unit_profit;
-
+    double unit_cost;
 
 };
 

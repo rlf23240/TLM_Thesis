@@ -88,7 +88,7 @@ struct Path{
     int virtual_entry_time = -1;
     bool enter_virtual_twice = false;
     int index;
-    int cost;
+    double cost;
     int last_time;
     double path_profit;
 
