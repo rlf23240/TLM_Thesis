@@ -184,7 +184,8 @@ void CargoRoute::Var_init(GRBModel &model, vector<GRBVar> z, vector<GRBVar> u) {
 //        cout << departure << " " << destination << " " << path_categories[departure][destination].size() << endl;
         for (const auto &path : path_categories[departure][destination]) {
             cal_path_profit(path);
-            if (!best_path || (best_path->cost > path->cost)) {
+//            cout << path->path_profit << " " << *path ;
+            if (!best_path || (best_path->path_profit < path->path_profit)) {
                 best_path = path;
             }
         }
