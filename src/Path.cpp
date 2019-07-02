@@ -92,5 +92,4 @@ struct Path{
     int last_time;
     double path_profit;
 
-
 };

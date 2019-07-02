@@ -133,6 +133,8 @@ void CargoRoute::cal_path_profit(Path* path)/**/{
 //        }
     }
 //    cout << *path << profit << endl;
+    path->path_profit = profit;
+
 }
 
 void CargoRoute::cal_path_cost(Path *path) {
@@ -188,12 +190,15 @@ void CargoRoute::Var_init(GRBModel &model, vector<GRBVar> z, vector<GRBVar> u) {
         }
         z.push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
         u.push_back(model.addVar(0.0, 1.0, 0.0, GRB_BINARY));
-        selected_path.emplace_back(pair(c,best_path));
+        selected_path.emplace_back(c,best_path);
     }
 }
 
 void CargoRoute::Obj_init(GRBModel &model, vector<GRBVar> z) {
     GRBLinExpr obj;
+    for(const auto a : selected_path){
+        cout << a.second->path_profit <<  " " << *a.second  << " "  <<endl;
+    }
 
 }
 
