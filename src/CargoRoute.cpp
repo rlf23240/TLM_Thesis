@@ -22,34 +22,27 @@ struct pair_hash
 CargoRoute::CargoRoute(string data) {
 
     read_cargo_file(data);
-    target_networks = EntireNetwork(data, true);
-    target_path_categories = target_networks.getPaths_categories();
-    get_available_path(target_path_categories, target_paths);
+    networks = EntireNetwork(data);
+    path_categories = networks.getPaths_categories();
+    get_available_path(path_categories, all_paths);
+    num_nodes = networks.getNumNodes();
 
+    cout  << all_paths.size() << endl;
 
-    rival_networks = EntireNetwork(data, false);
-    rival_path_categories = rival_networks.getPaths_categories();
-    get_available_path(rival_path_categories, rival_paths);
+    cal_paths_profit(all_paths);
 
-    combine_paths(target_paths, rival_paths);
-    combine_path_categories(target_path_categories, rival_path_categories);
-    find_cargo_available_paths();
-
-    for(int i = 0; i < num_nodes; i++){
-        for(int j = 0; j < num_nodes; j++) {
-            cout << target_path_categories[i][j].size() << "\t";
-        }
-        cout << endl;
-    }
-    cout << endl;
-    for(int i = 0; i < num_nodes; i++){
-        for(int j = 0; j < num_nodes; j++) {
-            cout << rival_path_categories[i][j].size() << "\t";
-        }
-        cout << endl;
-    }
-
-    run_model();
+//    combine_path_categories(target_path_categories, rival_path_categories);
+//    find_cargo_available_paths();
+//
+//    cout << endl;
+//    for(int i = 0; i < num_nodes; i++){
+//        for(int j = 0; j < num_nodes; j++) {
+//            cout << rival_path_categories[i][j].size() << "\t";
+//        }
+//        cout << endl;
+//    }
+//
+//    run_model();
 }
 
 void CargoRoute::read_cargo_file(string data) {
@@ -135,18 +128,27 @@ void CargoRoute::get_available_path(vector<Path*>** path_categories, vector<Path
         }
         used_OD.insert(OD);
     }
-}
 
-void CargoRoute::combine_paths(vector<Path *> target_paths, vector<Path *> rival_paths) {
-    all_paths.insert(all_paths.end(), target_paths.begin(), target_paths.end());
-    all_paths.insert(all_paths.end(), rival_paths.begin(), rival_paths.end());
-    for(int i = 0; i < all_paths.size(); i++){
-        all_paths[i]->setIndex(i);
+    for(int i = 0; i < paths.size(); i++){
+        paths[i]->setIndex(i);
     }
 }
 
+void CargoRoute::cal_paths_profit(vector<Path*> all_paths){
+    for(auto &path : all_paths){
+        cal_profit(path);
+
+    }
+}
+void CargoRoute::cal_profit(Path* path){
+    for(int p = 0; p < path->points.size()-1; p++){
+        Point cur_node = path->points[p];
+        Point next_node = path->points[p+1];
+    }
+
+}
 void CargoRoute::combine_path_categories(vector<Path *> **target_path_categories, vector<Path *> **rival_path_categories) {
-    num_nodes = target_networks.getNumNodes();
+    num_nodes = networks.getNumNodes();
     all_path_categories = new vector<Path*>*[num_nodes];
     for(int i = 0; i < num_nodes; i++)
         all_path_categories[i] = new vector<Path*>[num_nodes];
@@ -254,7 +256,7 @@ void CargoRoute::cal_target_v() {
 
     for(int k = 0; k < cargos.size(); k++){
         for(int p = 0; p < target_cargo_available_paths[k].size(); p++){
-            cal_path_cost(target_networks, target_cargo_available_paths[k][p]);
+            cal_path_cost(networks, target_cargo_available_paths[k][p]);
             v[k][p] = cargos[k]->alpha * target_cargo_available_paths[k][p]->cost +
                       cargos[k]->beta * target_cargo_available_paths[k][p]->last_time;
 //            cout << v[k][p] << " " << cargos[k]->alpha << " " << cargos[k]->beta << endl;
@@ -271,7 +273,7 @@ void CargoRoute::cal_rival_v() {
 
     for(int k = 0; k < cargos.size(); k++){
         for(int n = 0; n < rival_cargo_available_paths[k].size(); n++){
-            cal_path_cost(rival_networks, rival_cargo_available_paths[k][n]);
+            cal_path_cost(networks, rival_cargo_available_paths[k][n]);
             v_[k][n] = cargos[k]->alpha * rival_cargo_available_paths[k][n]->cost +
                       cargos[k]->beta * rival_cargo_available_paths[k][n]->last_time;
         }
@@ -403,6 +405,8 @@ void CargoRoute::set_constr6(GRBModel &model) {
 void CargoRoute::set_constr7(GRBModel &model) {
 
 }
+
+
 
 
 

@@ -63,9 +63,9 @@ def sea_data_generator(name, n, num_ships):
 
         for i in range(num_ships):
             node = chr(65 + random.randint(0,n-1))
-            starting_time = random.randint(0,20)
+            starting_time = random.randint(0,15)
             freq = 1
-            cycle_time = round(numpy.random.normal(42,5))
+            cycle_time = round(numpy.random.normal(50,5))
             weight_ub = random.randint(30,50) * 100 #weight upper bound
             param_file.write(node + '\t' + str(starting_time) + '\t' + str(freq) + '\t' + str(cycle_time) + '\t' + str(weight_ub)+ '\n')
         param_file.close()

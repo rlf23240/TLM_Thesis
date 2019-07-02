@@ -17,21 +17,15 @@ Flight::Flight(char start_node, int gap, int freq, int cycle_time, int weight_ub
         start_node), gap(gap), freq(freq), cycle_time(cycle_time), weight_ub(weight_ub), volume_ub(volume_ub) {}
 
 AirNetwork::AirNetwork() {}
-AirNetwork::AirNetwork(const string data_path, int num_cur_flights, bool is_target) {
-    this->is_target = is_target;
+AirNetwork::AirNetwork(const string data_path, int num_cur_flights, int num_rival_flights) {
     read_data(data_path);
-    if(is_target)
-        run_algo();
-    if(!is_target)
-        flights.clear();
+    run_algo();
+    generate_flights(cur_flights, num_cur_flights, 0);
+    generate_flights(rival_flights, num_rival_flights,1);
 
-    generate_cur_flights(num_cur_flights);
-
-
-    print_flights(flights, true, is_target);
-    print_flights(cur_flights, false, is_target);
-
-
+    print_flights(designed_flights, "Designed");
+    print_flights(cur_flights, "Existing");
+    print_flights(rival_flights, "Rival");
 }
 
 
@@ -75,7 +69,7 @@ void AirNetwork::read_flights_param(std::string flights_data) {
             int volume_ub = stoi(token);
 
             Flight new_flight = Flight(flight_name, flight_gap, flight_freq, flight_cycle_time, weight_ub, volume_ub);
-            flights.push_back(new_flight);
+            designed_flights.push_back(new_flight);
         }
     }
     else {
@@ -85,7 +79,7 @@ void AirNetwork::read_flights_param(std::string flights_data) {
 
 void AirNetwork::run_algo() {
 
-    for(auto &flight : flights) {
+    for(auto &flight : designed_flights) {
         vector<Route> best_routes;
         int best_cost = INT_MAX;
         for(int i = 0; i <= 7 * TIME_SLOT_A_DAY - flight.gap * flight.freq; i++) {
@@ -110,12 +104,12 @@ void AirNetwork::run_algo() {
 }
 
 const vector<Flight> &AirNetwork::getFlights() const {
-    return flights;
+    return designed_flights;
 }
 
-void AirNetwork::generate_cur_flights(int n) {
+void AirNetwork::generate_flights(vector<Flight> &flights, int n, int seed) {
     random_device rd;
-    mt19937 gen = is_target? mt19937(2) : mt19937(0);
+    mt19937 gen = mt19937(seed);
     uniform_int_distribution<int> dis(0, INT_MAX);
 
 
@@ -171,27 +165,14 @@ void AirNetwork::generate_cur_flights(int n) {
             routes.push_back(next_route);
         }
         new_flight.routes = routes;
-        cur_flights.push_back(new_flight);
+        flights.push_back(new_flight);
     }
 
 }
 
-void AirNetwork::print_flights(vector<Flight> flights, bool is_designed, bool is_target) {
-    cout << "---------------";
-    if(is_target){
-        cout << "Target ";
-    }
-    else {
-        cout << "Rival ";
-    }
-
-    if (is_designed){
-        cout << "Designed flights routes-----------" <<endl;
-    }
-    else{
-        cout << "Exist flights routes-------------" << endl;
-    }
-
+void AirNetwork::print_flights(const vector<Flight>& flights, const string& prefix) {
+    cout << "---------------" + prefix ;
+    cout << " flights routes-----------" <<endl;
     for(const auto &flight : flights) {
         for(const auto &route : flight.routes){
             cout << route;
@@ -202,6 +183,10 @@ void AirNetwork::print_flights(vector<Flight> flights, bool is_designed, bool is
 
 const vector<Flight> &AirNetwork::getCur_flights() const {
     return cur_flights;
+}
+
+const vector<Flight> &AirNetwork::getRival_flights() const {
+    return rival_flights;
 }
 
 

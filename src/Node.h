@@ -8,6 +8,8 @@
 #include "string"
 #include "unordered_map"
 #include "vector"
+#include "random"
+#include "iostream"
 
 class Node;
 
@@ -18,11 +20,16 @@ struct Arc{
 
     Arc(Node *start_node, Node *end_node, int cost, int weight_ub, int volume_ub);
 
+    void set_unit_profit();
+
     Node* start_node;
     Node* end_node;
     int cost;
     int weight_ub;
     int volume_ub;
+    double unit_profit;
+
+
 };
 
 class Node {
@@ -31,6 +38,9 @@ public:
 
     int getCost() const;
     const std::string &getName() const;
+    int getLayer() const;
+    int getNode() const;
+    int getTime() const;
     std::vector<Arc*> out_arcs;
     std::vector<Arc*> in_arcs;
 
@@ -38,6 +48,5 @@ public:
 private:
     int cost = 0;
     std::string name;
-
 };
 #endif //TLM_THESIS_NODE_H

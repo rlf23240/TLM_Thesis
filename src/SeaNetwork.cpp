@@ -13,22 +13,16 @@ Ship::Ship(char start_node, int start_time, int frequency, int cycle_time, int w
                                                                                             cycle_time(cycle_time),
                                                                                             weight_ub(weight_ub) {}
 SeaNetwork::SeaNetwork() {}
-SeaNetwork::SeaNetwork(string data_path, int num_cur_ships, bool is_target) {
-    this->is_target = is_target;
+SeaNetwork::SeaNetwork(string data_path, int num_cur_ships,int num_rival_ships) {
     read_data(data_path);
-    if(is_target)
-        run_algo();
-    if(!is_target)
-        ships.clear();
-    generate_cur_ships(num_cur_ships);
+    run_algo();
+    generate_ships(cur_ships,num_cur_ships,0);
+    generate_ships(rival_ships,num_rival_ships,1);
 
-    print_ships(ships,true,is_target);
-    print_ships(cur_ships,false,is_target);
-
-
+    print_ships(designed_ships,"Designed");
+    print_ships(cur_ships,"Existing");
+    print_ships(rival_ships,"Rival");
 }
-
-
 
 void SeaNetwork::read_data(std::string data_path) {
     Network::read_node(data_path + "_arccost.txt");
@@ -69,7 +63,7 @@ void SeaNetwork::read_ship_param(string ships_data) {
             int weight_ub = stoi(token);
 
             Ship new_ship = Ship(stating_node, starting_time, ships_freq, ships_cycle_time, weight_ub);
-            ships.push_back(new_ship);
+            designed_ships.push_back(new_ship);
         }
     }
     else {
@@ -78,7 +72,7 @@ void SeaNetwork::read_ship_param(string ships_data) {
 }
 
 void SeaNetwork::run_algo() {
-    for(auto &ship : ships) {
+    for(auto &ship : designed_ships) {
         Route route = DP_shortest_path(ship.start_node, ship.start_time, ship.start_node, ship.start_time+ship.cycle_time);
         ship.route = route;
     }
@@ -124,12 +118,12 @@ void SeaNetwork::forward_update(Route **dp, int node, int time) {
 }
 
 const vector<Ship> &SeaNetwork::getShips() const {
-    return ships;
+    return designed_ships;
 }
 
-void SeaNetwork::generate_cur_ships(int n) {
+void SeaNetwork::generate_ships(vector<Ship> &ships, int n, int seed) {
     random_device rd;
-    mt19937 gen = is_target? mt19937(0) : mt19937(rd());
+    mt19937 gen =  mt19937(seed);
     uniform_int_distribution<int> dis(0, INT_MAX);
 
     for (int i = 0; i < n; i++) {
@@ -169,27 +163,15 @@ void SeaNetwork::generate_cur_ships(int n) {
         Route route = Route(nodes, total_cost);
         Ship new_ship = Ship((char) (65 + start_node), start_time, 1, cur_time - start_time, (30 + dis(gen) % 20) * 100);
         new_ship.route = route;
-        cur_ships.push_back(new_ship);
+        ships.push_back(new_ship);
     }
 }
 
-void SeaNetwork::print_ships(vector<Ship> ships, bool is_designed, bool is_target) {
+void SeaNetwork::print_ships(vector<Ship> designed_ships, string prefix) {
+    cout << "---------------" + prefix ;
+    cout << " ships routes-----------" <<endl;
 
-    cout << "---------------";
-    if(is_target){
-        cout << "Target ";
-    }
-    else {
-        cout << "Rival ";
-    }
-
-    if (is_designed){
-        cout << "Designed ships routes-----------" <<endl;
-    }
-    else{
-        cout << "Exist ships routes--------------" << endl;
-    }
-    for(const auto& ship : ships){
+    for(const auto& ship : designed_ships){
         cout << ship.route;
     }
 
@@ -197,6 +179,10 @@ void SeaNetwork::print_ships(vector<Ship> ships, bool is_designed, bool is_targe
 
 const vector<Ship> &SeaNetwork::getCur_ships() const {
     return cur_ships;
+}
+
+const vector<Ship> &SeaNetwork::getRival_ships() const {
+    return rival_ships;
 }
 
 

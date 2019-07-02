@@ -22,8 +22,8 @@ private:
     vector<Path*> target_paths;
     vector<Path*> rival_paths;
     vector<Path*> all_paths;
-    EntireNetwork target_networks;
-    EntireNetwork rival_networks;
+    EntireNetwork networks;
+    vector<Path*>** path_categories;
     vector<Path*>** rival_path_categories;
     vector<Path*>** target_path_categories;
     vector<Path*>** all_path_categories;
@@ -34,7 +34,8 @@ private:
 
     void read_cargo_file(string data);
     void get_available_path(vector<Path*>** path_categories, vector<Path*>& paths);
-    void combine_paths(vector<Path*> target_paths, vector<Path*> rival_paths);
+    void cal_paths_profit(vector<Path*> all_paths);
+    void cal_profit(Path* path);
     void combine_path_categories(vector<Path*>** target_path_categories, vector<Path*>** rival_path_categories);
     void find_cargo_available_paths();
     void run_model();

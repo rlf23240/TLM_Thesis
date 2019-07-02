@@ -11,11 +11,12 @@
 #include "SeaNetwork.h"
 #include "AirNetwork.h"
 
+
 using namespace std;
 
 class EntireNetwork {
 public:
-    explicit EntireNetwork(string data, bool is_target);
+    explicit EntireNetwork(string data);
     EntireNetwork();
     vector<Path *> **getPaths_categories() const;
     unsigned int getNumNodes() const;
@@ -29,12 +30,15 @@ private :
     void add_virtual_network(string data);
     void add_current_ships();
     void add_current_flights();
+    void add_rival_ships();
+    void add_rival_flights();
     int* read_stop_cost(string data_path);
-    void add_arc(Node* out, Node* in, int cost);
+    void add_arc(Node* out, Node* in, Arc* arc);
     void find_all_paths();
     void find_paths_from_single_node(Path path, Point point, int*** color);
     void add_path(Path* path);
     int*** create_3d_array(int x, int y, int z);
+    int get_node_idx(int layer, int node, int time);
 
     void print_all_arcs();
 
@@ -44,11 +48,10 @@ private :
     vector<Path*>** paths_categories;
     int num_cur_flights;
     int num_cur_ships;
-    bool is_target;
-
     unsigned int num_nodes;
-    vector<Arc*> arcs;
-    vector<vector<Node*>>* nodes = new vector<vector<Node*>>[5]; //total 5 time space network
+    map<pair<int,int>, Arc*> arcs;
+    int num_layers = 7;
+    vector<vector<Node*>>* nodes = new vector<vector<Node*>>[num_layers]; //total 7 time space network
 };
 
 

@@ -26,6 +26,10 @@ struct Path{
         Path::index = index;
     }
 
+    void setPathProfit(double pathProfit) {
+        path_profit = pathProfit;
+    }
+
     friend std::ostream &operator<<(std::ostream &os, const Path &path) {
         os << "Path :\t:" ;
         for(auto point : path.points){
@@ -86,4 +90,7 @@ struct Path{
     int index;
     int cost;
     int last_time;
+    double path_profit;
+
+
 };
