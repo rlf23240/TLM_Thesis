@@ -26,10 +26,6 @@ struct Path{
         Path::index = index;
     }
 
-    void setPathProfit(double pathProfit) {
-        path_profit = pathProfit;
-    }
-
     friend std::ostream &operator<<(std::ostream &os, const Path &path) {
         os << "Path :\t:" ;
         for(auto point : path.points){
@@ -83,12 +79,22 @@ struct Path{
     unsigned int size(){
         return this->points.size();
     }
+
+    double net_profit(){
+        return path_profit - path_cost;
+    }
+    int get_start_time(){
+        return this->points.front().time;
+    }
+    int get_end_time(){
+        return this->points.back().time;
+    }
     vector<Point> points{};
     int stay_at_virtual = 0;
     int virtual_entry_time = -1;
     bool enter_virtual_twice = false;
     int index;
-    double cost;
+    double path_cost;
     int last_time;
     double path_profit;
 

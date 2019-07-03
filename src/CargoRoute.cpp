@@ -27,6 +27,8 @@ CargoRoute::CargoRoute(string data) {
     get_available_path(path_categories, all_paths);
     num_nodes = networks.getNumNodes();
     arcs = networks.getArcs();
+    cal_path_cost_profit();
+
     branch_and_price();
 }
 
@@ -119,6 +121,13 @@ void CargoRoute::get_available_path(vector<Path*>** path_categories, vector<Path
     }
 }
 
+void CargoRoute::cal_path_cost_profit() {
+    for(const auto &path : all_paths){
+        cal_path_cost(path);
+        cal_path_profit(path);
+    }
+}
+
 void CargoRoute::cal_path_profit(Path* path)/**/{
     double profit = 0;
     Point *cur,*next;
@@ -149,7 +158,7 @@ void CargoRoute::cal_path_cost(Path *path) {
                               [networks.get_node_idx(next->layer, next->node, next->time)]->unit_cost;
         cost += arc_cost;
     }
-    path->cost = cost;
+    path->path_cost = cost;
     path->last_time = path->points.back().time - path->points.front().time;
 }
 
@@ -157,9 +166,14 @@ void CargoRoute::branch_and_price() {
     try {
         GRBEnv env = GRBEnv();
         GRBModel model = GRBModel(env);
-        vector<GRBVar> z, u;
+        vector<GRBVar> *z, *z_, *u;
+        target_path = new vector<Path*>[cargos.size()];
+        rival_path = new vector<Path*>[cargos.size()];
+        z = new vector<GRBVar>[cargos.size()];
+        z_ = new vector<GRBVar>[cargos.size()];
+        u = new vector<GRBVar>[cargos.size()];
 
-        bp_init(model,z,u);
+        bp_init(model,z,z_,u);
 
     } catch(GRBException e) {
         cout << "Error code = " << e.getErrorCode() << endl;
@@ -170,12 +184,15 @@ void CargoRoute::branch_and_price() {
 
 }
 
-void CargoRoute::bp_init(GRBModel &model, vector<GRBVar> z, vector<GRBVar> u) {
-    Var_init(model,z,u);
+void CargoRoute::bp_init(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u) {
+    Var_init(model, z, z_, u);
     Obj_init(model, z);
+    Constr_init(model, z, z_, u);
+    model.optimize();
 }
 
-void CargoRoute::Var_init(GRBModel &model, vector<GRBVar> z, vector<GRBVar> u) {
+void CargoRoute::Var_init(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u) {
+
     for (int c = 0 ; c < cargos.size(); c++) {
         int departure = cargos[c]->departure - 65;
         int destination = cargos[c]->destination - 65 ;
@@ -183,25 +200,165 @@ void CargoRoute::Var_init(GRBModel &model, vector<GRBVar> z, vector<GRBVar> u) {
         Path *best_path = nullptr;
 //        cout << departure << " " << destination << " " << path_categories[departure][destination].size() << endl;
         for (const auto &path : path_categories[departure][destination]) {
-            cal_path_profit(path);
 //            cout << path->path_profit << " " << *path ;
-            if (!best_path || (best_path->path_profit < path->path_profit)) {
-                best_path = path;
+            if(cargos[c]->start_time < path->get_start_time() && cargos[c]->arrive_time > path->get_end_time()) {
+                if (!best_path || (best_path->net_profit() < path->net_profit())) {
+                    best_path = path;
+                }
+                if(path->path_profit != 0) {
+                    z[c].push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
+                    u[c].push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
+                    target_path[c].emplace_back(path);
+                }
+                else{
+                    rival_path[c].emplace_back(path);
+                    z_[c].push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
+                }
             }
         }
-        z.push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
-        u.push_back(model.addVar(0.0, 1.0, 0.0, GRB_BINARY));
-        selected_path.emplace_back(c,best_path);
+//        z[c].push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
+//        u[c].push_back(model.addVar(0.0, 1.0, 0.0, GRB_BINARY));
+//        target_path[c].emplace_back(best_path);
     }
 }
 
-void CargoRoute::Obj_init(GRBModel &model, vector<GRBVar> z) {
-    GRBLinExpr obj;
-    for(const auto a : selected_path){
-        cout << a.second->path_profit <<  " " << *a.second  << " "  <<endl;
+void CargoRoute::Obj_init(GRBModel &model, vector<GRBVar> *z) {
+    GRBLinExpr obj = 0;
+    for(int k = 0; k < cargos.size(); k++) {
+        for (int p = 0; p < target_path[k].size(); p++) {
+            obj += z[k][p] * cargos[k]->volume * target_path[k][p]->net_profit();
+        }
+    }
+    model.setObjective(obj, GRB_MAXIMIZE);
+}
+
+void CargoRoute::Constr_init(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u) {
+    set_constr1(model, z, z_);
+    set_constr2(model, z, u);
+    cal_e();
+    set_constr3(model, z, z_,u);
+    set_constr4(model, z, z_,u);
+
+}
+
+void CargoRoute::set_constr1(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_){
+    for(int k = 0; k < cargos.size(); k++){
+        GRBLinExpr cons1 = 0;
+        for(int p = 0; p < target_path[k].size(); p++){
+            cons1 += z[k][p];
+        }
+        for(int n = 0; n < rival_path[k].size(); n++){
+            cons1 += z_[k][n];
+        }
+        model.addConstr(cons1 <= 1, "Cons1" + to_string(k));
+    }
+}
+
+void CargoRoute::set_constr2(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *u) {
+    for(int k = 0; k < cargos.size(); k++){
+        for(int p = 0; p < target_path[k].size(); p++){
+            model.addConstr(z[k][p] <= u[k][p], "Cons2" + to_string(k) + to_string(p));
+        }
+    }
+}
+void CargoRoute::cal_e() {
+    cal_v();
+    e = new double*[cargos.size()];
+    for(int k = 0; k < cargos.size(); k++){
+        e[k] = new double[target_path[k].size()];
+    }
+    e_ = new double*[cargos.size()];
+    for(int k = 0; k < cargos.size(); k++){
+        e_[k] = new double[rival_path[k].size()];
+    }
+
+    for(int k = 0; k < cargos.size(); k++){
+        double sum = 0;
+        for(int p = 0; p < target_path[k].size(); p++) {
+            sum += exp(v[k][p]);
+        }
+        for(int n = 0; n < rival_path[k].size(); n++) {
+            sum += exp(v_[k][n]);
+        }
+        for(int p = 0; p < target_path[k].size(); p++){
+            e[k][p] = exp(v[k][p]) / sum ;
+//            cout << e[k][p] << " ";
+        }
+        for(int n = 0; n < rival_path[k].size(); n++){
+            e_[k][n] = exp(v_[k][n]) / sum ;
+        }
+//        cout << endl;
     }
 
 }
+
+void CargoRoute::cal_v() {
+    //init v
+    v = new double*[cargos.size()];
+    for(int k = 0; k < cargos.size(); k++){
+        v[k] = new double[target_path[k].size()];
+    }
+    v_ = new double*[cargos.size()];
+    for(int k = 0; k < cargos.size(); k++){
+        v_[k] = new double[rival_path[k].size()];
+    }
+
+    for(int k = 0; k < cargos.size(); k++){
+        for(int p = 0; p < target_path[k].size(); p++){
+            v[k][p] = cargos[k]->alpha * target_path[k][p]->path_cost + cargos[k]->beta * target_path[k][p]->last_time;
+        }
+        for(int n = 0; n < rival_path[k].size(); n++){
+            v_[k][n] = cargos[k]->alpha * rival_path[k][n]->path_cost + cargos[k]->beta * rival_path[k][n]->last_time;
+        }
+    }
+}
+
+
+
+void CargoRoute::set_constr3(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u) {
+    GRBLinExpr lhs, rhs;
+    for(int k = 0; k < cargos.size(); k++){
+        for(int p = 0; p < target_path[k].size();p++){
+            for(int n = 0; n < rival_path[k].size(); n++){
+                lhs += e_[k][n] ;
+                rhs += e[k][p] * z_[k][n];
+            }
+//            cout << e[k][p] << endl;
+            model.addConstr(lhs * z[k][p] <=  rhs);
+        }
+    }
+}
+
+void CargoRoute::set_constr4(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u) {
+    GRBLinExpr lhs, rhs;
+    for(int k = 0; k < cargos.size(); k++){
+        for(int p = 0; p < target_path[k].size();p++){
+            for(int n = 0; n < rival_path[k].size(); n++){
+                lhs += e_[k][n] ;
+                rhs += e[k][p] * z_[k][n];
+            }
+//            cout << e[k][p] << endl;
+            model.addConstr(lhs * z[k][p] >=  rhs + u[k][p] - 1);
+        }
+    }
+}
+
+void CargoRoute::set_constr5(GRBModel &model, vector<GRBVar> *z) {
+
+}
+
+void CargoRoute::set_constr6(GRBModel &model, vector<GRBVar> *z) {
+
+}
+
+void CargoRoute::set_constr7(GRBModel &model, vector<GRBVar> *z) {
+
+}
+
+
+
+
+
 
 
 
