@@ -139,10 +139,10 @@ void CargoRoute::cal_path_profit(Path* path)/**/{
     for(int p = 0; p < path->points.size()-1; p++){
         cur = &path->points[p];
         next = &path->points[p+1];
-        profit += arcs[networks.get_node_idx(cur->layer,cur->node, cur->time)]
-                      [networks.get_node_idx(next->layer,next->node, next->time)]->unit_profit
-                      -arcs[networks.get_node_idx(cur->layer,cur->node, cur->time)]
-                      [networks.get_node_idx(next->layer,next->node, next->time)]->fixed_profit;
+        profit += arcs[networks.get_node_idx(*cur)]
+                      [networks.get_node_idx(*next)]->unit_profit
+                      -arcs[networks.get_node_idx(*cur)]
+                      [networks.get_node_idx(*next)]->fixed_profit;
 
 //        if(arcs[networks.get_node_idx(cur_node.layer,cur_node.node, cur_node.time)]
 //            [networks.get_node_idx(next_node.layer,next_node.node, next_node.time)]->unit_profit == 0){
@@ -185,14 +185,13 @@ void CargoRoute::branch_and_price() {
         int count = 0;
         do{
             update_arcs();
-            cal_paths_profit();
+            cout << *append_most_profit_path();
+
             model.reset();
             z = new vector<GRBVar>[cargos.size()];
             z_ = new vector<GRBVar>[cargos.size()];
             u = new vector<GRBVar>[cargos.size()];
 
-
-            cout << *append_most_profit_path();
             Var_init(model, z, z_, u);
             Obj_init(model, z);
             Constr_init(model, z, z_, u);
@@ -499,6 +498,7 @@ void CargoRoute::update_arcs() {
 Path* CargoRoute::append_most_profit_path() {
     Path* best_path = nullptr;
     int best_k = -1;
+    cal_paths_profit();
     for (int k = 0 ; k < cargos.size(); k++) {
         int departure = cargos[k]->departure - 65;
         int destination = cargos[k]->destination - 65 ;
