@@ -24,21 +24,21 @@ private:
     vector<Path*>* target_path;
     vector<Path*>* rival_path;
     GRBConstr* cons1;
-    vector<GRBConstr>* cons2;
-    vector<GRBConstr>* cons3;
-    vector<GRBConstr>* cons4;
+    vector<GRBConstr> *cons2, *cons3, *cons4;
     unordered_map<int, unordered_map<int, GRBConstr>> cons5, cons6, cons7;
 
 
     unordered_map<int, unordered_map<int, Arc*>> arcs;
     void read_cargo_file(string data);
     void get_available_path(vector<Path*>** path_categories, vector<Path*>& paths);
-    void cal_path_cost_profit();
+    void cal_paths_profit();
+    void cal_paths_cost();
     void cal_path_profit(Path* path);
     void cal_path_cost(Path* path);
 
     void branch_and_price();
     void bp_init(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u);
+    void select_init_path();
     void Var_init(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u);
     void Obj_init(GRBModel &model, vector<GRBVar> *z);
     void Constr_init(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u);
@@ -51,6 +51,10 @@ private:
     void set_constr5(GRBModel &model, vector<GRBVar> *z);
     void set_constr6(GRBModel &model, vector<GRBVar> *z);
     void set_constr7(GRBModel &model, vector<GRBVar> *z);
+    void update_arcs();
+    Path* append_most_profit_path();
+    void show_model_result(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u);
+
 };
 
 

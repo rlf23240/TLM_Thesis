@@ -96,8 +96,6 @@ void EntireNetwork::add_designed_ships() {
             add_arc(start_node, end_node, arc);
         }
     }
-
-
 }
 
 void EntireNetwork::add_designed_flights() {

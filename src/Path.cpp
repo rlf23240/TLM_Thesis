@@ -97,5 +97,5 @@ struct Path{
     double path_cost;
     int last_time;
     double path_profit;
-
+    double fixed_profit;
 };
