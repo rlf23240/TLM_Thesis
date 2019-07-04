@@ -92,7 +92,7 @@ void EntireNetwork::add_designed_ships() {
             Node* start_node = nodes[0][(int) start_node_char -65][start_node_time];
             Node* end_node = nodes[0][(int) end_node_char -65][end_node_time];
 
-            Arc* arc = new Arc(start_node, end_node, arc_cost[(int) start_node_char -65][(int) end_node_char -65], ship.weight_ub);
+            Arc* arc = new Arc(start_node, end_node, arc_cost[(int) start_node_char -65][(int) end_node_char -65], ship.volume_ub);
             add_arc(start_node, end_node, arc);
         }
     }
@@ -186,7 +186,7 @@ void EntireNetwork::add_current_ships() {
             Node* start_node = nodes[layer][(int) start_node_char -65][start_node_time];
             Node* end_node = nodes[layer][(int) end_node_char -65][end_node_time];
 
-            Arc* arc = new Arc(start_node, end_node, arc_cost[(int) start_node_char -65][(int) end_node_char -65], ship.weight_ub);
+            Arc* arc = new Arc(start_node, end_node, arc_cost[(int) start_node_char -65][(int) end_node_char -65], ship.volume_ub);
             add_arc(start_node, end_node, arc);
         }
     }
@@ -344,7 +344,7 @@ void EntireNetwork::add_rival_ships() {
             Node* start_node = nodes[layer][(int) start_node_char -65][start_node_time];
             Node* end_node = nodes[layer][(int) end_node_char -65][end_node_time];
 
-            Arc* arc = new Arc(start_node, end_node, arc_cost[(int) start_node_char -65][(int) end_node_char -65], ship.weight_ub);
+            Arc* arc = new Arc(start_node, end_node, arc_cost[(int) start_node_char -65][(int) end_node_char -65], ship.volume_ub);
 
             add_arc(start_node, end_node, arc);
         }
@@ -476,6 +476,9 @@ Node *EntireNetwork::getNode(int layer, int node, int time) {
 int EntireNetwork::get_node_idx(int layer, int node, int time) {
     return layer * (num_nodes * TOTAL_TIME_SLOT) + node * TOTAL_TIME_SLOT + time;
 }
+int EntireNetwork::get_node_idx(Point point) {
+    return point.layer * (num_nodes * TOTAL_TIME_SLOT) + point.node * TOTAL_TIME_SLOT + point.time;;
+}
 
 const unordered_map<int, unordered_map<int, Arc *>> &EntireNetwork::getArcs() const {
     return arcs;
@@ -488,6 +491,8 @@ vector<Flight> EntireNetwork::get_cur_flights() {
 vector<Ship> EntireNetwork::get_cur_ships() {
     return this->sea_network.getCur_ships();
 }
+
+
 
 
 

@@ -7,11 +7,11 @@
 #include "SeaNetwork.h"
 
 
-Ship::Ship(char start_node, int start_time, int frequency, int cycle_time, int weight_ub) : start_node(start_node),
+Ship::Ship(char start_node, int start_time, int frequency, int cycle_time, int volume_ub) : start_node(start_node),
                                                                                             start_time(start_time),
                                                                                             frequency(frequency),
                                                                                             cycle_time(cycle_time),
-                                                                                            weight_ub(weight_ub) {}
+                                                                                            volume_ub(volume_ub) {}
 SeaNetwork::SeaNetwork() {}
 SeaNetwork::SeaNetwork(string data_path, int num_cur_ships,int num_rival_ships) {
     read_data(data_path);

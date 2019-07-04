@@ -23,6 +23,11 @@ private:
     vector<Path*>** path_categories;
     vector<Path*>* target_path;
     vector<Path*>* rival_path;
+    GRBConstr* cons1;
+    vector<GRBConstr>* cons2;
+    vector<GRBConstr>* cons3;
+    vector<GRBConstr>* cons4;
+    unordered_map<int, unordered_map<int, GRBConstr>> cons5, cons6, cons7;
 
 
     unordered_map<int, unordered_map<int, Arc*>> arcs;

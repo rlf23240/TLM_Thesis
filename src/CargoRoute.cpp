@@ -20,7 +20,6 @@ struct pair_hash
 
 
 CargoRoute::CargoRoute(string data) {
-
     read_cargo_file(data);
     networks = EntireNetwork(data);
     path_categories = networks.getPaths_categories();
@@ -188,7 +187,7 @@ void CargoRoute::bp_init(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_,
     Var_init(model, z, z_, u);
     Obj_init(model, z);
     Constr_init(model, z, z_, u);
-//    model.optimize();
+    model.optimize();
 }
 
 void CargoRoute::Var_init(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u) {
@@ -197,35 +196,33 @@ void CargoRoute::Var_init(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_
         int departure = cargos[c]->departure - 65;
         int destination = cargos[c]->destination - 65 ;
 
-        Path *best_path = nullptr;
-//        cout << departure << " " << destination << " " << path_categories[departure][destination].size() << endl;
+//        Path *best_path = nullptr;
+        int path_count = 0 ;
         for (const auto &path : path_categories[departure][destination]) {
 //            cout << path->path_profit << " " << *path ;
-            if(cargos[c]->start_time < path->get_start_time() && cargos[c]->arrive_time > path->get_end_time()) {
-                if (!best_path || (best_path->net_profit() < path->net_profit())) {
-                    best_path = path;
+            if(cargos[c]->start_time < path->get_start_time() && cargos[c]->arrive_time > path->get_end_time() && path_count < 5) {
+                if(path->path_profit != 0) {
+                    z[c].push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
+                    u[c].push_back(model.addVar(0.0, 1.0, 0.0, GRB_BINARY));
+                    target_path[c].emplace_back(path);
                 }
-//                if(path->path_profit != 0) {
-//                    z[c].push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
-//                    u[c].push_back(model.addVar(0.0, 1.0, 0.0, GRB_BINARY));
-//                    target_path[c].emplace_back(path);
-//                }
-//                else{
-//                    rival_path[c].emplace_back(path);
-//                    z_[c].push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
-//                }
+                else{
+                    rival_path[c].emplace_back(path);
+                    z_[c].push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
+                }
+                path_count += 1;
             }
         }
-        if(best_path) {
-            if (best_path->path_profit != 0) {
-                z[c].push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
-                u[c].push_back(model.addVar(0.0, 1.0, 0.0, GRB_BINARY));
-                target_path[c].emplace_back(best_path);
-            } else {
-                rival_path[c].emplace_back(best_path);
-                z_[c].push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
-            }
-        }
+//        if(best_path) {
+//            if (best_path->path_profit != 0) {
+//                z[c].push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
+//                u[c].push_back(model.addVar(0.0, 1.0, 0.0, GRB_BINARY));
+//                target_path[c].emplace_back(best_path);
+//            } else {
+//                rival_path[c].emplace_back(best_path);
+//                z_[c].push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
+//            }
+//        }
     }
 }
 
@@ -243,29 +240,33 @@ void CargoRoute::Constr_init(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> 
     set_constr1(model, z, z_);
     set_constr2(model, z, u);
     cal_e();
-    set_constr3(model, z, z_,u);
-    set_constr4(model, z, z_,u);
+    set_constr3(model, z, z_, u);
+    set_constr4(model, z, z_, u);
     set_constr5(model, z);
+    set_constr6(model, z);
+    set_constr7(model, z);
 
 }
 
 void CargoRoute::set_constr1(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_){
+    cons1 = new GRBConstr[cargos.size()];
     for(int k = 0; k < cargos.size(); k++){
-        GRBLinExpr cons1 = 0;
+        GRBLinExpr expr = 0;
         for(int p = 0; p < target_path[k].size(); p++){
-            cons1 += z[k][p];
+            expr += z[k][p];
         }
         for(int n = 0; n < rival_path[k].size(); n++){
-            cons1 += z_[k][n];
+            expr += z_[k][n];
         }
-        model.addConstr(cons1 <= 1, "Cons1" + to_string(k));
+        cons1[k] = model.addConstr(expr <= 1, "Cons1" + to_string(k));
     }
 }
 
 void CargoRoute::set_constr2(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *u) {
+    cons2 = new vector<GRBConstr>[cargos.size()];
     for(int k = 0; k < cargos.size(); k++){
         for(int p = 0; p < target_path[k].size(); p++){
-            model.addConstr(z[k][p] <= u[k][p], "Cons2" + to_string(k) + to_string(p));
+            cons2[k].push_back(model.addConstr(z[k][p] <= u[k][p], "Cons2" + to_string(k) + to_string(p)));
         }
     }
 }
@@ -325,6 +326,7 @@ void CargoRoute::cal_v() {
 
 void CargoRoute::set_constr3(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u) {
     GRBLinExpr lhs, rhs;
+    cons3 = new vector<GRBConstr>[cargos.size()];
     for(int k = 0; k < cargos.size(); k++){
         for(int p = 0; p < target_path[k].size();p++){
             for(int n = 0; n < rival_path[k].size(); n++){
@@ -332,20 +334,21 @@ void CargoRoute::set_constr3(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> 
                 rhs += e[k][p] * z_[k][n];
             }
 //            cout << e[k][p] << endl;
-            model.addConstr(lhs * z[k][p] <=  rhs);
+            cons3[k].push_back(model.addConstr(lhs * z[k][p] <=  rhs, "cons3" + to_string(k) + to_string(p)));
         }
     }
 }
 
 void CargoRoute::set_constr4(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u) {
     GRBLinExpr lhs, rhs;
+    cons4 = new vector<GRBConstr>[cargos.size()];
     for(int k = 0; k < cargos.size(); k++){
         for(int p = 0; p < target_path[k].size();p++){
             for(int n = 0; n < rival_path[k].size(); n++){
                 lhs += e_[k][n] ;
                 rhs += e[k][p] * z_[k][n];
             }
-            model.addConstr(lhs * z[k][p] >=  rhs + u[k][p] - 1);
+            cons4[k].push_back(model.addConstr(lhs * z[k][p] >=  rhs + u[k][p] - 1, "cons4" + to_string(k) + to_string(p)));
         }
     }
 }
@@ -369,16 +372,64 @@ void CargoRoute::set_constr5(GRBModel &model, vector<GRBVar> *z) {
                     }
                 }
             }
-            model.addConstr(lhs <= ship.volume_ub);
+            cons5[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)] = model.addConstr(lhs <= ship.volume_ub);
         }
 //        cout << endl;
     }
 }
 
 void CargoRoute::set_constr6(GRBModel &model, vector<GRBVar> *z) {
-
+    vector<Flight> flights = networks.get_cur_flights();
+    for(const auto &flight : flights){
+        for(int week = 0 ; week < TIME_PERIOD / 7; week++) {
+            for(const auto &route : flight.routes){
+                vector<string> nodes = route.nodes;
+                for(int i = 0; i < nodes.size() -1; i++){
+                    Point cur_point = Point(4, (int) nodes[i][0] - 65, week * 7 * TIME_SLOT_A_DAY + stoi(nodes[i].substr(1)));
+                    Point next_point = Point(4, (int) nodes[i+1][0] - 65, week * 7 * TIME_SLOT_A_DAY + stoi(nodes[i+1].substr(1)));
+                    GRBLinExpr lhs = 0;
+                    for(int k = 0; k < cargos.size(); k++){
+                        for(int p = 0; p < target_path[k].size(); p++){
+                            vector<Point> points = target_path[k][p]->points;
+                            for(int n = 0; n < points.size()-1; n++){
+                                if(points[n] == cur_point && points[n+1] == next_point){
+//                                    cout << k << " " << p << " "<< points[n] << cur_point << " "<<  points[n+1] <<  next_point << endl;
+                                    lhs += cargos[k]->volume * z[k][p];
+                                }
+                            }
+                        }
+                    }
+                    cons6[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)] = model.addConstr(lhs <= flight.volume_ub);
+                }
+            }
+        }
+    }
 }
 
 void CargoRoute::set_constr7(GRBModel &model, vector<GRBVar> *z) {
-
+    vector<Flight> flights = networks.get_cur_flights();
+    for(const auto &flight : flights){
+        for(int week = 0 ; week < TIME_PERIOD / 7; week++) {
+            for(const auto &route : flight.routes){
+                vector<string> nodes = route.nodes;
+                for(int i = 0; i < nodes.size() -1; i++){
+                    Point cur_point = Point(4, (int) nodes[i][0] - 65, week * 7 * TIME_SLOT_A_DAY + stoi(nodes[i].substr(1)));
+                    Point next_point = Point(4, (int) nodes[i+1][0] - 65, week * 7 * TIME_SLOT_A_DAY + stoi(nodes[i+1].substr(1)));
+                    GRBLinExpr lhs = 0;
+                    for(int k = 0; k < cargos.size(); k++){
+                        for(int p = 0; p < target_path[k].size(); p++){
+                            vector<Point> points = target_path[k][p]->points;
+                            for(int n = 0; n < points.size()-1; n++){
+                                if(points[n] == cur_point && points[n+1] == next_point){
+//                                    cout << k << " " << p << " "<< points[n] << cur_point << " "<<  points[n+1] <<  next_point << endl;
+                                    lhs += cargos[k]->weight * z[k][p];
+                                }
+                            }
+                        }
+                    }
+                    cons7[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)] = model.addConstr(lhs <= flight.weight_ub);
+                }
+            }
+        }
+    }
 }
