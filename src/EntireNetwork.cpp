@@ -270,7 +270,12 @@ void EntireNetwork::add_arc(Node *out, Node *in, Arc *arc) {
     int out_node_idx = get_node_idx(out->getLayer(), out->getNode(), out->getTime());
     int in_node_idx = get_node_idx(in->getLayer(), in->getNode(), in->getTime());
 //    cout << out->getName() << " " << out_node_idx << " " << in->getName() << " " << in_node_idx << endl;
-    arcs[out_node_idx][in_node_idx] = arc;
+    if(arcs[out_node_idx][in_node_idx]){  // if two arcs are in the same place
+        arcs[out_node_idx][in_node_idx]->weight_ub += arc->weight_ub;
+        arcs[out_node_idx][in_node_idx]->volume_ub += arc->volume_ub;
+    }else {
+        arcs[out_node_idx][in_node_idx] = arc;
+    }
     out->out_arcs.push_back(arc);
     in->in_arcs.push_back(arc);
 }
@@ -474,6 +479,14 @@ int EntireNetwork::get_node_idx(int layer, int node, int time) {
 
 const unordered_map<int, unordered_map<int, Arc *>> &EntireNetwork::getArcs() const {
     return arcs;
+}
+
+vector<Flight> EntireNetwork::get_cur_flights() {
+    return this->air_network.getCur_flights();
+}
+
+vector<Ship> EntireNetwork::get_cur_ships() {
+    return this->sea_network.getCur_ships();
 }
 
 

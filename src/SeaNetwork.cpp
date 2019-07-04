@@ -117,10 +117,6 @@ void SeaNetwork::forward_update(Route **dp, int node, int time) {
     }
 }
 
-const vector<Ship> &SeaNetwork::getShips() const {
-    return designed_ships;
-}
-
 void SeaNetwork::generate_ships(vector<Ship> &ships, int n, int seed) {
     random_device rd;
     mt19937 gen =  mt19937(seed);
@@ -175,6 +171,10 @@ void SeaNetwork::print_ships(vector<Ship> designed_ships, string prefix) {
         cout << ship.route;
     }
 
+}
+
+const vector<Ship> &SeaNetwork::getShips() const {
+    return designed_ships;
 }
 
 const vector<Ship> &SeaNetwork::getCur_ships() const {

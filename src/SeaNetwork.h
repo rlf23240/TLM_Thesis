@@ -11,13 +11,13 @@
 using namespace std;
 
 struct Ship{
-    Ship(char start_node, int start_time, int frequency, int cycle_time, int weight_ub);
+    Ship(char start_node, int start_time, int frequency, int cycle_time, int volume_ub);
 
     char start_node;
     int start_time;
     int frequency;
     int cycle_time;
-    int weight_ub;
+    int volume_ub;
     Route route;
 };
 

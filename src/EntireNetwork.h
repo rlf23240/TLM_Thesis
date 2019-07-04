@@ -23,6 +23,8 @@ public:
     Node* getNode(int layer, int node, int time);
     int get_node_idx(int layer, int node, int time);
     const unordered_map<int, unordered_map<int, Arc *>> &getArcs() const;
+    vector<Flight> get_cur_flights();
+    vector<Ship> get_cur_ships();
 
 
 private :
@@ -41,7 +43,6 @@ private :
     void find_paths_from_single_node(Path path, Point point, int*** color);
     void add_path(Path* path);
     int*** create_3d_array(int x, int y, int z);
-
 
 
     AirNetwork air_network;

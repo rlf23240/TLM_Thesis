@@ -66,8 +66,8 @@ def sea_data_generator(name, n, num_ships):
             starting_time = random.randint(0,15)
             freq = 1
             cycle_time = round(numpy.random.normal(50,5))
-            weight_ub = random.randint(30,50) * 100 #weight upper bound
-            param_file.write(node + '\t' + str(starting_time) + '\t' + str(freq) + '\t' + str(cycle_time) + '\t' + str(weight_ub)+ '\n')
+            volume_ub = random.randint(30,50) * 100 #weight upper bound
+            param_file.write(node + '\t' + str(starting_time) + '\t' + str(freq) + '\t' + str(cycle_time) + '\t' + str(volume_ub)+ '\n')
         param_file.close()
 
     sea_arc_time_cost()

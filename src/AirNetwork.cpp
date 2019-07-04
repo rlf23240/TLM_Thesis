@@ -103,10 +103,6 @@ void AirNetwork::run_algo() {
 
 }
 
-const vector<Flight> &AirNetwork::getFlights() const {
-    return designed_flights;
-}
-
 void AirNetwork::generate_flights(vector<Flight> &flights, int n, int seed) {
     random_device rd;
     mt19937 gen = mt19937(seed);
@@ -179,6 +175,10 @@ void AirNetwork::print_flights(const vector<Flight>& flights, const string& pref
         }
     }
 
+}
+
+const vector<Flight> &AirNetwork::getFlights() const {
+    return designed_flights;
 }
 
 const vector<Flight> &AirNetwork::getCur_flights() const {
