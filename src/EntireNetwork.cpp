@@ -428,7 +428,7 @@ void EntireNetwork::add_path(Path *path) {
     Point front = path->points.front();
     Point back = path->points.back();
 
-    if(front.node == back.node)
+    if(front.node == back.node || back.layer == 2)
         return;
 
 //    cout << front.node << back.node << endl;
@@ -467,8 +467,9 @@ Node *EntireNetwork::getNode(int layer, int node, int time) {
 }
 
 int EntireNetwork::get_node_idx(int layer, int node, int time) {
-    return layer * (num_nodes * TOTAL_TIME_SLOT) + node * TOTAL_TIME_SLOT + time;
+    return layer *(num_nodes * TOTAL_TIME_SLOT) + node * TOTAL_TIME_SLOT + time;
 }
+
 int EntireNetwork::get_node_idx(Point point) {
     return point.layer * (num_nodes * TOTAL_TIME_SLOT) + point.node * TOTAL_TIME_SLOT + point.time;;
 }

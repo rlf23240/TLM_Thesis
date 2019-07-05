@@ -5,7 +5,6 @@
 #ifndef TLM_THESIS_PARAM_H
 #define TLM_THESIS_PARAM_H
 
-
 #include <string>
 #include <iostream>
 #include <vector>
@@ -16,6 +15,7 @@
 #include <unordered_set>
 #include <math.h>
 #include <map>
+#include <stack>
 
 #include "Path.cpp"
 

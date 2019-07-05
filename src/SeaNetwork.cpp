@@ -137,7 +137,6 @@ void SeaNetwork::generate_ships(vector<Ship> &ships, int n, int seed) {
                 next_node = dis(gen) % num_nodes;
             } while (cur_node == next_node);
 
-
             next_time = cur_time + time_cost[cur_node][next_node];
             total_cost += stop_cost[next_node] * (1+SHIP_STOP_DAY);
             total_cost += arc_cost[cur_node][next_node];
@@ -147,8 +146,7 @@ void SeaNetwork::generate_ships(vector<Ship> &ships, int n, int seed) {
 
             cur_node = next_node;
             cur_time = next_time;
-        }
-        if(cur_node != start_node){
+        }if(cur_node != start_node){
             next_node = start_node;
             next_time = cur_time + time_cost[cur_node][next_node];
             total_cost += stop_cost[next_node];

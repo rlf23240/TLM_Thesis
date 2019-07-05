@@ -7,6 +7,7 @@
 
 #include "Cargo.cpp"
 #include "EntireNetwork.h"
+#include "bb_node.h"
 #include "param.h"
 #include "gurobi_c++.h"
 
@@ -21,6 +22,7 @@ private:
     vector<Path*> all_paths;
     EntireNetwork networks;
     vector<Path*>** path_categories;
+    unordered_set<int>* chosen_paths;
     vector<Path*>* target_path;
     vector<Path*>* rival_path;
     GRBConstr* cons1;
@@ -36,10 +38,10 @@ private:
     void cal_paths_cost();
     void cal_path_cost(Path* path);
     void cal_path_reduced_cost(Path* path, int k);
-
     void branch_and_price();
     void bp_init(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u);
     void select_init_path();
+    void column_generation(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u);
     void Var_init(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u);
     void Obj_init(GRBModel &model, vector<GRBVar> *z);
     void Constr_init(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u);
@@ -54,8 +56,10 @@ private:
     void set_constr7(GRBModel &model, vector<GRBVar> *z);
     void update_arcs();
     Path* append_most_profit_path();
+    bool is_integral(vector<GRBVar> *u);
+    pair<int,int> find_kp_pair(vector<GRBVar> *u);
+    void set_u_integer(pair<int, int> kp_pair);
     void show_model_result(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u);
-
 };
 
 
