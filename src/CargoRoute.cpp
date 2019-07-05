@@ -129,20 +129,21 @@ void CargoRoute::cal_paths_profit() {
 
 void CargoRoute::cal_paths_cost() {
     for(const auto &path : all_paths){
+        cout << *path;
         cal_path_cost(path);
     }
 }
 
 void CargoRoute::cal_path_profit(Path* path)/**/{
     double profit = 0;
+    double pi = 0;
     Point *cur,*next;
     for(int p = 0; p < path->points.size()-1; p++){
         cur = &path->points[p];
         next = &path->points[p+1];
         profit += arcs[networks.get_node_idx(*cur)]
-                      [networks.get_node_idx(*next)]->unit_profit
-                      -arcs[networks.get_node_idx(*cur)]
-                      [networks.get_node_idx(*next)]->fixed_profit;
+                      [networks.get_node_idx(*next)]->unit_profit;
+        pi +=  arcs[networks.get_node_idx(*cur)][networks.get_node_idx(*next)]->fixed_profit;
 
 //        if(arcs[networks.get_node_idx(cur_node.layer,cur_node.node, cur_node.time)]
 //            [networks.get_node_idx(next_node.layer,next_node.node, next_node.time)]->unit_profit == 0){
@@ -151,6 +152,7 @@ void CargoRoute::cal_path_profit(Path* path)/**/{
     }
 //    cout << *path << profit << endl;
     path->path_profit = profit;
+    path->pi = pi;
 }
 
 void CargoRoute::cal_path_cost(Path *path) {
@@ -183,21 +185,22 @@ void CargoRoute::branch_and_price() {
 
         bp_init(model,z,z_,u);
         int count = 0;
-        do{
-            update_arcs();
-            cout << *append_most_profit_path();
+            do{
+                update_arcs();
+                Path* best_path= append_most_profit_path();
+                cout << best_path->fixed_profit()<< *best_path  << endl;
 
-            model.reset();
-            z = new vector<GRBVar>[cargos.size()];
-            z_ = new vector<GRBVar>[cargos.size()];
-            u = new vector<GRBVar>[cargos.size()];
+                model.reset();
+                z = new vector<GRBVar>[cargos.size()];
+                z_ = new vector<GRBVar>[cargos.size()];
+                u = new vector<GRBVar>[cargos.size()];
 
-            Var_init(model, z, z_, u);
-            Obj_init(model, z);
-            Constr_init(model, z, z_, u);
-            model.optimize();
-            cout << count << " " << model.get(GRB_DoubleAttr_ObjVal) << endl;
-            count++;
+                Var_init(model, z, z_, u);
+                Obj_init(model, z);
+                Constr_init(model, z, z_, u);
+                model.optimize();
+                cout << count << " Obj : " << model.get(GRB_DoubleAttr_ObjVal) << endl;
+                count++;
         }while(count < 10);
 
     } catch(GRBException e) {
@@ -506,7 +509,7 @@ Path* CargoRoute::append_most_profit_path() {
         for (const auto &path : path_categories[departure][destination]) {
 //            cout << path->path_profit << " " << *path ;
             if(cargos[k]->start_time < path->get_start_time() && cargos[k]->arrive_time > path->get_end_time()) {
-                if (!best_path || (best_path->path_profit < path->path_profit)) {
+                if (!best_path || (best_path->fixed_profit() < path->fixed_profit())) {
                     best_path = path;
                     best_k = k;
                 }

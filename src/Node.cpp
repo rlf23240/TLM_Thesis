@@ -51,8 +51,8 @@ void Arc::set_unit_cost(Node *start_node, Node *end_node) {
     }
 }
 
-void Arc::minus_fixed_profit(double fixed_profit) {
-    Arc::fixed_profit -= fixed_profit;
+void Arc::minus_fixed_profit(double pi) {
+    Arc::fixed_profit -= pi;
 }
 
 

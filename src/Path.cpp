@@ -89,6 +89,9 @@ struct Path{
     int get_end_time(){
         return this->points.back().time;
     }
+    double fixed_profit(){
+        return path_profit + pi;
+    }
     vector<Point> points{};
     int stay_at_virtual = 0;
     int virtual_entry_time = -1;
@@ -97,5 +100,5 @@ struct Path{
     double path_cost;
     int last_time;
     double path_profit;
-    double fixed_profit;
+    double pi;
 };
