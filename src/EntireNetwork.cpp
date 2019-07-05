@@ -413,19 +413,14 @@ void EntireNetwork::find_paths_from_single_node(Path path, Point point, int*** v
 
     Node* cur_node = nodes[point.layer][point.node][point.time];
     visited[point.layer][point.node][point.time] = 1;
-    if(path.is_feasible()){
-//        cout << path ;
-        add_path(new Path(path));
-        for(auto* out_arc : cur_node->out_arcs){
-            auto next_point = Point(out_arc->end_node->getName());
-            path.push_point(next_point);
-            if (visited[next_point.layer][next_point.node][next_point.time] == 0)
-                find_paths_from_single_node(path, next_point, visited);
-            path.pop_point();
-        }
-    }
-    else{
-        return ;
+
+    add_path(new Path(path));
+    for(auto* out_arc : cur_node->out_arcs){
+        auto next_point = Point(out_arc->end_node->getName());
+        path.push_point(next_point);
+        if (path.is_feasible() && visited[next_point.layer][next_point.node][next_point.time] == 0)
+            find_paths_from_single_node(path, next_point, visited);
+        path.pop_point();
     }
 }
 

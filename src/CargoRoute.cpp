@@ -127,13 +127,6 @@ void CargoRoute::cal_paths_profit() {
     }
 }
 
-void CargoRoute::cal_paths_cost() {
-    for(const auto &path : all_paths){
-        cout << *path;
-        cal_path_cost(path);
-    }
-}
-
 void CargoRoute::cal_path_profit(Path* path)/**/{
     double profit = 0;
     double pi = 0;
@@ -153,6 +146,12 @@ void CargoRoute::cal_path_profit(Path* path)/**/{
 //    cout << *path << profit << endl;
     path->path_profit = profit;
     path->pi = pi;
+}
+
+void CargoRoute::cal_paths_cost() {
+    for(const auto &path : all_paths){
+        cal_path_cost(path);
+    }
 }
 
 void CargoRoute::cal_path_cost(Path *path) {
@@ -183,12 +182,12 @@ void CargoRoute::branch_and_price() {
         z_ = new vector<GRBVar>[cargos.size()];
         u = new vector<GRBVar>[cargos.size()];
 
-        bp_init(model,z,z_,u);
+        bp_init(model, z, z_, u);
         int count = 0;
             do{
                 update_arcs();
                 Path* best_path= append_most_profit_path();
-                cout << best_path->fixed_profit()<< *best_path  << endl;
+                cout << best_path->reduced_cost << *best_path  << endl;
 
                 model.reset();
                 z = new vector<GRBVar>[cargos.size()];
@@ -230,7 +229,7 @@ void CargoRoute::select_init_path() {
         int path_count = 0 ;
         for (const auto &path : path_categories[departure][destination]) {
 //            cout << path->path_profit << " " << *path ;
-            if(cargos[k]->start_time < path->get_start_time() && cargos[k]->arrive_time > path->get_end_time() && path_count < 10) {
+            if(cargos[k]->start_time < path->get_start_time() && cargos[k]->arrive_time > path->get_end_time() && path_count < 5) {
                 if(path->path_profit != 0) {
                     target_path[k].emplace_back(path);
                 }
@@ -501,15 +500,14 @@ void CargoRoute::update_arcs() {
 Path* CargoRoute::append_most_profit_path() {
     Path* best_path = nullptr;
     int best_k = -1;
-    cal_paths_profit();
     for (int k = 0 ; k < cargos.size(); k++) {
         int departure = cargos[k]->departure - 65;
         int destination = cargos[k]->destination - 65 ;
 //        cout << departure << " " << destination << " " << path_categories[departure][destination].size() << endl;
         for (const auto &path : path_categories[departure][destination]) {
-//            cout << path->path_profit << " " << *path ;
-            if(cargos[k]->start_time < path->get_start_time() && cargos[k]->arrive_time > path->get_end_time()) {
-                if (!best_path || (best_path->fixed_profit() < path->fixed_profit())) {
+            cal_path_reduced_cost(path, k);
+            if(cargos[k]->start_time <= path->get_start_time() && cargos[k]->arrive_time >= path->get_end_time()) {
+                if (!best_path || (best_path->reduced_cost < path->reduced_cost)) {
                     best_path = path;
                     best_k = k;
                 }
@@ -524,6 +522,36 @@ Path* CargoRoute::append_most_profit_path() {
         }
     }
     return best_path;
+}
+
+void CargoRoute::cal_path_reduced_cost(Path* path, int k){
+    double reduced_cost = 0;
+    Point *cur,*next;
+    for(int p = 0; p < path->points.size()-1; p++){
+        cur = &path->points[p];
+        next = &path->points[p+1];
+        reduced_cost += arcs[networks.get_node_idx(*cur)][networks.get_node_idx(*next)]->unit_profit -
+                        arcs[networks.get_node_idx(*cur)][networks.get_node_idx(*next)]->fixed_profit;
+    }
+
+    reduced_cost -= cons1[k].get(GRB_DoubleAttr_Pi);
+    double pi3_sum = 0, pi4_sum = 0;
+    double coef = 0;
+
+
+    for(int p = 0; p < target_path[k].size(); p++){
+        reduced_cost -= cons2[k][p].get(GRB_DoubleAttr_Pi);
+
+        pi3_sum += cons3[k][p].get(GRB_DoubleAttr_Pi);
+        pi4_sum += cons4[k][p].get(GRB_DoubleAttr_Pi);
+    }
+    for(int n = 0; n < rival_path[k].size(); n++){
+        coef += e_[k][n];
+    }
+    reduced_cost -= coef * pi3_sum ;
+    reduced_cost += coef * pi4_sum ;
+//    cout << *path << profit << endl;
+    path->reduced_cost = reduced_cost;
 }
 
 void CargoRoute::show_model_result(GRBModel &model, vector <GRBVar> *z, vector <GRBVar> *z_, vector <GRBVar> *u) {

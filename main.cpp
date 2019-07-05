@@ -5,7 +5,7 @@
 
 using namespace std;
 int main() {
-//    EntireNetwork network = EntireNetwork("C");
-    CargoRoute cargo_route = CargoRoute("A");
+//    EntireNetwork network = EntireNetwork("B");
+    CargoRoute cargo_route = CargoRoute("B");
     return 0;
 }

@@ -32,9 +32,10 @@ private:
     void read_cargo_file(string data);
     void get_available_path(vector<Path*>** path_categories, vector<Path*>& paths);
     void cal_paths_profit();
-    void cal_paths_cost();
     void cal_path_profit(Path* path);
+    void cal_paths_cost();
     void cal_path_cost(Path* path);
+    void cal_path_reduced_cost(Path* path, int k);
 
     void branch_and_price();
     void bp_init(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u);

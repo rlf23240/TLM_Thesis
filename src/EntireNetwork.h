@@ -27,7 +27,6 @@ public:
     vector<Flight> get_cur_flights();
     vector<Ship> get_cur_ships();
 
-
 private :
     void create_networks(string data);
     void read_param_data(string data);

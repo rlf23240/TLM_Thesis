@@ -42,37 +42,41 @@ struct Path{
         else
             this->stay_at_virtual = 0;
 
-        if(!enter_virtual_twice && (!this->points.empty() && point.layer == 2 && this->points.back().layer != 2))
+        if(!enter_virtual_twice && virtual_entry_time == -1 && (!this->points.empty() && point.layer == 2 && this->points.back().layer != 2))
             virtual_entry_time = point.time;
         else if(virtual_entry_time > -1 && (!this->points.empty() && point.layer == 2 && this->points.back().layer != 2))
             enter_virtual_twice = true;
 
+
         this->points.push_back(point);
+//        cout << enter_virtual_twice << " " << virtual_entry_time << " " << *this;
+
     }
 
     void pop_point(){
         if(this->points.back().layer == 2)
             this->stay_at_virtual--;
 
-        if(enter_virtual_twice && this->points.back().layer == 2)
-            enter_virtual_twice = false;
-        else if(!enter_virtual_twice && this->points.back().time == virtual_entry_time)
-            virtual_entry_time = -1;
-
+        if(this->points.back().layer == 2) {
+            if (enter_virtual_twice)
+                enter_virtual_twice = false;
+            else if (!enter_virtual_twice && this->points.back().time == virtual_entry_time)
+                virtual_entry_time = -1;
+        }
         this->points.pop_back();
+
     }
 
     bool is_feasible(){
         if(this->stay_at_virtual > 6)
             return false;
-//        if(this->size() > 25)
-//            return false;
         if(this->size() == 2 && this->points.back().layer == 2)
             return false;
 //        if(this->points.begin()->layer == 2)
 //            return false;
-        if(enter_virtual_twice == true)
+        if(enter_virtual_twice == true) {
             return false;
+        }
         return true;
     }
 
@@ -101,4 +105,5 @@ struct Path{
     int last_time;
     double path_profit;
     double pi;
+    double reduced_cost;
 };
