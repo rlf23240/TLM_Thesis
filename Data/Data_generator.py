@@ -2,7 +2,6 @@ import random
 import numpy
 from math import floor
 
-
 sea_time_cost = None
 air_time_cost = None
 
@@ -184,6 +183,8 @@ def param(name, n, num_ships, num_flights, total_time_slot) :
 
 
 if __name__ == "__main__" :
-    data_generator(name = "A", n = 10, num_flights= 10, num_ships=10, num_cargos=100)
-    data_generator(name = "B", n = 4, num_flights= 2, num_ships=2, num_cargos=20)
-    data_generator(name = "C", n = 20, num_flights= 15, num_ships=15, num_cargos=200)
+    data_generator(name = "A", n = 4, num_flights= 4, num_ships=4, num_cargos=40)
+    data_generator(name = "B", n = 6, num_flights= 6, num_ships=6, num_cargos=60)
+    data_generator(name = "C", n = 8, num_flights= 8, num_ships=8, num_cargos=80)
+    data_generator(name = "D", n = 10, num_flights= 10, num_ships=10, num_cargos=100)
+    data_generator(name = "E", n = 12, num_flights= 12, num_ships=12, num_cargos=120)

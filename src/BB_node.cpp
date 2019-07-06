@@ -57,3 +57,7 @@ const unordered_map<int, unordered_map<int, bool>> &BB_node::getIntegerSet() con
     return integer_set;
 }
 
+double BB_node::getObj() const {
+    return obj;
+}
+

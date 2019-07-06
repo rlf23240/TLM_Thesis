@@ -40,6 +40,8 @@ public:
 
     const unordered_map<int, unordered_map<int, bool>> &getIntegerSet() const;
 
+    double getObj() const;
+
     static int cargo_size;
 
 };
