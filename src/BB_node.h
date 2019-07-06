@@ -13,14 +13,16 @@ private:
     double obj;
     vector<Path*>* target_path;
     vector<Path*>* rival_path;
+
     unordered_set<int>* chosen_paths;
     unordered_map<int, unordered_map <int, bool>> integer_set;
-
 public:
 
-    BB_node(double obj, vector<Path *> *target_path, vector<Path *> *rival_path, unordered_set<int> *chosen_paths);
-
-    static int cargo_size;
+    BB_node(double obj,
+            vector<Path *> *target_path,
+            vector<Path *> *rival_path,
+            unordered_set<int> *chosen_paths,
+            unordered_map<int,unordered_map<int, bool>> integer_set);
 
     bool operator<(const BB_node &rhs) const;
 
@@ -29,6 +31,16 @@ public:
     bool operator<=(const BB_node &rhs) const;
 
     bool operator>=(const BB_node &rhs) const;
+
+    vector<Path *> *getTargetPath() const;
+
+    vector<Path *> *getRivalPath() const;
+
+    unordered_set<int> *getChosenPaths() const;
+
+    const unordered_map<int, unordered_map<int, bool>> &getIntegerSet() const;
+
+    static int cargo_size;
 
 };
 

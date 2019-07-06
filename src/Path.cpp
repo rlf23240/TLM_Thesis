@@ -27,7 +27,7 @@ struct Path{
     }
 
     friend std::ostream &operator<<(std::ostream &os, const Path &path) {
-        os << "Path :\t:" ;
+        os << "Path :" ;
         for(auto point : path.points){
             os << point << "->";
         }

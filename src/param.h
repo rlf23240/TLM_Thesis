@@ -14,7 +14,7 @@
 #include <random>
 #include <unordered_set>
 #include <math.h>
-#include <map>
+#include <queue>
 #include <stack>
 
 #include "Path.cpp"
@@ -25,6 +25,8 @@ static const unsigned int TOTAL_TIME_SLOT = TIME_PERIOD * TIME_SLOT_A_DAY;
 
 static const int SHIP_STOP_DAY = 1;
 static const int FIX_COST_OF_VIRTUAL_ARC = 100;
+
+static const int NUM_INIT_PATHS = 1;
 
 
 
