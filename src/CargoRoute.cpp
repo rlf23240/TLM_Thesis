@@ -196,40 +196,39 @@ void CargoRoute::branch_and_price() {
         bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal), target_path, rival_path, chosen_paths, integer_set));
 
         while(!bb_pool.empty()){
+            if(bb_pool.top().getObj() < incumbent) {
+                bb_pool.pop();
+                continue;
+            }
+
             target_path = bb_pool.top().getTargetPath();
             rival_path = bb_pool.top().getRivalPath();
             chosen_paths = bb_pool.top().getChosenPaths();
             integer_set = bb_pool.top().getIntegerSet();
 
-            if(bb_pool.top().getObj() < incumbent) {
-                cout << "-----------------------------------pruning-----------------------------------" << endl;
-                bb_pool.pop();
-                continue;
-            }
-
             bb_pool.pop();
             column_generation(model, z, z_, u);
             show_model_result(model, z, z_, u);
-//            if(is_integral(u)) break;
+            if(is_integral(u)) break;
 
             pair<int, int> kp_pair = find_kp_pair(u);
 
             //branching
-            integer_set[kp_pair.first][kp_pair.second] = 0;
+            integer_set[kp_pair.first][kp_pair.second] = false;
             LP_relaxation(model, z, z_, u);
             bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal), target_path, rival_path, chosen_paths, integer_set));
             if(is_integral(u) && incumbent < model.get(GRB_DoubleAttr_ObjVal)) incumbent = model.get(GRB_DoubleAttr_ObjVal);
 
-            integer_set[kp_pair.first][kp_pair.second] = 1;
+            integer_set[kp_pair.first][kp_pair.second] = true;
             LP_relaxation(model, z, z_, u);
             bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal), target_path, rival_path, chosen_paths, integer_set));
             if(is_integral(u) && incumbent < model.get(GRB_DoubleAttr_ObjVal)) incumbent = model.get(GRB_DoubleAttr_ObjVal);
         }
-        for(auto  &k : integer_set){
-            for(auto &p : integer_set[k.first]){
-                cout << k.first << " " << p.first << " " << p.second <<endl;
-            }
-        }
+//        for(auto  &k : integer_set){
+//            for(auto &p : integer_set[k.first]){
+//                cout << k.first << " " << p.first << " " << p.second <<endl;
+//            }
+//        }
 
 
     } catch(GRBException e) {

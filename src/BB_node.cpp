@@ -10,7 +10,7 @@ BB_node::BB_node(double obj,
         unordered_set<int> *chosen_paths,
         unordered_map<int, unordered_map <int, bool>> integer_set){
     this->obj = obj;
-    this->integer_set = integer_set;
+//    this->integer_set = integer_set;
 
     this->target_path = new vector<Path*>[cargo_size];
     this->rival_path = new vector<Path*>[cargo_size];
@@ -21,11 +21,11 @@ BB_node::BB_node(double obj,
         this->chosen_paths[k] = chosen_paths[k];
     }
 
-//    for(auto &k : integer_set){
-//        for(auto &p : integer_set[k.first]){
-//            this->integer_set[k.first][p.first] = p.second;
-//        }
-//    }
+    for(auto &k : integer_set){
+        for(auto &p : integer_set[k.first]){
+            this->integer_set[k.first][p.first] = p.second;
+        }
+    }
 
 }
 
