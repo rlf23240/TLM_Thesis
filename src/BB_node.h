@@ -13,11 +13,9 @@ private:
     double obj;
     vector<Path*>* target_path;
     vector<Path*>* rival_path;
-
     unordered_set<int>* chosen_paths;
     unordered_map<int, unordered_map <int, bool>> integer_set;
 public:
-
     BB_node(double obj,
             vector<Path *> *target_path,
             vector<Path *> *rival_path,

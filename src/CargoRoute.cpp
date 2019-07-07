@@ -191,7 +191,7 @@ void CargoRoute::branch_and_price() {
 
 
         bp_init(model, z, z_, u);
-        priority_queue<BB_node> bb_pool;
+        stack<BB_node> bb_pool;
         BB_node::cargo_size = cargos.size();
         bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal), target_path, rival_path, chosen_paths, integer_set));
 
@@ -202,7 +202,7 @@ void CargoRoute::branch_and_price() {
             integer_set = bb_pool.top().getIntegerSet();
 
             if(bb_pool.top().getObj() < incumbent) {
-                cout << "-----------------------------------prunuing-----------------------------------" << endl;
+                cout << "-----------------------------------pruning-----------------------------------" << endl;
                 bb_pool.pop();
                 continue;
             }
@@ -210,17 +210,17 @@ void CargoRoute::branch_and_price() {
             bb_pool.pop();
             column_generation(model, z, z_, u);
             show_model_result(model, z, z_, u);
-            if(is_integral(u)) break;
+//            if(is_integral(u)) break;
 
             pair<int, int> kp_pair = find_kp_pair(u);
 
             //branching
-            integer_set[kp_pair.first][kp_pair.second] = 1;
+            integer_set[kp_pair.first][kp_pair.second] = 0;
             LP_relaxation(model, z, z_, u);
             bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal), target_path, rival_path, chosen_paths, integer_set));
             if(is_integral(u) && incumbent < model.get(GRB_DoubleAttr_ObjVal)) incumbent = model.get(GRB_DoubleAttr_ObjVal);
 
-            integer_set[kp_pair.first][kp_pair.second] = 0;
+            integer_set[kp_pair.first][kp_pair.second] = 1;
             LP_relaxation(model, z, z_, u);
             bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal), target_path, rival_path, chosen_paths, integer_set));
             if(is_integral(u) && incumbent < model.get(GRB_DoubleAttr_ObjVal)) incumbent = model.get(GRB_DoubleAttr_ObjVal);
@@ -659,10 +659,11 @@ pair<int,int> CargoRoute::find_kp_pair(vector<GRBVar> *u){
 
 void CargoRoute::show_model_result(GRBModel &model, vector <GRBVar> *z, vector <GRBVar> *z_, vector <GRBVar> *u) {
     for(int k = 0 ; k < cargos.size(); k++){
-        cout << target_path[k].size() << " ";
+//        cout << target_path[k].size() << " ";
         for(int p = 0; p < target_path[k].size(); p++){
             if(u[k][p].get(GRB_DoubleAttr_X) != 0 && u[k][p].get(GRB_DoubleAttr_X) != 1) {
-                cout << "u^" << k <<"_"<< p << ": " << u[k][p].get(GRB_DoubleAttr_X) << endl;
+                cout << "u^" << k <<"_"<< p << ": " << u[k][p].get(GRB_DoubleAttr_X) << "\t";
+                cout << "z" << k <<"_"<< p << ": " << z[k][p].get(GRB_DoubleAttr_X) << endl;
             }
         }
     }

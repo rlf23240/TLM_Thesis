@@ -21,6 +21,12 @@ BB_node::BB_node(double obj,
         this->chosen_paths[k] = chosen_paths[k];
     }
 
+//    for(auto &k : integer_set){
+//        for(auto &p : integer_set[k.first]){
+//            this->integer_set[k.first][p.first] = p.second;
+//        }
+//    }
+
 }
 
 bool BB_node::operator<(const BB_node &rhs) const {
