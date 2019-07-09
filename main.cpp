@@ -6,6 +6,6 @@
 using namespace std;
 int main() {
 //    EntireNetwork network = EntireNetwork("B");
-    CargoRoute cargo_route = CargoRoute("E");
+    CargoRoute cargo_route = CargoRoute("D");
     return 0;
 }

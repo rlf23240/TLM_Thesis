@@ -8,7 +8,8 @@ set(CMAKE_CXX_STANDARD 17)
 #include_directories(googletest/googletest/include)
 #include_directories(googletest/googlemock/include)
 
-add_executable(TLM_Thesis main.cpp src/Network.cpp src/Network.h src/Node.cpp src/Node.h src/param.h src/AirNetwork.cpp src/AirNetwork.h src/SeaNetwork.cpp src/SeaNetwork.h src/EntireNetwork.cpp src/EntireNetwork.h src/Path.cpp src/Point.cpp src/Cargo.cpp src/CargoRoute.cpp src/CargoRoute.h src/BB_node.cpp src/BB_node.h)
+add_executable(TLM_Thesis main.cpp src/Network.cpp src/Network.h src/Node.cpp src/Node.h src/param.h src/AirNetwork.cpp src/AirNetwork.h src/SeaNetwork.cpp src/SeaNetwork.h src/EntireNetwork.cpp src/EntireNetwork.h src/Path.cpp src/Point.cpp src/Cargo.cpp src/CargoRoute.cpp src/CargoRoute.h src/BB_node.cpp src/BB_node.h src/Dantzig_wolfe.cpp src/Dantzig_wolfe.h)
+add_executable(Model model.cpp)
 #add_executable(Test Test/testMain.cpp Test/NodeTest.cpp src/Node.h src/Node.cpp src/Network.cpp src/Network.h Test/networkTest.cpp src/AirNetwork.cpp src/AirNetwork.h src/SeaNetwork.cpp src/SeaNetwork.h)
 
 #target_link_libraries(Test gtest gtest_main)
@@ -20,4 +21,9 @@ if (GUROBI_FOUND)
 
     target_include_directories(TLM_Thesis PRIVATE ${GUROBI_INCLUDE_DIRS})
     target_link_libraries(TLM_Thesis ${GUROBI_LIBRARIES})
+
+    target_compile_definitions(Model PUBLIC HAS_GUROBI)
+
+    target_include_directories(Model PRIVATE ${GUROBI_INCLUDE_DIRS})
+    target_link_libraries(Model ${GUROBI_LIBRARIES})
 endif()

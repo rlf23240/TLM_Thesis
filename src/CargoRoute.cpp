@@ -19,7 +19,7 @@ struct pair_hash
 };
 
 
-CargoRoute::CargoRoute(string data) {
+CargoRoute::CargoRoute(string data)  {
     read_cargo_file(data);
     networks = EntireNetwork(data);
     path_categories = networks.getPaths_categories();
@@ -29,7 +29,7 @@ CargoRoute::CargoRoute(string data) {
     cal_paths_profit();
     cal_paths_cost();
 
-    branch_and_price();
+    objVal = branch_and_price();
 }
 
 void CargoRoute::read_cargo_file(string data) {
@@ -174,13 +174,11 @@ void CargoRoute::cal_path_cost(Path *path) {
     path->last_time = path->points.back().time - path->points.front().time;
 }
 
-void CargoRoute::branch_and_price() {
+double CargoRoute::branch_and_price() {
     try {
         GRBEnv env = GRBEnv();
         GRBModel model = GRBModel(env);
         model.set(GRB_IntParam_OutputFlag, false);
-        vector<GRBVar> *z, *z_, *u;
-
         //initialize
         z = new vector<GRBVar>[cargos.size()];
         z_ = new vector<GRBVar>[cargos.size()];
@@ -190,7 +188,7 @@ void CargoRoute::branch_and_price() {
         chosen_paths = new unordered_set<int>[cargos.size()];
 
 
-        bp_init(model, z, z_, u);
+        bp_init(model);
         stack<BB_node> bb_pool;
         BB_node::cargo_size = cargos.size();
         bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal), target_path, rival_path, chosen_paths, integer_set));
@@ -207,29 +205,29 @@ void CargoRoute::branch_and_price() {
             integer_set = bb_pool.top().getIntegerSet();
 
             bb_pool.pop();
-            column_generation(model, z, z_, u);
-            show_model_result(model, z, z_, u);
-            if(is_integral(u)) break;
+            column_generation(model);
+            show_model_result(model);
+            if(is_integral()) break;
 
-            pair<int, int> kp_pair = find_kp_pair(u);
+            pair<int, int> kp_pair = find_kp_pair();
 
             //branching
             integer_set[kp_pair.first][kp_pair.second] = false;
-            LP_relaxation(model, z, z_, u);
+            LP_relaxation(model);
             bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal), target_path, rival_path, chosen_paths, integer_set));
-            if(is_integral(u) && incumbent < model.get(GRB_DoubleAttr_ObjVal)) incumbent = model.get(GRB_DoubleAttr_ObjVal);
+            if(is_integral() && incumbent < model.get(GRB_DoubleAttr_ObjVal)) incumbent = model.get(GRB_DoubleAttr_ObjVal);
 
             integer_set[kp_pair.first][kp_pair.second] = true;
-            LP_relaxation(model, z, z_, u);
+            LP_relaxation(model);
             bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal), target_path, rival_path, chosen_paths, integer_set));
-            if(is_integral(u) && incumbent < model.get(GRB_DoubleAttr_ObjVal)) incumbent = model.get(GRB_DoubleAttr_ObjVal);
+            if(is_integral() && incumbent < model.get(GRB_DoubleAttr_ObjVal)) incumbent = model.get(GRB_DoubleAttr_ObjVal);
         }
 //        for(auto  &k : integer_set){
 //            for(auto &p : integer_set[k.first]){
 //                cout << k.first << " " << p.first << " " << p.second <<endl;
 //            }
 //        }
-
+        return model.get(GRB_DoubleAttr_ObjVal);
 
     } catch(GRBException e) {
         cout << "Error code = " << e.getErrorCode() << endl;
@@ -239,12 +237,12 @@ void CargoRoute::branch_and_price() {
     }
 }
 
-void CargoRoute::bp_init(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u) {
+void CargoRoute::bp_init(GRBModel &model) {
 
     select_init_path();
-    Var_init(model, z, z_, u);
-    Obj_init(model, z);
-    Constr_init(model, z, z_, u);
+    Var_init(model);
+    Obj_init(model);
+    Constr_init(model);
     model.optimize();
 //    show_model_result(model, z, z_, u);
 }
@@ -278,25 +276,25 @@ void CargoRoute::select_init_path() {
     }
 }
 
-void CargoRoute::LP_relaxation(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u) {
+void CargoRoute::LP_relaxation(GRBModel &model) {
     model.reset();
     for(int k = 0; k<cargos.size();k++) {
         z[k].clear();
         z_[k].clear();
         u[k].clear();
     }
-    Var_init(model, z, z_, u);
-    Obj_init(model, z);
-    Constr_init(model, z, z_, u);
+    Var_init(model);
+    Obj_init(model);
+    Constr_init(model);
 
     model.optimize();
 }
 
-void CargoRoute::column_generation(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u) {
+void CargoRoute::column_generation(GRBModel &model) {
     Path *best_path;
     int iter = 0;
     while (true) {
-        LP_relaxation(model, z, z_, u);
+        LP_relaxation(model);
 
         update_arcs();
         pair<Path*, int> path_pair = select_most_profit_path();
@@ -313,7 +311,7 @@ void CargoRoute::column_generation(GRBModel &model, vector<GRBVar> *z, vector<GR
     }
 }
 
-void CargoRoute::Var_init(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u) {
+void CargoRoute::Var_init(GRBModel &model) {
     for(int k = 0; k< cargos.size(); k++){
         for(int p = 0; p < target_path[k].size(); p++){
             z[k].push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
@@ -325,7 +323,7 @@ void CargoRoute::Var_init(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_
     }
 }
 
-void CargoRoute::Obj_init(GRBModel &model, vector<GRBVar> *z) {
+void CargoRoute::Obj_init(GRBModel &model) {
     GRBLinExpr obj = 0;
     for(int k = 0; k < cargos.size(); k++) {
         for (int p = 0; p < target_path[k].size(); p++) {
@@ -335,19 +333,19 @@ void CargoRoute::Obj_init(GRBModel &model, vector<GRBVar> *z) {
     model.setObjective(obj, GRB_MAXIMIZE);
 }
 
-void CargoRoute::Constr_init(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u) {
-    set_constr1(model, z, z_);
-    set_constr2(model, z, u);
+void CargoRoute::Constr_init(GRBModel &model) {
+    set_constr1(model);
+    set_constr2(model);
     cal_e();
-    set_constr3(model, z, z_, u);
-    set_constr4(model, z, z_, u);
-    set_constr5(model, z);
-    set_constr6(model, z);
-    set_constr7(model, z);
-    set_integer(model, u);
+    set_constr3(model);
+    set_constr4(model);
+    set_constr5(model);
+    set_constr6(model);
+    set_constr7(model);
+    set_integer(model);
 }
 
-void CargoRoute::set_constr1(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_){
+void CargoRoute::set_constr1(GRBModel &model){
     cons1 = new GRBConstr[cargos.size()];
     for(int k = 0; k < cargos.size(); k++){
         GRBLinExpr expr = 0;
@@ -361,7 +359,7 @@ void CargoRoute::set_constr1(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> 
     }
 }
 
-void CargoRoute::set_constr2(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *u) {
+void CargoRoute::set_constr2(GRBModel &model) {
     cons2 = new vector<GRBConstr>[cargos.size()];
     for(int k = 0; k < cargos.size(); k++){
         for(int p = 0; p < target_path[k].size(); p++){
@@ -422,7 +420,7 @@ void CargoRoute::cal_v() {
     }
 }
 
-void CargoRoute::set_constr3(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u) {
+void CargoRoute::set_constr3(GRBModel &model) {
     GRBLinExpr lhs, rhs;
     cons3 = new vector<GRBConstr>[cargos.size()];
     for(int k = 0; k < cargos.size(); k++){
@@ -437,7 +435,7 @@ void CargoRoute::set_constr3(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> 
     }
 }
 
-void CargoRoute::set_constr4(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> *z_, vector<GRBVar> *u) {
+void CargoRoute::set_constr4(GRBModel &model) {
     GRBLinExpr lhs, rhs;
     cons4 = new vector<GRBConstr>[cargos.size()];
     for(int k = 0; k < cargos.size(); k++){
@@ -451,7 +449,7 @@ void CargoRoute::set_constr4(GRBModel &model, vector<GRBVar> *z, vector<GRBVar> 
     }
 }
 
-void CargoRoute::set_constr5(GRBModel &model, vector<GRBVar> *z) {
+void CargoRoute::set_constr5(GRBModel &model) {
     vector<Ship> ships = networks.get_cur_ships();
     for(const auto &ship : ships){
         vector<string> nodes = ship.route.nodes;
@@ -476,7 +474,7 @@ void CargoRoute::set_constr5(GRBModel &model, vector<GRBVar> *z) {
     }
 }
 
-void CargoRoute::set_constr6(GRBModel &model, vector<GRBVar> *z) {
+void CargoRoute::set_constr6(GRBModel &model) {
     vector<Flight> flights = networks.get_cur_flights();
     for(const auto &flight : flights){
         for(int week = 0 ; week < TIME_PERIOD / 7; week++) {
@@ -504,7 +502,7 @@ void CargoRoute::set_constr6(GRBModel &model, vector<GRBVar> *z) {
     }
 }
 
-void CargoRoute::set_constr7(GRBModel &model, vector<GRBVar> *z) {
+void CargoRoute::set_constr7(GRBModel &model) {
     vector<Flight> flights = networks.get_cur_flights();
     for(const auto &flight : flights){
         for(int week = 0 ; week < TIME_PERIOD / 7; week++) {
@@ -532,7 +530,7 @@ void CargoRoute::set_constr7(GRBModel &model, vector<GRBVar> *z) {
     }
 }
 
-void CargoRoute::set_integer(GRBModel &model, vector<GRBVar> *u) {
+void CargoRoute::set_integer(GRBModel &model) {
     for(auto  &k : integer_set){
         for(auto &p : integer_set[k.first]){
             model.addConstr(u[k.first][p.first] == p.second);
@@ -629,7 +627,7 @@ void CargoRoute::cal_path_reduced_cost(Path* path, int k){
     path->reduced_cost = reduced_cost;
 }
 
-bool CargoRoute::is_integral(vector<GRBVar> *u) {
+bool CargoRoute::is_integral() {
     for(int k = 0; k < cargos.size(); k++){
         for(int p = 0; p < target_path[k].size(); p++){
             if(u[k][p].get(GRB_DoubleAttr_X) != 1.0 && u[k][p].get(GRB_DoubleAttr_X) != 0.0){
@@ -640,7 +638,7 @@ bool CargoRoute::is_integral(vector<GRBVar> *u) {
     return true;
 }
 
-pair<int,int> CargoRoute::find_kp_pair(vector<GRBVar> *u){
+pair<int,int> CargoRoute::find_kp_pair(){
     pair<int, int> kp_pair;
     double closest_diff = 1;
     for(int k = 0; k < cargos.size(); k++){
@@ -656,7 +654,7 @@ pair<int,int> CargoRoute::find_kp_pair(vector<GRBVar> *u){
     return kp_pair;
 }
 
-void CargoRoute::show_model_result(GRBModel &model, vector <GRBVar> *z, vector <GRBVar> *z_, vector <GRBVar> *u) {
+void CargoRoute::show_model_result(GRBModel &model) {
     for(int k = 0 ; k < cargos.size(); k++){
 //        cout << target_path[k].size() << " ";
         for(int p = 0; p < target_path[k].size(); p++){
