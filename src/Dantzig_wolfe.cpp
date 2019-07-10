@@ -15,7 +15,7 @@ Dantzig_wolfe::Dantzig_wolfe(const CargoRoute &cargoRoute) : cargoRoute(cargoRou
 void Dantzig_wolfe::append_R_column(vector<double> r_column) {
     if(R.empty()){
         for(int r = 0; r < r_column.size(); r++){
-            R.push_back(vector<double>());
+            R.emplace_back();
         }
     }
 
