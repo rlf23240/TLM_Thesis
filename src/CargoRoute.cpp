@@ -31,22 +31,6 @@ CargoRoute::CargoRoute(string data)  {
 
 
     objVal = branch_and_price();
-    find_sea_arcs();
-    find_air_arcs();
-    double* cons1_vals = cal_constr1_val();
-    double* cons2_vals = cal_constr2_val();
-    double* cons3_vals = cal_constr3_val();
-//    for(int i = 0; i < sea_arc_pairs.size(); i++){
-//        if(cons1_vals[i] != 0) cout << "constr1 : " << sea_arc_pairs[i].first << " " << sea_arc_pairs[i].second << " " << cons1_vals[i] << endl;
-//    }
-//    for(int i = 0; i < air_arc_pairs.size(); i++){
-//        if(cons2_vals[i] != 0) cout << "constr2 : " << air_arc_pairs[i].first << " " << air_arc_pairs[i].second << " "<< cons2_vals[i] << endl;
-//    }
-//    for(int i = 0; i < air_arc_pairs.size(); i++){
-//        if(cons3_vals[i] != 0) cout << "constr3 : " << air_arc_pairs[i].first << " " << air_arc_pairs[i].second << " "<< cons3_vals[i] << endl;
-//    }
-
-//
 }
 
 void CargoRoute::read_cargo_file(string data) {
@@ -846,6 +830,30 @@ unordered_set<pair<int, int>, pair_hash> CargoRoute::get_arc_set(Path *path) {
         arc_set.insert(arc_pair);
     }
     return arc_set;
+}
+
+double CargoRoute::getObjVal() const {
+    return objVal;
+}
+
+vector<double> CargoRoute::get_r_column() {
+    vector<double> r_column;
+    find_sea_arcs();
+    find_air_arcs();
+    double* cons1_vals = cal_constr1_val();
+    double* cons2_vals = cal_constr2_val();
+    double* cons3_vals = cal_constr3_val();
+    for(int i = 0; i < sea_arc_pairs.size(); i++){
+        r_column.push_back(cons1_vals[i]);
+    }
+    for(int i = 0; i < air_arc_pairs.size(); i++){
+        r_column.push_back(cons2_vals[i]);
+    }
+    for(int i = 0; i < air_arc_pairs.size(); i++){
+        r_column.push_back(cons3_vals[i]);
+    }
+    return r_column;
+
 }
 
 

@@ -16,6 +16,8 @@ struct pair_hash;
 class CargoRoute {
 public:
     explicit CargoRoute(string data);
+    double getObjVal() const;
+    vector<double> get_r_column();
 
 private:
     unsigned int num_nodes;
@@ -72,7 +74,6 @@ private:
     bool is_integral();
     void set_integer(GRBModel &model);
     pair<int,int> find_kp_pair();
-
 
     void find_sea_arcs();
     void find_air_arcs();

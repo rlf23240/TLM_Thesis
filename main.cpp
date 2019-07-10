@@ -1,11 +1,10 @@
 #include <iostream>
 
-#include "src/EntireNetwork.h"
-#include "src/CargoRoute.h"
+#include "src/Dantzig_wolfe.h"
+
 
 using namespace std;
 int main() {
-//    EntireNetwork network = EntireNetwork("B");
-    CargoRoute cargo_route = CargoRoute("A");
+    Dantzig_wolfe dantzig_wolfe = Dantzig_wolfe(CargoRoute("A"));
     return 0;
 }
