@@ -133,7 +133,6 @@ void EntireNetwork::add_designed_flights() {
                 }
             }
         }
-
     }
 
 }
@@ -408,7 +407,6 @@ void EntireNetwork::find_all_paths() {
 
 }
 
-
 void EntireNetwork::find_paths_from_single_node(Path path, Point point, int*** visited) {
 
     Node* cur_node = nodes[point.layer][point.node][point.time];
@@ -484,6 +482,14 @@ vector<Flight> EntireNetwork::get_cur_flights() {
 
 vector<Ship> EntireNetwork::get_cur_ships() {
     return this->sea_network.getCur_ships();
+}
+
+const AirNetwork &EntireNetwork::getAir_network() const {
+    return air_network;
+}
+
+const SeaNetwork &EntireNetwork::getSea_network() const {
+    return sea_network;
 }
 
 

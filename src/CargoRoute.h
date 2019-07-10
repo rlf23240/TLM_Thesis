@@ -11,6 +11,8 @@
 #include "param.h"
 #include "gurobi_c++.h"
 
+struct pair_hash;
+
 class CargoRoute {
 public:
     explicit CargoRoute(string data);
@@ -28,11 +30,15 @@ private:
     unordered_map<int, unordered_map <int, bool>> integer_set;
 
     vector<GRBVar> *z, *z_, *u;
+    vector<double> *z_value;
     GRBConstr* cons1;
     vector<GRBConstr> *cons2, *cons3, *cons4;
     unordered_map<int, unordered_map<int, GRBConstr>> cons5, cons6, cons7;
     double incumbent = 0;
     double objVal;
+
+    vector<pair<int, int>> sea_arc_pairs;
+    vector<pair<int, int>> air_arc_pairs;
 
 
     unordered_map<int, unordered_map<int, Arc*>> arcs;
@@ -66,6 +72,17 @@ private:
     bool is_integral();
     void set_integer(GRBModel &model);
     pair<int,int> find_kp_pair();
+
+
+    void find_sea_arcs();
+    void find_air_arcs();
+    double* cal_constr1_val();
+    double* cal_constr2_val();
+    double* cal_constr3_val();
+    unordered_set<pair<int, int>, pair_hash> get_arc_set(Path* path);
+    double get_sea_complicate_constr_val(int start_idx, int end_idx, int ub);
+    double get_air_complicate_constr_val(int start_idx, int end_idx, int ub);
+
     void show_model_result(GRBModel &model);
 };
 

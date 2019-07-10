@@ -72,7 +72,7 @@ struct Path{
             return false;
         if(this->size() == 2 && this->points.back().layer == 2)
             return false;
-        if(this->points.size() >= 10)
+        if(this->points.size() >= 15)
             return false;
         if(enter_virtual_twice == true) {
             return false;

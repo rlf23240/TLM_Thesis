@@ -27,8 +27,8 @@ Arc::Arc(Node *start_node, Node *end_node, int cost, int volume_ub, int weight_u
 void Arc::set_unit_profit(Node *start_node, Node *end_node) {
     std::random_device rd;
     std::mt19937 generator(rd());
-    std::uniform_real_distribution<float> ship_prof_dis(0.0, 1.0);
-    std::uniform_real_distribution<float> flight_prof_dis(0.0, 0.2);
+    std::uniform_real_distribution<float> ship_prof_dis(0.0, 1);
+    std::uniform_real_distribution<float> flight_prof_dis(0.0, 1);
 
     if((start_node->getLayer() == 0 && end_node->getLayer() == 0) || (start_node->getLayer() == 3 && end_node->getLayer() == 3) || (start_node->getLayer() == 5 && end_node->getLayer() == 5)){
         unit_profit = ship_prof_dis(generator);
@@ -42,12 +42,14 @@ void Arc::set_unit_profit(Node *start_node, Node *end_node) {
 void Arc::set_unit_cost(Node *start_node, Node *end_node) {
     std::random_device rd;
     std::mt19937 generator(rd());
-    std::uniform_real_distribution<float> ship_cost_dis(0.0, 0.1);
-    std::uniform_real_distribution<float> flight_cost_dis(1.0, 2.0);
+    std::uniform_real_distribution<float> ship_cost_dis(0.1, 0.2);
+    std::uniform_real_distribution<float> flight_cost_dis(0.5, 1.5);
     if((start_node->getLayer() == 0 && end_node->getLayer() == 0) || (start_node->getLayer() == 3 && end_node->getLayer() == 3 ) || (start_node->getLayer() == 5 && end_node->getLayer() == 5 )){
         unit_cost = ship_cost_dis(generator) * (end_node->getTime() - start_node->getTime());
     }else if((start_node->getLayer() == 1 && end_node->getLayer() == 1) || (start_node->getLayer() == 4 && end_node->getLayer() == 4) || (start_node->getLayer() == 6 && end_node->getLayer() == 6)) {
         unit_cost = flight_cost_dis(generator) * (end_node->getTime() - start_node->getTime());
+    }else{
+        unit_profit = 0;
     }
 }
 

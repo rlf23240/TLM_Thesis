@@ -23,7 +23,6 @@ struct Route{
 
 class Network {
 protected:
-    unordered_map<char, vector<Node*>> nodes;
     unsigned int num_nodes;
     int* stop_cost;
     int** arc_cost;
@@ -39,7 +38,7 @@ public:
     void read_stop_cost(std::string cost_data_path);
     void read_time_cost(std::string time_data_path);
     Route DP_shortest_path(char start_node, int start_time, char end_node, int end_time);
-
+    unordered_map<char, vector<Node*>> nodes;
 
     unsigned  getNum_nodes() const;
     int *getStop_cost() const;
