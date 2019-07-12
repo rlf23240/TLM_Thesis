@@ -28,9 +28,10 @@ CargoRoute::CargoRoute(string data)  {
     arcs = networks.getArcs();
     cal_paths_profit();
     cal_paths_cost();
+    find_sea_arcs();
+    find_air_arcs();
 
-
-    objVal = branch_and_price();
+    branch_and_price();
 }
 
 void CargoRoute::read_cargo_file(string data) {
@@ -175,7 +176,7 @@ void CargoRoute::cal_path_cost(Path *path) {
     path->last_time = path->points.back().time - path->points.front().time;
 }
 
-double CargoRoute::branch_and_price() {
+void CargoRoute::branch_and_price() {
     try {
         GRBEnv env = GRBEnv();
         GRBModel model = GRBModel(env);
@@ -236,15 +237,12 @@ double CargoRoute::branch_and_price() {
                 z_value[k].push_back(z[k][p].get(GRB_DoubleAttr_X));
             }
         }
-
-
     } catch(GRBException e) {
         cout << "Error code = " << e.getErrorCode() << endl;
         cout << e.getMessage() << endl;
     } catch(...) {
         cout << "Exception during optimization" << endl;
     }
-    return 0;
 }
 
 void CargoRoute::bp_init(GRBModel &model) {
@@ -590,9 +588,8 @@ pair<Path*, int> CargoRoute::select_most_profit_path() {
 //        cout << departure << " " << destination << " " << path_categories[departure][destination].size() << endl;
         for (const auto &path : path_categories[departure][destination]) {
             cal_path_reduced_cost(path, k);
-            if(
-//                    cargos[k]->start_time <= path->get_start_time() &&
-//            cargos[k]->arrive_time >= path->get_end_time() &&
+            if(cargos[k]->start_time <= path->get_start_time() &&
+            cargos[k]->arrive_time >= path->get_end_time() &&
             chosen_paths[k].find(path->index) == chosen_paths[k].end()) {
                 if (!best_path || (best_path->reduced_cost < path->reduced_cost)) {
                     best_path = path;
@@ -664,6 +661,40 @@ pair<int,int> CargoRoute::find_kp_pair(){
     return kp_pair;
 }
 
+void CargoRoute::find_sea_arcs() {
+    SeaNetwork seaNetwork = networks.getSea_network();
+    for(int i = 65 ; i < 65+num_nodes ;i++){
+        for(int t = 0; t < TOTAL_TIME_SLOT; t++){
+            for(const auto& arc : seaNetwork.nodes[(char) i][t]->out_arcs){
+                string out_node = arc->start_node->getName();
+                string in_node = arc->end_node->getName();
+                Point out_point = Point(0, (int) out_node[0] -65, stoi(out_node.substr(1)));
+                Point in_point = Point(0, (int) in_node[0] -65, stoi(in_node.substr(1)));
+
+                sea_arc_pairs.emplace_back(networks.get_node_idx(out_point), networks.get_node_idx(in_point));
+//                cout << out_point << " " << in_point << " " << networks.get_node_idx(out_point) << " " << networks.get_node_idx(in_point) << networks.idx_to_point(networks.get_node_idx(out_point)) << " "<< networks.idx_to_point(networks.get_node_idx(in_point)) << " " << endl;
+            }
+        }
+    }
+}
+
+void CargoRoute::find_air_arcs() {
+    AirNetwork airNetwork = networks.getAir_network();
+    for(int i = 65 ; i < 65+num_nodes ;i++){
+        for(int t = 0; t < TOTAL_TIME_SLOT; t++){
+            for(const auto& arc : airNetwork.nodes[(char) i][t]->out_arcs){
+                string out_node = arc->start_node->getName();
+                string in_node = arc->end_node->getName();
+                Point out_point = Point(1, (int) out_node[0] -65, stoi(out_node.substr(1)));
+                Point in_point = Point(1, (int) in_node[0] -65, stoi(in_node.substr(1)));
+
+                air_arc_pairs.emplace_back(networks.get_node_idx(out_point), networks.get_node_idx(in_point));
+//                cout << out_point << " " << in_point << " " << networks.get_node_idx(out_point) << " " << networks.get_node_idx(in_point) << " " << networks.idx_to_point(networks.get_node_idx(out_point)) << " "<< networks.idx_to_point(networks.get_node_idx(in_point)) << " " << endl;
+            }
+        }
+    }
+}
+
 double* CargoRoute::cal_constr1_val() {
     double* val = new double[sea_arc_pairs.size()];
     for(int i = 0; i < sea_arc_pairs.size(); i++){
@@ -687,39 +718,6 @@ double* CargoRoute::cal_constr3_val() {
         val[i] = get_air_complicate_constr_val(air_arc_pairs[i].first, air_arc_pairs[i].second, networks.getAir_network().getFlights()[0].weight_ub);
     }
     return val;
-}
-
-void CargoRoute::find_sea_arcs() {
-    SeaNetwork seaNetwork = networks.getSea_network();
-    for(int i = 65 ; i < 65+num_nodes ;i++){
-        for(int t = 0; t < TOTAL_TIME_SLOT; t++){
-            for(const auto& arc : seaNetwork.nodes[(char) i][t]->out_arcs){
-                string out_node = arc->start_node->getName();
-                string in_node = arc->end_node->getName();
-                Point out_point = Point(0, (int) out_node[0] -65, stoi(out_node.substr(1)));
-                Point in_point = Point(0, (int) in_node[0] -65, stoi(in_node.substr(1)));
-
-                sea_arc_pairs.emplace_back(networks.get_node_idx(out_point), networks.get_node_idx(in_point));
-//                cout << out_point << " " << in_point << " " << networks.get_node_idx(out_point) << " " << networks.get_node_idx(in_point) << endl;
-            }
-        }
-    }
-}
-void CargoRoute::find_air_arcs() {
-    AirNetwork airNetwork = networks.getAir_network();
-    for(int i = 65 ; i < 65+num_nodes ;i++){
-        for(int t = 0; t < TOTAL_TIME_SLOT; t++){
-            for(const auto& arc : airNetwork.nodes[(char) i][t]->out_arcs){
-                string out_node = arc->start_node->getName();
-                string in_node = arc->end_node->getName();
-                Point out_point = Point(1, (int) out_node[0] -65, stoi(out_node.substr(1)));
-                Point in_point = Point(1, (int) in_node[0] -65, stoi(in_node.substr(1)));
-
-                air_arc_pairs.emplace_back(networks.get_node_idx(out_point), networks.get_node_idx(in_point));
-//                cout << out_point << " " << in_point << " " << networks.get_node_idx(out_point) << " " << networks.get_node_idx(in_point) << endl;
-            }
-        }
-    }
 }
 
 double CargoRoute::get_sea_complicate_constr_val(int start_idx, int end_idx, int ub) {
@@ -752,7 +750,6 @@ double CargoRoute::get_sea_complicate_constr_val(int start_idx, int end_idx, int
 
     return val;
 }
-
 
 double CargoRoute::get_air_complicate_constr_val(int start_idx, int end_idx, int ub) {
     double val = 0;
@@ -838,11 +835,11 @@ double CargoRoute::getObjVal() const {
 
 vector<double> CargoRoute::get_r_column() {
     vector<double> r_column;
-    find_sea_arcs();
-    find_air_arcs();
+
     double* cons1_vals = cal_constr1_val();
     double* cons2_vals = cal_constr2_val();
     double* cons3_vals = cal_constr3_val();
+
     for(int i = 0; i < sea_arc_pairs.size(); i++){
         r_column.push_back(cons1_vals[i]);
     }
@@ -854,6 +851,33 @@ vector<double> CargoRoute::get_r_column() {
     }
     return r_column;
 
+}
+
+double CargoRoute::get_P_value() const {
+
+    // first subproblem
+    double P_val = 0;
+
+    P_val += networks.getSea_network().getShips()[0].route.cost;
+
+    //second subproblem
+    vector<Route> routes = networks.getAir_network().getFlights()[0].routes;
+    P_val += routes[0].cost * routes.size();
+
+    P_val += objVal;
+    return P_val;
+}
+
+const vector<pair<int, int>> &CargoRoute::getSea_arc_pairs() const {
+    return sea_arc_pairs;
+}
+
+const vector<pair<int, int>> &CargoRoute::getAir_arc_pairs() const {
+    return air_arc_pairs;
+}
+
+const EntireNetwork &CargoRoute::getNetworks() const {
+    return networks;
 }
 
 

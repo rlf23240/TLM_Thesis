@@ -17,7 +17,11 @@ class CargoRoute {
 public:
     explicit CargoRoute(string data);
     double getObjVal() const;
+    double get_P_value() const;
     vector<double> get_r_column();
+    const vector<pair<int, int>> &getSea_arc_pairs() const;
+    const vector<pair<int, int>> &getAir_arc_pairs() const;
+    const EntireNetwork &getNetworks() const;
 
 private:
     unsigned int num_nodes;
@@ -25,6 +29,7 @@ private:
     vector<Cargo*> cargos;
     vector<Path*> all_paths;
     EntireNetwork networks;
+
     vector<Path*>** path_categories;
     vector<Path*>* target_path;
     vector<Path*>* rival_path;
@@ -51,7 +56,7 @@ private:
     void cal_paths_cost();
     void cal_path_cost(Path* path);
     void cal_path_reduced_cost(Path* path, int k);
-    double branch_and_price();
+    void branch_and_price();
     void bp_init(GRBModel &model);
     void select_init_path();
     void LP_relaxation(GRBModel &model);

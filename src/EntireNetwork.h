@@ -23,6 +23,7 @@ public:
     Node* getNode(int layer, int node, int time);
     int get_node_idx(int layer, int node, int time);
     int get_node_idx(Point point);
+    Point idx_to_point(int idx);
     const unordered_map<int, unordered_map<int, Arc *>> &getArcs() const;
     vector<Flight> get_cur_flights();
     vector<Ship> get_cur_ships();

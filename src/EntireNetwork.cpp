@@ -472,6 +472,13 @@ int EntireNetwork::get_node_idx(Point point) {
     return point.layer * (num_nodes * TOTAL_TIME_SLOT) + point.node * TOTAL_TIME_SLOT + point.time;;
 }
 
+Point EntireNetwork::idx_to_point(int idx) {
+    int time  = idx % TOTAL_TIME_SLOT;
+    int node = (idx - time) % (TOTAL_TIME_SLOT * num_nodes) / TOTAL_TIME_SLOT;
+    int layer = (idx - time - node * TOTAL_TIME_SLOT) / (TOTAL_TIME_SLOT * num_nodes);
+    return Point(layer, node, time);
+}
+
 const unordered_map<int, unordered_map<int, Arc *>> &EntireNetwork::getArcs() const {
     return arcs;
 }
@@ -491,10 +498,5 @@ const AirNetwork &EntireNetwork::getAir_network() const {
 const SeaNetwork &EntireNetwork::getSea_network() const {
     return sea_network;
 }
-
-
-
-
-
 
 

@@ -4,6 +4,8 @@
 #pragma once
 #ifndef TLM_THESIS_PARAM_H
 #define TLM_THESIS_PARAM_H
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#define MIN(a,b) (((a)<(b))?(a):(b))
 
 #include <string>
 #include <iostream>
@@ -16,6 +18,7 @@
 #include <math.h>
 #include <queue>
 #include <stack>
+
 
 #include "Path.cpp"
 

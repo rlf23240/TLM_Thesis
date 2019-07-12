@@ -17,6 +17,8 @@ private:
     vector<double> P;
     vector<vector<double>> R;
     void append_R_column(vector<double> r_column);
+    vector<double> Run_Dantzig_wolfe();
+    void update_arc_by_pi(vector<double> pi);
 };
 
 
