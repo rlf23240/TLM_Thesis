@@ -65,7 +65,7 @@ def sea_data_generator(name, n, num_ships):
             starting_time = random.randint(0,15)
             freq = 1
             cycle_time = round(numpy.random.normal(50,5))
-            volume_ub = random.randint(30,50) * 100 #weight upper bound
+            volume_ub = random.randint(10,20) * 100 #weight upper bound
             param_file.write(node + '\t' + str(starting_time) + '\t' + str(freq) + '\t' + str(cycle_time) + '\t' + str(volume_ub)+ '\n')
         param_file.close()
 
@@ -122,7 +122,7 @@ def air_data_generator(name, n, num_flights):
             node = chr(65 + random.randint(0,n-1))
             cycle_time = random.randint(5,8)
             gap = cycle_time + numpy.random.poisson(0.2) + 1
-            weight_ub = random.randint(10,20)*100
+            weight_ub = random.randint(5,10)*100
             volume_ub = random.randint(10,20)*100
             freq = floor(20 / gap)
             param_file.write(node + '\t' + str(gap) + '\t' + str(freq) + '\t' + str(cycle_time)+ '\t' + str(weight_ub)+ '\t' + str(volume_ub) + '\n')
@@ -151,7 +151,7 @@ def cargo_data_generator(name, n,num_cargos):
         starting_time = random.randint(1,20)
         end_time = random.randint(25,60)
 
-        weight = random.randint(50,99) * 10
+        weight = random.randint(20,99) * 10
         volume = random.randint(10,99) * 10
 
         time_sensitivity = 'H' if end_time - starting_time <=  20 else 'L'
@@ -173,7 +173,7 @@ def cargo_data_generator(name, n,num_cargos):
 
 
         cargo_file.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" %
-                         (departure, destination,str(starting_time), str(end_time), str(weight), str(volume), time_sensitivity, product_value, str(alpha), str(beta)))
+                         (departure, destination,str(starting_time), str(end_time), str(weight), str(weight), time_sensitivity, product_value, str(alpha), str(beta))) #weight = volume
     cargo_file.close()
 
 def param(name, n, num_ships, num_flights, total_time_slot) :

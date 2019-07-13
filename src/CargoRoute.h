@@ -19,6 +19,7 @@ public:
     double getObjVal() const;
     double get_P_value() const;
     vector<double> get_r_column();
+    void generate_init_sol();
     const vector<pair<int, int>> &getSea_arc_pairs() const;
     const vector<pair<int, int>> &getAir_arc_pairs() const;
     const EntireNetwork &getNetworks() const;
@@ -78,6 +79,7 @@ private:
     void append_column(Path* best_path, int best_k);
     bool is_integral();
     void set_integer(GRBModel &model);
+    void set_all_u_integer(GRBModel &model, vector<GRBVar> *u);
     pair<int,int> find_kp_pair();
 
     void find_sea_arcs();
@@ -88,6 +90,7 @@ private:
     unordered_set<pair<int, int>, pair_hash> get_arc_set(Path* path);
     double get_sea_complicate_constr_val(int start_idx, int end_idx, int ub);
     double get_air_complicate_constr_val(int start_idx, int end_idx, int ub);
+    void reset_bp();
 
     void show_model_result(GRBModel &model);
 };

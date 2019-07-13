@@ -5,14 +5,19 @@
 #include "Dantzig_wolfe.h"
 
 Dantzig_wolfe::Dantzig_wolfe(const CargoRoute &cargoRoute) : cargoRoute(cargoRoute) {
-    for(int i = 0; i < 1; i++){
+
+
+    vector<double> shadow_price;
+    for(int i = 0; i < 2; i++){
+        this->cargoRoute.generate_init_sol();
         P.push_back(this->cargoRoute.get_P_value());
         cout << "obj : " << this->cargoRoute.getObjVal() << endl;
         append_R_column(this->cargoRoute.get_r_column());
-
-        vector<double> shadow_price = Run_Dantzig_wolfe();
-        update_arc_by_pi(shadow_price);
     }
+
+    shadow_price = Run_Dantzig_wolfe();
+    update_arc_by_pi(shadow_price);
+
 }
 
 void Dantzig_wolfe::append_R_column(vector<double> r_column) {
@@ -39,11 +44,11 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
 
         cout << "R : ";
         for (auto &row : R) {
+            bool is_print = false;
             for (double val : row) {
-                if (val != 0)
-                    cout << val << endl;
+                cout << val << "\t";
             }
-//            cout << endl;
+            cout << endl;
         }
 //        cout << "P : ";
 //        for (double i : P) {
@@ -51,8 +56,8 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
 //        }
 //        cout << endl;
 
-        GRBVar* lambda = new GRBVar[n];
-        GRBVar* v = new GRBVar[m];
+        auto * lambda = new GRBVar[n];
+        auto * v = new GRBVar[m];
         GRBVar w = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS, "w");
         for (int i = 0; i < n; i++) {
             lambda[i] = model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS, "lambda");
@@ -63,9 +68,8 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
 
         GRBLinExpr obj = GRBLinExpr();
         for (int i = 0; i < m; i++) {
-            obj += (v[i]);
+            obj += (v[i] + w);
         }
-        obj += w;
         obj *= (-bigM);
         for (int i = 0; i < n; i++) {
             obj += P[i] * lambda[i];
@@ -78,19 +82,17 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
             for (int col = 0; col < n; col++) {
                 cons +=  R[row][col] * lambda[col];
             }
-            cons += (v[row]) - w;
+            cons -= (v[row]);
             model.addConstr(cons <= 0, "c" + to_string(row));
         }
         GRBLinExpr cons = GRBLinExpr();
         for (int i = 0; i < n; i++) {
             cons += lambda[i];
         }
-        model.addConstr(cons == 1, "c" + to_string(m));
+        model.addConstr(cons + w == 1, "c" + to_string(m));
         model.optimize();
 
-        cout << "lambda : " ;
-        for(int i = 0; i < n; i++)
-            cout << lambda[i].get(GRB_DoubleAttr_X) << " ";
+
         cout << endl;
         cout << "v : ";
         for(int i = 0; i < m ; i++){
@@ -106,11 +108,22 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
             pi.push_back(model.getConstr(i).get(GRB_DoubleAttr_Pi));
             cout << pi.back() << " ";
         }
-
+        cout << endl;
 //
         double delta;
         delta = model.getConstr(m).get(GRB_DoubleAttr_Pi);
-        cout << "delta : " << delta;
+        cout << "delta : " << delta << endl;
+
+        cout << "lambda : " ;
+        for(int i = 0; i < n; i++)
+            cout << lambda[i].get(GRB_DoubleAttr_X) << " ";
+
+        cout << "P : " ;
+        for (double i : P) {
+            cout << i << " " ;
+        }
+
+        cout << endl;
 
         return pi;
 
@@ -135,50 +148,49 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
         exit(1);
     }
     cout << endl;
+    SeaNetwork sea_network = networks.getSea_network();
     for(int i = 0; i < sea_arc_pair.size(); i++){
         if(pi[i] != 0){
             Point start = networks.idx_to_point(sea_arc_pair[i].first);
             Point end = networks.idx_to_point(sea_arc_pair[i].second);
 
-            SeaNetwork sea_network = networks.getSea_network();
-            string end_node_name = sea_network.nodes[(char) start.node +65][start.time]->out_arcs[0]->end_node->getName();
-            cout << start << endl << end << endl << end_node_name << endl;
-
+            for(auto &arc : sea_network.nodes[(char) start.node +65][start.time]->out_arcs){
+                if((int) arc->end_node->getName()[0] - 65 == end.node){
+                    arc->cost += pi[i];
+                }
+            }
         }
     }
-
+    sea_network.run_algo();
+    cout << sea_network.getShips()[0].route;
+    AirNetwork air_network = networks.getAir_network();
     for(unsigned long long int i = 0; i <  air_arc_pair.size(); i++){
         if(pi[sea_arc_pair.size() + i] != 0){
             Point start = networks.idx_to_point(air_arc_pair[i].first);
             Point end = networks.idx_to_point(air_arc_pair[i].second);
-
-            AirNetwork air_network = networks.getAir_network();
-            cout << air_network.nodes[(char) start.node +65][start.time % (7 * TIME_SLOT_A_DAY)]->getName() << endl;
-            string end_node_name = air_network.nodes[(char) start.node +65][start.time % (7 * TIME_SLOT_A_DAY) ]->out_arcs[2]->end_node->getName();
             for(auto &arc : air_network.nodes[(char) start.node +65][start.time % (7 * TIME_SLOT_A_DAY)]->out_arcs){
                 if((int) arc->end_node->getName()[0] - 65 == end.node){
-                    cout << arc->cost << endl;
                     arc->cost += pi[sea_arc_pair.size() + i];
-                    cout << arc->cost << endl;
                 }
             }
-            cout << start << endl << end << endl << end_node_name << endl;
-            air_network.run_algo();
-            cout << air_network.getFlights()[0].routes[0];
+
         }
     }
+
 
     for(unsigned long long int i = 0; i < air_arc_pair.size(); i++){
         if(pi[ sea_arc_pair.size() + air_arc_pair.size() + i] != 0){
             Point start = networks.idx_to_point(air_arc_pair[i].first);
             Point end = networks.idx_to_point(air_arc_pair[i].second);
-
-            AirNetwork air_network = networks.getAir_network();
-            string end_node_name = air_network.nodes[(char) start.node +65][start.time]->out_arcs[0]->end_node->getName();
-            cout << start << endl << end << endl << end_node_name << endl;
-
+            for(auto &arc : air_network.nodes[(char) start.node +65][start.time % (7 * TIME_SLOT_A_DAY)]->out_arcs){
+                if((int) arc->end_node->getName()[0] - 65 == end.node){
+                    arc->cost += pi[sea_arc_pair.size() + air_arc_pair.size() + i];
+                }
+            }
         }
     }
+    air_network.run_algo();
+    cout << air_network.getFlights()[0].routes[0];
 }
 
 

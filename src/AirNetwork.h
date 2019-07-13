@@ -6,6 +6,8 @@
 #define TLM_THESIS_AIRNETWORK_H
 
 #include "Network.h"
+#include <string>
+#include <chrono>
 
 struct Flight{
     Flight(char start_node, int gap, int freq, int cycle_time, int weight_ub, int volume_ub);
@@ -35,6 +37,7 @@ public:
     explicit AirNetwork(string data_path, int num_cur_flights, int num_rival_ships);
     AirNetwork();
     void run_algo() override;
+    void generate_designed_flight();
     const vector<Flight> &getFlights() const;
     const vector<Flight> &getCur_flights() const;
     const vector<Flight> &getRival_flights() const;

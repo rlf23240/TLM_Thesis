@@ -5,6 +5,7 @@
 #include "EntireNetwork.h"
 
 EntireNetwork::EntireNetwork(string data) {
+    data_str = data;
     read_param_data(data);
     cout << "===========AIR===========" << endl;
     air_network = AirNetwork("../Data/" + data + "_air", num_cur_flights, num_cur_ships);
@@ -12,39 +13,51 @@ EntireNetwork::EntireNetwork(string data) {
     sea_network = SeaNetwork("../Data/" + data + "_sea", num_cur_ships, num_cur_ships);
 
     create_networks(data);
-
     find_all_paths();
 
-    int sum = 0;
     for(int i = 0; i < num_nodes; i++){
         for(int j = 0; j < num_nodes; j++) {
             cout << paths_categories[i][j].size() << "\t";
-            sum += paths_categories[i][j].size();
         }
         cout << endl;
     }
+
 //
 //    cout << sum << " " << all_paths.size() << endl;
 //    for(auto path : all_paths){
 //        cout << *path ;
 //    }
-
 }
 
 EntireNetwork::EntireNetwork() = default;
 
+void EntireNetwork::rebuild_networks() {
+
+    air_network.generate_designed_flight();
+    sea_network.generate_designed_ship();
+    cout << air_network.getFlights()[0].routes[0];
+    cout << sea_network.getShips()[0].route;
+
+    create_networks(data_str);
+    find_all_paths();
+
+    for(int i = 0; i < num_nodes; i++){
+        for(int j = 0; j < num_nodes; j++) {
+            cout << paths_categories[i][j].size() << "\t";
+        }
+        cout << endl;
+    }
+}
 
 void EntireNetwork::create_networks(string data) {
-    // 5 layers of time space network
-//    read_param_data(data);
 
     add_designed_ships(); //layer 0
     add_designed_flights(); //layer 1
     add_current_ships(); //layer 3
     add_current_flights(); //layer layer4
-    add_rival_ships();
-    add_rival_flights();
-    add_virtual_network(data); //layer2
+    add_rival_ships(); //layer 5
+    add_rival_flights(); //layer 6
+    add_virtual_network(data); //layer 2
 }
 
 void EntireNetwork::read_param_data(string data) {
@@ -126,8 +139,8 @@ void EntireNetwork::add_designed_flights() {
                     Node *end_node = nodes[layer][(int) end_node_char - 65][end_node_time];
 
                     Arc *arc = new Arc(start_node, end_node,
-                                       arc_cost[(int) start_node_char - 65][(int) end_node_char - 65], flight.weight_ub,
-                                       flight.volume_ub);
+                                       arc_cost[(int) start_node_char - 65][(int) end_node_char - 65], flight.volume_ub,
+                                       flight.weight_ub);
 
                     add_arc(start_node, end_node, arc);
                 }
@@ -306,8 +319,8 @@ void EntireNetwork::add_current_flights() {
                     Node *end_node = nodes[layer][(int) end_node_char - 65][end_node_time];
 
                     Arc *arc = new Arc(start_node, end_node,
-                                       arc_cost[(int) start_node_char - 65][(int) end_node_char - 65], flight.weight_ub,
-                                       flight.volume_ub);
+                                       arc_cost[(int) start_node_char - 65][(int) end_node_char - 65], flight.volume_ub,
+                                       flight.weight_ub);
 
                     add_arc(start_node, end_node, arc);
                 }
@@ -378,8 +391,8 @@ void EntireNetwork::add_rival_flights() {
                     Node *end_node = nodes[layer][(int) end_node_char - 65][end_node_time];
 
                     Arc *arc = new Arc(start_node, end_node,
-                                       arc_cost[(int) start_node_char - 65][(int) end_node_char - 65], flight.weight_ub,
-                                       flight.volume_ub);
+                                       arc_cost[(int) start_node_char - 65][(int) end_node_char - 65], flight.volume_ub,
+                                       flight.weight_ub);
 
                     add_arc(start_node, end_node, arc);
                 }
@@ -403,8 +416,6 @@ void EntireNetwork::find_all_paths() {
             }
         }
     }
-
-
 }
 
 void EntireNetwork::find_paths_from_single_node(Path path, Point point, int*** visited) {
@@ -498,5 +509,7 @@ const AirNetwork &EntireNetwork::getAir_network() const {
 const SeaNetwork &EntireNetwork::getSea_network() const {
     return sea_network;
 }
+
+
 
 

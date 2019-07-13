@@ -18,6 +18,7 @@ class EntireNetwork {
 public:
     explicit EntireNetwork(string data);
     EntireNetwork();
+    void rebuild_networks();
     vector<Path *> **getPaths_categories() const;
     unsigned int getNumNodes() const;
     Node* getNode(int layer, int node, int time);
@@ -47,7 +48,7 @@ private :
     void add_path(Path* path);
     int*** create_3d_array(int x, int y, int z);
 
-
+    string data_str;
     AirNetwork air_network;
     SeaNetwork sea_network;
     vector<Path*> all_paths;

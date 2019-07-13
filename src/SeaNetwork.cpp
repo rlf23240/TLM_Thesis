@@ -13,6 +13,7 @@ Ship::Ship(char start_node, int start_time, int frequency, int cycle_time, int v
                                                                                             cycle_time(cycle_time),
                                                                                             volume_ub(volume_ub) {}
 SeaNetwork::SeaNetwork() {}
+
 SeaNetwork::SeaNetwork(string data_path, int num_cur_ships,int num_rival_ships) {
     read_data(data_path);
     run_algo();
@@ -117,8 +118,50 @@ void SeaNetwork::forward_update(Route **dp, int node, int time) {
     }
 }
 
+void SeaNetwork::generate_designed_ship() {
+    unsigned seed = static_cast<unsigned int>(chrono::system_clock::now().time_since_epoch().count());
+    mt19937 gen =  mt19937(seed);
+    uniform_int_distribution<int> dis(0, INT_MAX);
+
+    int start_node = (int) designed_ships[0].route.nodes[0][0] - 65;
+    int start_time = dis(gen) % 10;
+    int cur_node = start_node;
+    int cur_time = start_time;
+    int next_node, next_time;
+    int total_cost = 0;
+    vector<string> nodes;
+    nodes.push_back((char) (65 + start_node) + to_string(start_time));
+    total_cost = stop_cost[start_node];
+    while (cur_time - start_time < 35) {
+        do {
+            next_node = dis(gen) % num_nodes;
+        } while (cur_node == next_node);
+
+        next_time = cur_time + time_cost[cur_node][next_node];
+        total_cost += stop_cost[next_node] * (1+SHIP_STOP_DAY);
+        total_cost += arc_cost[cur_node][next_node];
+
+        nodes.push_back((char) (65 + next_node) + to_string(next_time));
+        nodes.push_back((char) (65 + next_node) + to_string(next_time + SHIP_STOP_DAY));
+
+        cur_node = next_node;
+        cur_time = next_time;
+    }if(cur_node != start_node){
+        next_node = start_node;
+        next_time = cur_time + time_cost[cur_node][next_node];
+        total_cost += stop_cost[next_node];
+        total_cost += arc_cost[cur_node][next_node];
+        nodes.push_back((char) (65 + next_node) + to_string(next_time));
+    }
+
+    Route route = Route(nodes, total_cost);
+    Ship new_ship = Ship((char) (65 + start_node), start_time, 1, cur_time - start_time, (10 + dis(gen) % 20) * 100);
+    new_ship.route = route;
+    designed_ships[0] = new_ship;
+
+}
+
 void SeaNetwork::generate_ships(vector<Ship> &ships, int n, int seed) {
-    random_device rd;
     mt19937 gen =  mt19937(seed);
     uniform_int_distribution<int> dis(0, INT_MAX);
 
@@ -155,7 +198,7 @@ void SeaNetwork::generate_ships(vector<Ship> &ships, int n, int seed) {
         }
 
         Route route = Route(nodes, total_cost);
-        Ship new_ship = Ship((char) (65 + start_node), start_time, 1, cur_time - start_time, (30 + dis(gen) % 20) * 100);
+        Ship new_ship = Ship((char) (65 + start_node), start_time, 1, cur_time - start_time, (10 + dis(gen) % 20) * 100);
         new_ship.route = route;
         ships.push_back(new_ship);
     }
@@ -182,6 +225,8 @@ const vector<Ship> &SeaNetwork::getCur_ships() const {
 const vector<Ship> &SeaNetwork::getRival_ships() const {
     return rival_ships;
 }
+
+
 
 
 

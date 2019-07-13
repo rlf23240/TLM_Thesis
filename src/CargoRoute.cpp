@@ -22,16 +22,10 @@ struct pair_hash
 CargoRoute::CargoRoute(string data)  {
     read_cargo_file(data);
     networks = EntireNetwork(data);
-    path_categories = networks.getPaths_categories();
-    get_available_path(path_categories, all_paths);
     num_nodes = networks.getNumNodes();
     arcs = networks.getArcs();
-    cal_paths_profit();
-    cal_paths_cost();
     find_sea_arcs();
     find_air_arcs();
-
-    branch_and_price();
 }
 
 void CargoRoute::read_cargo_file(string data) {
@@ -191,16 +185,17 @@ void CargoRoute::branch_and_price() {
 
 
         bp_init(model);
-        stack<BB_node> bb_pool;
+        priority_queue<BB_node> bb_pool;
         BB_node::cargo_size = cargos.size();
         bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal), target_path, rival_path, chosen_paths, integer_set));
 
+        int iter = 0;
         while(!bb_pool.empty()) {
             if (bb_pool.top().getObj() < incumbent) {
                 bb_pool.pop();
                 continue;
             }
-
+            iter++;
             target_path = bb_pool.top().getTargetPath();
             rival_path = bb_pool.top().getRivalPath();
             chosen_paths = bb_pool.top().getChosenPaths();
@@ -209,7 +204,7 @@ void CargoRoute::branch_and_price() {
             bb_pool.pop();
             column_generation(model);
             show_model_result(model);
-            if (is_integral()) break;
+//            if (is_integral()) break;
 
             pair<int, int> kp_pair = find_kp_pair();
 
@@ -223,6 +218,12 @@ void CargoRoute::branch_and_price() {
             LP_relaxation(model);
             bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal), target_path, rival_path, chosen_paths, integer_set));
             if (is_integral() && incumbent < model.get(GRB_DoubleAttr_ObjVal)) incumbent = model.get(GRB_DoubleAttr_ObjVal);
+
+            if(iter > MAX_BP_ITER){
+                set_all_u_integer(model, u);
+                LP_relaxation(model);
+                break;
+            }
         }
 
         objVal = model.get(GRB_DoubleAttr_ObjVal);
@@ -246,6 +247,11 @@ void CargoRoute::branch_and_price() {
 }
 
 void CargoRoute::bp_init(GRBModel &model) {
+    path_categories = networks.getPaths_categories();
+    get_available_path(path_categories, all_paths);
+    arcs = networks.getArcs();
+    cal_paths_profit();
+    cal_paths_cost();
 
     select_init_path();
     Var_init(model);
@@ -546,6 +552,15 @@ void CargoRoute::set_integer(GRBModel &model) {
     }
 }
 
+void CargoRoute::set_all_u_integer(GRBModel &model, vector<GRBVar> *u) {
+    for(int k = 0; k < cargos.size(); k++){
+        for(int p = 0; p < target_path[k].size(); p++){
+            if(u[k][p].get(GRB_DoubleAttr_X) > 0 )
+                model.addConstr(u[k][p] == 1);
+        }
+    }
+}
+
 void CargoRoute::update_arcs() {
     vector<Ship> ships = networks.get_cur_ships();
     for (const auto &ship : ships) {
@@ -570,7 +585,7 @@ void CargoRoute::update_arcs() {
                     double pi6 = cons6[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)].get(GRB_DoubleAttr_Pi);
                     double pi7 = cons7[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)].get(GRB_DoubleAttr_Pi);
                     arcs[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)]->minus_fixed_profit(pi6);
-                    arcs[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)]->minus_fixed_profit( pi7 * flight.weight_ub / flight.volume_ub);
+                    arcs[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)]->minus_fixed_profit( pi7);
 //                    cout << 6 << networks.get_node_idx(cur_point) << " " << networks.get_node_idx(next_point) << endl;
                 }
             }
@@ -858,11 +873,11 @@ double CargoRoute::get_P_value() const {
     // first subproblem
     double P_val = 0;
 
-    P_val += networks.getSea_network().getShips()[0].route.cost;
+    P_val -= networks.getSea_network().getShips()[0].route.cost;
 
     //second subproblem
     vector<Route> routes = networks.getAir_network().getFlights()[0].routes;
-    P_val += routes[0].cost * routes.size();
+    P_val -= routes[0].cost * routes.size();
 
     P_val += objVal;
     return P_val;
@@ -879,6 +894,37 @@ const vector<pair<int, int>> &CargoRoute::getAir_arc_pairs() const {
 const EntireNetwork &CargoRoute::getNetworks() const {
     return networks;
 }
+
+void CargoRoute::generate_init_sol() {
+    networks.rebuild_networks();
+    branch_and_price();
+    reset_bp();
+}
+
+void CargoRoute::reset_bp() {
+
+    for(auto &path: all_paths){
+        path->reduced_cost = 0;
+    }
+    incumbent = 0;
+    objVal = 0;
+    integer_set.clear();
+    all_paths.clear();
+    delete[] chosen_paths;
+    delete[] z;
+    delete[] z_;
+    delete[] u;
+    delete[] z_value;
+    delete[] cons1;
+    delete[] cons2;
+    delete[] cons3;
+    delete[] cons4;
+    cons5.clear();
+    cons6.clear();
+    cons6.clear();
+}
+
+
 
 
 

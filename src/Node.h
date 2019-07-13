@@ -26,7 +26,7 @@ struct Arc{
 
     Node* start_node;
     Node* end_node;
-    int cost;
+    double cost;
     int weight_ub;
     int volume_ub;
     double unit_profit;
