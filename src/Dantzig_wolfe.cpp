@@ -122,6 +122,7 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
     catch (...) {
         cout << "Exception during optimization" << endl;
     }
+    return vector<double>{};
 }
 
 void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
@@ -133,7 +134,7 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
         cout << "update arcs fail !!!";
         exit(1);
     }
-
+    cout << endl;
     for(int i = 0; i < sea_arc_pair.size(); i++){
         if(pi[i] != 0){
             Point start = networks.idx_to_point(sea_arc_pair[i].first);
@@ -141,31 +142,40 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
 
             SeaNetwork sea_network = networks.getSea_network();
             string end_node_name = sea_network.nodes[(char) start.node +65][start.time]->out_arcs[0]->end_node->getName();
-            cout << endl << end_node_name << endl;
+            cout << start << endl << end << endl << end_node_name << endl;
 
         }
     }
 
-    for(unsigned long long int i = sea_arc_pair.size(); i < sea_arc_pair.size() + air_arc_pair.size(); i++){
-        if(pi[i] != 0){
-            Point start = networks.idx_to_point(sea_arc_pair[i].first);
-            Point end = networks.idx_to_point(sea_arc_pair[i].second);
+    for(unsigned long long int i = 0; i <  air_arc_pair.size(); i++){
+        if(pi[sea_arc_pair.size() + i] != 0){
+            Point start = networks.idx_to_point(air_arc_pair[i].first);
+            Point end = networks.idx_to_point(air_arc_pair[i].second);
 
-            SeaNetwork sea_network = networks.getSea_network();
-            string end_node_name = sea_network.nodes[(char) start.node +65][start.time]->out_arcs[0]->end_node->getName();
-            cout << endl<< end_node_name << endl;
-
+            AirNetwork air_network = networks.getAir_network();
+            cout << air_network.nodes[(char) start.node +65][start.time % (7 * TIME_SLOT_A_DAY)]->getName() << endl;
+            string end_node_name = air_network.nodes[(char) start.node +65][start.time % (7 * TIME_SLOT_A_DAY) ]->out_arcs[2]->end_node->getName();
+            for(auto &arc : air_network.nodes[(char) start.node +65][start.time % (7 * TIME_SLOT_A_DAY)]->out_arcs){
+                if((int) arc->end_node->getName()[0] - 65 == end.node){
+                    cout << arc->cost << endl;
+                    arc->cost += pi[sea_arc_pair.size() + i];
+                    cout << arc->cost << endl;
+                }
+            }
+            cout << start << endl << end << endl << end_node_name << endl;
+            air_network.run_algo();
+            cout << air_network.getFlights()[0].routes[0];
         }
     }
 
-    for(unsigned long long int i = sea_arc_pair.size() + air_arc_pair.size() * 2; i < sea_arc_pair.size(); i++){
-        if(pi[i] != 0){
-            Point start = networks.idx_to_point(sea_arc_pair[i].first);
-            Point end = networks.idx_to_point(sea_arc_pair[i].second);
+    for(unsigned long long int i = 0; i < air_arc_pair.size(); i++){
+        if(pi[ sea_arc_pair.size() + air_arc_pair.size() + i] != 0){
+            Point start = networks.idx_to_point(air_arc_pair[i].first);
+            Point end = networks.idx_to_point(air_arc_pair[i].second);
 
-            SeaNetwork sea_network = networks.getSea_network();
-            string end_node_name = sea_network.nodes[(char) start.node +65][start.time]->out_arcs[0]->end_node->getName();
-            cout << endl << end_node_name << endl;
+            AirNetwork air_network = networks.getAir_network();
+            string end_node_name = air_network.nodes[(char) start.node +65][start.time]->out_arcs[0]->end_node->getName();
+            cout << start << endl << end << endl << end_node_name << endl;
 
         }
     }

@@ -24,8 +24,6 @@ struct Arc{
     void set_unit_cost(Node *start_node, Node *end_node);
     void minus_fixed_profit(double fixed_profit);
 
-
-
     Node* start_node;
     Node* end_node;
     int cost;
@@ -34,9 +32,6 @@ struct Arc{
     double unit_profit;
     double unit_cost;
     double fixed_profit = 0;
-
-
-
 };
 
 class Node {

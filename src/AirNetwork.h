@@ -28,13 +28,13 @@ private:
     vector<Flight> rival_flights;
     void read_flights_param(std::string flights_data);
     void read_data(std::string data_path) override;
-    void run_algo() override;
     void print_flights(const vector<Flight>& flights, const string& prefix);
     void generate_flights(vector<Flight> &flight, int n, int seed);
 
 public:
     explicit AirNetwork(string data_path, int num_cur_flights, int num_rival_ships);
     AirNetwork();
+    void run_algo() override;
     const vector<Flight> &getFlights() const;
     const vector<Flight> &getCur_flights() const;
     const vector<Flight> &getRival_flights() const;
