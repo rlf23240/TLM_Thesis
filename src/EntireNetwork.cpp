@@ -502,12 +502,20 @@ vector<Ship> EntireNetwork::get_cur_ships() {
     return this->sea_network.getCur_ships();
 }
 
-const AirNetwork &EntireNetwork::getAir_network() const {
+AirNetwork &EntireNetwork::getAir_network() {
     return air_network;
 }
 
-const SeaNetwork &EntireNetwork::getSea_network() const {
+SeaNetwork &EntireNetwork::getSea_network(){
     return sea_network;
+}
+
+void EntireNetwork::setAir_network(const AirNetwork &air_network) {
+    EntireNetwork::air_network = air_network;
+}
+
+void EntireNetwork::setSea_network(const SeaNetwork &sea_network) {
+    EntireNetwork::sea_network = sea_network;
 }
 
 

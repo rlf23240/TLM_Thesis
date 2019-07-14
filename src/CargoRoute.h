@@ -17,13 +17,13 @@ class CargoRoute {
 public:
     explicit CargoRoute(string data);
     double getObjVal() const;
-    double get_P_value() const;
+    double get_P_value();
     vector<double> get_r_column();
     void run_bp();
     void rebuild_entire_network();
     const vector<pair<int, int>> &getSea_arc_pairs() const;
     const vector<pair<int, int>> &getAir_arc_pairs() const;
-    const EntireNetwork &getNetworks() const;
+    EntireNetwork &getNetworks();
 
 private:
     unsigned int num_nodes;
@@ -48,7 +48,6 @@ private:
 
     vector<pair<int, int>> sea_arc_pairs;
     vector<pair<int, int>> air_arc_pairs;
-
 
     unordered_map<int, unordered_map<int, Arc*>> arcs;
     void read_cargo_file(string data);

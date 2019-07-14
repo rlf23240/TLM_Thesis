@@ -28,8 +28,10 @@ public:
     const unordered_map<int, unordered_map<int, Arc *>> &getArcs() const;
     vector<Flight> get_cur_flights();
     vector<Ship> get_cur_ships();
-    const AirNetwork &getAir_network() const;
-    const SeaNetwork &getSea_network() const;
+    AirNetwork &getAir_network();
+    SeaNetwork &getSea_network();
+    void setAir_network(const AirNetwork &air_network);
+    void setSea_network(const SeaNetwork &sea_network);
 
 private :
     void create_networks(string data);

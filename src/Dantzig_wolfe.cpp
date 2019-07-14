@@ -15,8 +15,7 @@ Dantzig_wolfe::Dantzig_wolfe(const CargoRoute &cargoRoute) : cargoRoute(cargoRou
     shadow_price = Run_Dantzig_wolfe();
     update_arc_by_pi(shadow_price);
 
-    for(int i = 0; i <2; i++){
-        this->cargoRoute.rebuild_entire_network();
+    for(int i = 0; i <3; i++){
         this->cargoRoute.run_bp();
         P.push_back(this->cargoRoute.get_P_value());
         cout << "obj : " << this->cargoRoute.getObjVal() << endl;
@@ -24,9 +23,6 @@ Dantzig_wolfe::Dantzig_wolfe(const CargoRoute &cargoRoute) : cargoRoute(cargoRou
         shadow_price = Run_Dantzig_wolfe();
         update_arc_by_pi(shadow_price);
     }
-
-
-
 
 }
 
@@ -166,16 +162,17 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
         if(pi[i] != 0){
             Point start = networks.idx_to_point(sea_arc_pair[i].first);
             Point end = networks.idx_to_point(sea_arc_pair[i].second);
-
             for(auto &arc : sea_network.nodes[(char) start.node +65][start.time]->out_arcs){
                 if((int) arc->end_node->getName()[0] - 65 == end.node){
                     arc->cost = MAX(0, arc->cost - pi[i]);
+                    this->cargoRoute.
                 }
             }
         }
     }
+
     sea_network.run_algo();
-    cout << sea_network.getShips()[0].route;
+    this->cargoRoute.getNetworks().setSea_network(sea_network);
 
     AirNetwork air_network = networks.getAir_network();
     for(unsigned long long int i = 0; i <  air_arc_pair.size(); i++){
@@ -187,7 +184,6 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
                     arc->cost = MAX(0, arc->cost - pi[sea_arc_pair.size() + i]);
                 }
             }
-
         }
     }
 
@@ -204,7 +200,11 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
         }
     }
     air_network.run_algo();
-    cout << air_network.getFlights()[0].routes[0];
+    this->cargoRoute.getNetworks().setAir_network(air_network);
+    this->cargoRoute.rebuild_entire_network();
+//    cout << this->cargoRoute.getNetworks().getAir_network().getFlights()[0].routes[0];
+//    this->cargoRoute.getNetworks().setAir_network(air_network);
+//    cout << this->cargoRoute.getNetworks().getAir_network().getFlights()[0].routes[0];
 }
 
 

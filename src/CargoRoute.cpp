@@ -188,7 +188,6 @@ void CargoRoute::branch_and_price() {
         priority_queue<BB_node> bb_pool;
         BB_node::cargo_size = cargos.size();
         bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal), target_path, rival_path, chosen_paths, integer_set));
-
         int iter = 0;
         while(!bb_pool.empty()) {
             if (bb_pool.top().getObj() < incumbent) {
@@ -204,7 +203,7 @@ void CargoRoute::branch_and_price() {
             bb_pool.pop();
             column_generation(model);
             show_model_result(model);
-//            if (is_integral()) break;
+            if (is_integral()) break;
 
             pair<int, int> kp_pair = find_kp_pair();
 
@@ -868,11 +867,9 @@ vector<double> CargoRoute::get_r_column() {
 
 }
 
-double CargoRoute::get_P_value() const {
-
-    // first subproblem
+double CargoRoute::get_P_value(){
     double P_val = 0;
-
+    // first subproblem
     P_val -= networks.getSea_network().getShips()[0].route.cost;
 
     //second subproblem
@@ -891,12 +888,11 @@ const vector<pair<int, int>> &CargoRoute::getAir_arc_pairs() const {
     return air_arc_pairs;
 }
 
-const EntireNetwork &CargoRoute::getNetworks() const {
+EntireNetwork &CargoRoute::getNetworks(){
     return networks;
 }
 
 void CargoRoute::run_bp() {
-
     branch_and_price();
     reset_bp();
 }
@@ -917,7 +913,7 @@ void CargoRoute::reset_bp() {
     delete[] z;
     delete[] z_;
     delete[] u;
-    delete[] z_value;
+//    delete[] z_value;
     delete[] cons1;
     delete[] cons2;
     delete[] cons3;
@@ -926,11 +922,3 @@ void CargoRoute::reset_bp() {
     cons6.clear();
     cons6.clear();
 }
-
-
-
-
-
-
-
-
