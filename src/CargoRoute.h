@@ -19,7 +19,8 @@ public:
     double getObjVal() const;
     double get_P_value() const;
     vector<double> get_r_column();
-    void generate_init_sol();
+    void run_bp();
+    void rebuild_entire_network();
     const vector<pair<int, int>> &getSea_arc_pairs() const;
     const vector<pair<int, int>> &getAir_arc_pairs() const;
     const EntireNetwork &getNetworks() const;

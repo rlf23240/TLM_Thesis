@@ -65,7 +65,7 @@ def sea_data_generator(name, n, num_ships):
             starting_time = random.randint(0,15)
             freq = 1
             cycle_time = round(numpy.random.normal(50,5))
-            volume_ub = random.randint(10,20) * 100 #weight upper bound
+            volume_ub = random.randint(30,50) * 100 #weight upper bound
             param_file.write(node + '\t' + str(starting_time) + '\t' + str(freq) + '\t' + str(cycle_time) + '\t' + str(volume_ub)+ '\n')
         param_file.close()
 
@@ -122,10 +122,10 @@ def air_data_generator(name, n, num_flights):
             node = chr(65 + random.randint(0,n-1))
             cycle_time = random.randint(5,8)
             gap = cycle_time + numpy.random.poisson(0.2) + 1
-            weight_ub = random.randint(5,10)*100
+            weight_ub = random.randint(10,20)*100
             volume_ub = random.randint(10,20)*100
             freq = floor(20 / gap)
-            param_file.write(node + '\t' + str(gap) + '\t' + str(freq) + '\t' + str(cycle_time)+ '\t' + str(weight_ub)+ '\t' + str(volume_ub) + '\n')
+            param_file.write(node + '\t' + str(gap) + '\t' + str(freq) + '\t' + str(cycle_time)+ '\t' + str(volume_ub)+ '\t' + str(weight_ub) + '\n')
         param_file.close()
 
     air_arc_time_cost()

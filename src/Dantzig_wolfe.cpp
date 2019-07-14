@@ -8,15 +8,25 @@ Dantzig_wolfe::Dantzig_wolfe(const CargoRoute &cargoRoute) : cargoRoute(cargoRou
 
 
     vector<double> shadow_price;
-    for(int i = 0; i < 2; i++){
-        this->cargoRoute.generate_init_sol();
+    this->cargoRoute.run_bp();
+    P.push_back(this->cargoRoute.get_P_value());
+    cout << "obj : " << this->cargoRoute.getObjVal() << endl;
+    append_R_column(this->cargoRoute.get_r_column());
+    shadow_price = Run_Dantzig_wolfe();
+    update_arc_by_pi(shadow_price);
+
+    for(int i = 0; i <2; i++){
+        this->cargoRoute.rebuild_entire_network();
+        this->cargoRoute.run_bp();
         P.push_back(this->cargoRoute.get_P_value());
         cout << "obj : " << this->cargoRoute.getObjVal() << endl;
         append_R_column(this->cargoRoute.get_r_column());
+        shadow_price = Run_Dantzig_wolfe();
+        update_arc_by_pi(shadow_price);
     }
 
-    shadow_price = Run_Dantzig_wolfe();
-    update_arc_by_pi(shadow_price);
+
+
 
 }
 
@@ -42,14 +52,14 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
         int bigM = 99999;
 
 
-        cout << "R : ";
-        for (auto &row : R) {
-            bool is_print = false;
-            for (double val : row) {
-                cout << val << "\t";
-            }
-            cout << endl;
-        }
+//        cout << "R : ";
+//        for (auto &row : R) {
+//            bool is_print = false;
+//            for (double val : row) {
+//                cout << val << "\t";
+//            }
+//            cout << endl;
+//        }
 //        cout << "P : ";
 //        for (double i : P) {
 //            cout << i << " ";
@@ -102,11 +112,14 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
         cout << "w : " <<w.get(GRB_DoubleAttr_X) << endl;
 
 
-        cout << "Shadow Price : ";
+        cout << " R\tShadow Price : " << endl;
         vector<double> pi = vector<double>();
         for (int i = 0; i < m; i++) {
             pi.push_back(model.getConstr(i).get(GRB_DoubleAttr_Pi));
-            cout << pi.back() << " ";
+            for(int j = 0 ; j < n ; j++) {
+                cout << R[i][j] << "\t" ;
+            }
+            cout << pi.back() << endl;
         }
         cout << endl;
 //
@@ -117,7 +130,7 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
         cout << "lambda : " ;
         for(int i = 0; i < n; i++)
             cout << lambda[i].get(GRB_DoubleAttr_X) << " ";
-
+        cout << endl;
         cout << "P : " ;
         for (double i : P) {
             cout << i << " " ;
@@ -156,13 +169,14 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
 
             for(auto &arc : sea_network.nodes[(char) start.node +65][start.time]->out_arcs){
                 if((int) arc->end_node->getName()[0] - 65 == end.node){
-                    arc->cost += pi[i];
+                    arc->cost = MAX(0, arc->cost - pi[i]);
                 }
             }
         }
     }
     sea_network.run_algo();
     cout << sea_network.getShips()[0].route;
+
     AirNetwork air_network = networks.getAir_network();
     for(unsigned long long int i = 0; i <  air_arc_pair.size(); i++){
         if(pi[sea_arc_pair.size() + i] != 0){
@@ -170,7 +184,7 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
             Point end = networks.idx_to_point(air_arc_pair[i].second);
             for(auto &arc : air_network.nodes[(char) start.node +65][start.time % (7 * TIME_SLOT_A_DAY)]->out_arcs){
                 if((int) arc->end_node->getName()[0] - 65 == end.node){
-                    arc->cost += pi[sea_arc_pair.size() + i];
+                    arc->cost = MAX(0, arc->cost - pi[sea_arc_pair.size() + i]);
                 }
             }
 
@@ -179,12 +193,12 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
 
 
     for(unsigned long long int i = 0; i < air_arc_pair.size(); i++){
-        if(pi[ sea_arc_pair.size() + air_arc_pair.size() + i] != 0){
+        if(pi[sea_arc_pair.size() + air_arc_pair.size() + i] != 0){
             Point start = networks.idx_to_point(air_arc_pair[i].first);
             Point end = networks.idx_to_point(air_arc_pair[i].second);
             for(auto &arc : air_network.nodes[(char) start.node +65][start.time % (7 * TIME_SLOT_A_DAY)]->out_arcs){
                 if((int) arc->end_node->getName()[0] - 65 == end.node){
-                    arc->cost += pi[sea_arc_pair.size() + air_arc_pair.size() + i];
+                    arc->cost =  MAX(0, arc->cost - pi[sea_arc_pair.size() + air_arc_pair.size() + i]);
                 }
             }
         }

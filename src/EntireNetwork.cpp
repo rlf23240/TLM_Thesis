@@ -33,8 +33,8 @@ EntireNetwork::EntireNetwork() = default;
 
 void EntireNetwork::rebuild_networks() {
 
-    air_network.generate_designed_flight();
-    sea_network.generate_designed_ship();
+//    air_network.generate_designed_flight();
+//    sea_network.generate_designed_ship();
     cout << air_network.getFlights()[0].routes[0];
     cout << sea_network.getShips()[0].route;
 

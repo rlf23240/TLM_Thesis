@@ -895,10 +895,14 @@ const EntireNetwork &CargoRoute::getNetworks() const {
     return networks;
 }
 
-void CargoRoute::generate_init_sol() {
-    networks.rebuild_networks();
+void CargoRoute::run_bp() {
+
     branch_and_price();
     reset_bp();
+}
+
+void CargoRoute::rebuild_entire_network() {
+    networks.rebuild_networks();
 }
 
 void CargoRoute::reset_bp() {
@@ -907,7 +911,6 @@ void CargoRoute::reset_bp() {
         path->reduced_cost = 0;
     }
     incumbent = 0;
-    objVal = 0;
     integer_set.clear();
     all_paths.clear();
     delete[] chosen_paths;
@@ -923,6 +926,8 @@ void CargoRoute::reset_bp() {
     cons6.clear();
     cons6.clear();
 }
+
+
 
 
 
