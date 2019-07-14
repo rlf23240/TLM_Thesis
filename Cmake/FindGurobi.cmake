@@ -45,12 +45,14 @@ if (NOT GUROBI_FOUND)
             "$ENV{GUROBI_HOME}/include"
             "/Library/gurobi810/mac64/include"
             "C:\\gurobi810\\win64\\include"
+            "C:\\gurobi811\\win64\\include"
             )
 
     set(SEARCH_PATHS_FOR_LIBRARIES
             "$ENV{GUROBI_HOME}/lib"
             "/Library/gurobi810/mac64/lib"
             "C:\\gurobi810\\win64\\lib"
+            "C:\\gurobi811\\win64\\lib"
             )
 
     find_path(GUROBI_INCLUDE_DIR gurobi_c++.h
