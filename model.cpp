@@ -49,7 +49,18 @@
 #include <random>
 #include <chrono>
 
-using namespace std;
+//using namespace std;
+using std::cout;
+using std::cin;
+using std::get;
+using std::ofstream;
+using std::fstream;
+using std::ifstream;
+using std::ios;
+using std::stringstream;
+using std::endl;
+using std::string;
+using std::to_string;
 
 #define M 99999
 #define N 3
@@ -58,6 +69,13 @@ using namespace std;
 #define small 1
 #define CURRENCY 0.8
 
+//function for naming constraints
+string itos(int i)
+{
+    stringstream s;
+    s << i;
+    return s.str();
+};
 /*basic struct*/
 struct linklist
 {
@@ -270,28 +288,28 @@ int main(int arge, char *argv[])
     e_A = constr_eL(e_aLine, e_A);  //v200
 
     /*reads files*/
-    r_port_var("f_ports.txt", s_P, a_P);
-    r_graph_info("f_graph.txt", G);
-    r_lines_var("f_line.txt", S, A);
-    r_k_var("f_k.txt", K);
-    r_arc_info("f_Gs_arc.txt", G);
-    r_arc_info("f_Ga_arc.txt", G);
-    r_arc_info("f_Gd_arc.txt", G);
+    r_port_var("../model_data/f_ports.txt", s_P, a_P);
+    r_graph_info("../model_data/f_graph.txt", G);
+    r_lines_var("../model_data/f_line.txt", S, A);
+    r_k_var("../model_data/f_k.txt", K);
+    r_arc_info("../model_data/f_Gs_arc.txt", G);
+    r_arc_info("../model_data/f_Ga_arc.txt", G);
+    r_arc_info("../model_data/f_Gd_arc.txt", G);
     arc_sort(G);            //v102
     reverse_arc_sort(G);    //v101
     input_points(G);        //v101
-    r_e_arc("f_eGs_arc.txt", e_S, e_sLine); //v200
-    r_e_arc("f_eGa_arc.txt", e_A, e_aLine); //v200
+    r_e_arc("../model_data/f_eGs_arc.txt", e_S, e_sLine); //v200
+    r_e_arc("../model_data/f_eGa_arc.txt", e_A, e_aLine); //v200
     e_arc_sort(e_S, e_sLine);
     e_arc_sort(e_A, e_aLine);
     reverse_e_arc_sort(e_S, e_sLine);
     reverse_e_arc_sort(e_A, e_aLine);
     input_e_points(e_S, e_sLine, 0);
     input_e_points(e_A, e_aLine, 1);
-    r_k_path("info_k_path.txt", K);
+    r_k_path("../model_data/info_k_path.txt", K);
     //n_voy = lcm * (times - 1) / (max_q * 7 * PERIOD);
-    //generate_random_e(0, 1);
-    r_scenario("info_scenario.txt");
+    generate_random_e(0, 1);
+    r_scenario("../model_data/info_scenario.txt");
     calculate_utility();
 
     cout << "Files are read!\n";
@@ -305,11 +323,11 @@ int main(int arge, char *argv[])
         //model.set(GRB_IntParam_Threads, 2);
 
         /*test*/
-        ofstream outconstr("constr.txt");
-        ofstream fout("records.txt");
+        ofstream outconstr("../model_data/constr.txt");
+        ofstream fout("../model_data/records.txt");
 
-        ofstream fbefore("test_before.txt");
-        ofstream fafter("test_after.txt");
+        ofstream fbefore("../model_data/test_before.txt");
+        ofstream fafter("../model_data/test_after.txt");
 
         //y[network][arc][line]
         GRBVar ***y = new GRBVar **[N - 1];
@@ -328,7 +346,7 @@ int main(int arge, char *argv[])
                     stringstream s_tail, s_head;
                     s_tail << G[n].arc[a].tail;
                     s_head << G[n].arc[a].head;
-                    s = "y[" + to_string(n) + "][" + s_tail.str() + "][" + s_head.str() + "][" + to_string(l) + "]";
+                    s = "y[" + itos(n) + "][" + s_tail.str() + "][" + s_head.str() + "][" + itos(l) + "]";
                     //y[network][tail][head][line]
                     y[n][a][l] = model.addVar(0, 1, 0, GRB_BINARY, s);
                 }
@@ -344,7 +362,7 @@ int main(int arge, char *argv[])
         for (int k = 0; k < n_k; k++) {
             for (int q = 0; q < max_q; q++) {
                 string s;
-                s = "z[" + to_string(k) + "][" + to_string(q) + "]";
+                s = "z[" + itos(k) + "][" + itos(q) + "]";
                 //z[commodity][q]
                 z[k][q] = model.addVar(0, 1, 0, GRB_BINARY, s);
             }
@@ -361,7 +379,7 @@ int main(int arge, char *argv[])
             number_of_r = 7 - (A[l].gap / PERIOD) * (A[l].freq - 1);
             for (int r = 0; r < number_of_r; r++) {
                 string s;
-                s = "Q[" + to_string(l) + "][" + to_string(r) + "]";
+                s = "Q[" + itos(l) + "][" + itos(r) + "]";
                 Q[l][r] = model.addVar(0, 1, 0, GRB_BINARY, s);
             }
         }
@@ -402,7 +420,7 @@ int main(int arge, char *argv[])
 
                 for (int p = 0; p < total_path; p++) {
                     string s;
-                    s = "f[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "]";
+                    s = "f[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "]";
                     f[k][q][p] = model.addVar(0, GRB_INFINITY, 0, GRB_CONTINUOUS, s);
 
                     //E[k][q][p] = new GRBVar[num_scenario];
@@ -412,16 +430,16 @@ int main(int arge, char *argv[])
                     PH_2[k][q][p] = new GRBVar **[num_scenario];
                     PH_3[k][q][p] = new GRBVar **[num_scenario];
                     for (int r = 0; r < num_scenario; r++) {
-                        //s = "E[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(r) + "]";
+                        //s = "E[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(r) + "]";
                         //E[k][q][p][r] = model.addVar(0, GRB_INFINITY, 0, GRB_CONTINUOUS, s);
 
-                        //s = "U[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(r) + "]";
+                        //s = "U[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(r) + "]";
                         //U[k][q][p][r] = model.addVar(-GRB_INFINITY, GRB_INFINITY, 0, GRB_CONTINUOUS, s);
 
-                        s = "W[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(r) + "]";
+                        s = "W[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(r) + "]";
                         W[k][q][p][r] = model.addVar(0, 1, 0, GRB_BINARY, s);
 
-                        s = "PH[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(r) + "]";
+                        s = "PH[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(r) + "]";
                         PH[k][q][p][r] = model.addVar(0, 1, 0, GRB_BINARY, s);
 
                         PH_2[k][q][p][r] = new GRBVar *[TOTALG];
@@ -431,11 +449,11 @@ int main(int arge, char *argv[])
                                 PH_2[k][q][p][r][n] = new GRBVar[G[n].n_arcs];
                                 PH_3[k][q][p][r][n] = new GRBVar[G[n].n_arcs];
                                 for (int a = 0; a < G[n].n_arcs; a++) {
-                                    s = "PH_2[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(r) + "][" + to_string(n) + "][" + to_string(a) + "]";
+                                    s = "PH_2[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(r) + "][" + itos(n) + "][" + itos(a) + "]";
                                     PH_2[k][q][p][r][n][a] = model.addVar(0, 1, 0, GRB_BINARY, s);
                                     //fout << s << endl;
 
-                                    s = "PH_3[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(r) + "][" + to_string(n) + "][" + to_string(a) + "]";
+                                    s = "PH_3[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(r) + "][" + itos(n) + "][" + itos(a) + "]";
                                     PH_3[k][q][p][r][n][a] = model.addVar(0, 1, 0, GRB_BINARY, s);
                                     //fout << s << endl;
                                 }
@@ -445,11 +463,11 @@ int main(int arge, char *argv[])
                                 PH_2[k][q][p][r][n] = new GRBVar[e_S[line].n_arc];
                                 PH_3[k][q][p][r][n] = new GRBVar[e_S[line].n_arc];
                                 for (int a = 0; a < e_S[line].n_arc; a++) {
-                                    s = "PH_2[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(r) + "][" + to_string(n) + "][" + to_string(a) + "]";
+                                    s = "PH_2[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(r) + "][" + itos(n) + "][" + itos(a) + "]";
                                     PH_2[k][q][p][r][n][a] = model.addVar(0, 1, 0, GRB_BINARY, s);
                                     //fout << s << endl;
 
-                                    s = "PH_3[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(r) + "][" + to_string(n) + "][" + to_string(a) + "]";
+                                    s = "PH_3[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(r) + "][" + itos(n) + "][" + itos(a) + "]";
                                     PH_3[k][q][p][r][n][a] = model.addVar(0, 1, 0, GRB_BINARY, s);
                                     //fout << s << endl;
                                 }
@@ -459,11 +477,11 @@ int main(int arge, char *argv[])
                                 PH_2[k][q][p][r][n] = new GRBVar[e_A[line].n_arc];
                                 PH_3[k][q][p][r][n] = new GRBVar[e_A[line].n_arc];
                                 for (int a = 0; a < e_A[line].n_arc; a++) {
-                                    s = "PH_2[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(r) + "][" + to_string(n) + "][" + to_string(a) + "]";
+                                    s = "PH_2[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(r) + "][" + itos(n) + "][" + itos(a) + "]";
                                     PH_2[k][q][p][r][n][a] = model.addVar(0, 1, 0, GRB_BINARY, s);
                                     //fout << s << endl;
 
-                                    s = "PH_3[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(r) + "][" + to_string(n) + "][" + to_string(a) + "]";
+                                    s = "PH_3[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(r) + "][" + itos(n) + "][" + itos(a) + "]";
                                     PH_3[k][q][p][r][n][a] = model.addVar(0, 1, 0, GRB_BINARY, s);
                                     //fout << s << endl;
                                 }
@@ -497,9 +515,9 @@ int main(int arge, char *argv[])
 
                             if (l != p) {
                                 string s;
-                                s = "MU[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(l) + "][" + to_string(r) + "]";
+                                s = "MU[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(l) + "][" + itos(r) + "]";
                                 MU[k][q][p][l][r] = model.addVar(0, 1, 0, GRB_BINARY, s);
-                                s = "NG[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(l) + "][" + to_string(r) + "]";
+                                s = "NG[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(l) + "][" + itos(r) + "]";
                                 NG[k][q][p][l][r] = model.addVar(0, 1, 0, GRB_BINARY, s);
                             }
 
@@ -636,7 +654,7 @@ int main(int arge, char *argv[])
                 }
 
                 string s;
-                s = "c2[line" + to_string(l) + "][" + to_string(homeport) + "]";
+                s = "c2[line" + itos(l) + "][" + itos(homeport) + "]";
                 model.addConstr(sum == 1, s);
                 //outconstr << s << endl;
                 tmp = tmp->next;
@@ -663,7 +681,7 @@ int main(int arge, char *argv[])
                 }
 
                 string s;
-                s = "c3[line" + to_string(l) + "][" + to_string(destport) + "]";
+                s = "c3[line" + itos(l) + "][" + itos(destport) + "]";
                 model.addConstr(sum == 1, s);
                 //outconstr << s << endl;
                 tmp = tmp->next;
@@ -713,7 +731,7 @@ int main(int arge, char *argv[])
                     }
 
                     string s;
-                    s = "c4[line" + to_string(l) + "][" + to_string(n) + "]";
+                    s = "c4[line" + itos(l) + "][" + itos(n) + "]";
                     model.addConstr(in == out, s);
                     //outconstr << s << endl;
                 }
@@ -748,7 +766,7 @@ int main(int arge, char *argv[])
                             a_head << G[sea].arc[a].head;
                             b_tail << G[sea].arc[b].tail;
                             b_head << G[sea].arc[b].head;
-                            s = "c5[" + a_tail.str() + "][" + a_head.str() + "]->[" + b_tail.str() + "][" + b_head.str() + "][line:" + to_string(l) + "]";
+                            s = "c5[" + a_tail.str() + "][" + a_head.str() + "]->[" + b_tail.str() + "][" + b_head.str() + "][line:" + itos(l) + "]";
                             model.addConstr(y[sea][a][l] == y[sea][b][l], s);
                             //outconstr << s << endl;
                         }
@@ -798,7 +816,7 @@ int main(int arge, char *argv[])
                 }
 
                 string s;
-                s = "c6[port: " + to_string(port) + "][line: " + to_string(l) + "][" + to_string(i) + "]";
+                s = "c6[port: " + itos(port) + "][line: " + itos(l) + "][" + itos(i) + "]";
                 left = (s_P[port].s_t) * left;
                 model.addConstr(left <= right, s);
                 //outconstr << s << endl;
@@ -823,7 +841,7 @@ int main(int arge, char *argv[])
                 }
             }
             string s;
-            s = "c7[line" + to_string(l) + "]";
+            s = "c7[line" + itos(l) + "]";
             model.addConstr(sum == A[l].freq, s);
             //outconstr << s << endl;
         }
@@ -848,7 +866,7 @@ int main(int arge, char *argv[])
                 }
 
                 string s;
-                s = "c8[line" + to_string(l) + "][i:" + to_string(tail) + "]";
+                s = "c8[line" + itos(l) + "][i:" + itos(tail) + "]";
                 model.addConstr(depa == arri, s);
                 //outconstr << s << endl;
             }
@@ -875,7 +893,7 @@ int main(int arge, char *argv[])
                     }
 
                     string s;
-                    s = "c9[line" + to_string(l) + "][i:" + to_string(n) + "]";
+                    s = "c9[line" + itos(l) + "][i:" + itos(n) + "]";
                     model.addConstr(in == out, s);
                     //outconstr << s << endl;
                 }
@@ -904,7 +922,7 @@ int main(int arge, char *argv[])
                         a_head << G[air].arc[a].head;
                         b_tail << G[air].arc[b].tail;
                         b_head << G[air].arc[b].head;
-                        s = "c10[" + a_tail.str() + "][" + a_head.str() + "]->[" + b_tail.str() + "][" + b_head.str() + "][line:" + to_string(l) + "]";
+                        s = "c10[" + a_tail.str() + "][" + a_head.str() + "]->[" + b_tail.str() + "][" + b_head.str() + "][line:" + itos(l) + "]";
                         model.addConstr(y[air][a][l] == y[air][b][l], s);
                         //outconstr << s << endl;
                     }
@@ -955,10 +973,10 @@ int main(int arge, char *argv[])
                                         a_head << G[air].arc[a].head;
                                         b_tail << G[air].arc[b].tail;
                                         b_head << G[air].arc[b].head;
-                                        s = "c11[" + a_tail.str() + "][" + a_head.str() + "]->[" + b_tail.str() + "][" + b_head.str() + "][line:" + to_string(l) + "]Q[" + to_string(l) + "][" + to_string(r) + "]";
+                                        s = "c11[" + a_tail.str() + "][" + a_head.str() + "]->[" + b_tail.str() + "][" + b_head.str() + "][line:" + itos(l) + "]Q[" + itos(l) + "][" + itos(r) + "]";
                                         model.addConstr(y[air][a][l] <= y[air][b][l] + (1 - Q[l][r]), s);
                                         //outconstr << s << endl;
-                                        s = "c12[" + b_tail.str() + "][" + b_head.str() + "]->[" + a_tail.str() + "][" + a_head.str() + "][line:" + to_string(l) + "]Q[" + to_string(l) + "][" + to_string(r) + "]";
+                                        s = "c12[" + b_tail.str() + "][" + b_head.str() + "]->[" + a_tail.str() + "][" + a_head.str() + "][line:" + itos(l) + "]Q[" + itos(l) + "][" + itos(r) + "]";
                                         model.addConstr(y[air][b][l] <= y[air][a][l] + (1 - Q[l][r]), s);
                                         //outconstr << s << endl;
                                     }
@@ -975,7 +993,7 @@ int main(int arge, char *argv[])
                             stringstream a_tail, a_head, b_tail, b_head;
                             a_tail << G[air].arc[a].tail;
                             a_head << G[air].arc[a].head;
-                            s = "c13[" + a_tail.str() + "][" + a_head.str() + "][line:" + to_string(l) + "]Q[" + to_string(l) + "][" + to_string(r) + "]";
+                            s = "c13[" + a_tail.str() + "][" + a_head.str() + "][line:" + itos(l) + "]Q[" + itos(l) + "][" + itos(r) + "]";
                             model.addConstr(y[air][a][l] <= (1 - Q[l][r]), s);
                             //outconstr << s << endl;
                         }
@@ -999,7 +1017,7 @@ int main(int arge, char *argv[])
                 sum += Q[l][r];
             }
             string s;
-            s = "c14[" + to_string(l) + "]";
+            s = "c14[" + itos(l) + "]";
             model.addConstr(sum == 1, s);
             //outconstr << s << endl;
         }
@@ -1026,35 +1044,35 @@ int main(int arge, char *argv[])
                         for (int q = 0; q < max_q; q++) {
                             for (int r = 0; r < num_scenario; r++) {
                                 string s;
-                                s = "C15[p_" + to_string(p) + "][l_" + to_string(l) + "[k_" + to_string(k) + "][q_" + to_string(q) + "][r_" + to_string(r) + "]";
+                                s = "C15[p_" + itos(p) + "][l_" + itos(l) + "[k_" + itos(k) + "][q_" + itos(q) + "][r_" + itos(r) + "]";
                                 model.addConstr(M * NG[k][q][p][l][r] - 2 * M <= K[k].kq[q].path_utility[p][r] - K[k].kq[q].path_utility[l][r] - M * MU[k][q][p][l][r], s);
                                 //outconstr << s << endl;
 
-                                s = "C16[p_" + to_string(p) + "][l_" + to_string(l) + "[k_" + to_string(k) + "][q_" + to_string(q) + "][r_" + to_string(r) + "]";
+                                s = "C16[p_" + itos(p) + "][l_" + itos(l) + "[k_" + itos(k) + "][q_" + itos(q) + "][r_" + itos(r) + "]";
                                 model.addConstr(K[k].kq[q].path_utility[p][r] - K[k].kq[q].path_utility[l][r] - M * MU[k][q][p][l][r] <= (1 - NG[k][q][p][l][r]) * M, s);
                                 //outconstr << s << endl;
 
-                                s = "C17[p_" + to_string(p) + "][l_" + to_string(l) + "[k_" + to_string(k) + "][q_" + to_string(q) + "][r_" + to_string(r) + "]";
+                                s = "C17[p_" + itos(p) + "][l_" + itos(l) + "[k_" + itos(k) + "][q_" + itos(q) + "][r_" + itos(r) + "]";
                                 model.addConstr(PH[k][q][p][r] + PH[k][q][l][r] <= 1 + NG[k][q][p][l][r], s);
                                 //outconstr << s << endl;
 
-                                s = "C18[p_" + to_string(p) + "][l_" + to_string(l) + "[k_" + to_string(k) + "][q_" + to_string(q) + "][r_" + to_string(r) + "]";
+                                s = "C18[p_" + itos(p) + "][l_" + itos(l) + "[k_" + itos(k) + "][q_" + itos(q) + "][r_" + itos(r) + "]";
                                 model.addConstr(NG[k][q][p][l][r] <= PH[k][q][p][r], s);
                                 //outconstr << s << endl;
 
-                                s = "C19[p_" + to_string(p) + "][l_" + to_string(l) + "[k_" + to_string(k) + "][q_" + to_string(q) + "][r_" + to_string(r) + "]";
+                                s = "C19[p_" + itos(p) + "][l_" + itos(l) + "[k_" + itos(k) + "][q_" + itos(q) + "][r_" + itos(r) + "]";
                                 model.addConstr(NG[k][q][p][l][r] <= PH[k][q][l][r], s);
                                 //outconstr << s << endl;
 
-                                s = "C20[p_" + to_string(p) + "][l_" + to_string(l) + "[k_" + to_string(k) + "][q_" + to_string(q) + "][r_" + to_string(r) + "]";
+                                s = "C20[p_" + itos(p) + "][l_" + itos(l) + "[k_" + itos(k) + "][q_" + itos(q) + "][r_" + itos(r) + "]";
                                 model.addConstr(MU[k][q][p][l][r] + MU[k][q][l][p][r] <= 1, s);
                                 //outconstr << s << endl;
 
-                                s = "C21[p_" + to_string(p) + "][l_" + to_string(l) + "[k_" + to_string(k) + "][q_" + to_string(q) + "][r_" + to_string(r) + "]";
+                                s = "C21[p_" + itos(p) + "][l_" + itos(l) + "[k_" + itos(k) + "][q_" + itos(q) + "][r_" + itos(r) + "]";
                                 model.addConstr(MU[k][q][p][l][r] <= PH[k][q][p][r], s);
                                 //outconstr << s << endl;
 
-                                s = "C22[p_" + to_string(p) + "][l_" + to_string(l) + "[k_" + to_string(k) + "][q_" + to_string(q) + "][r_" + to_string(r) + "]";
+                                s = "C22[p_" + itos(p) + "][l_" + itos(l) + "[k_" + itos(k) + "][q_" + itos(q) + "][r_" + itos(r) + "]";
                                 model.addConstr(W[k][q][p][r] <= MU[k][q][p][l][r], s);
                                 //outconstr << s << endl;
 
@@ -1084,7 +1102,7 @@ int main(int arge, char *argv[])
                     if (check_p == 0) {
                         for (int r = 0; r < num_scenario; r++) {
                             string s;
-                            s = "C23_1[k_" + to_string(k) + "][q_" + to_string(q) + "][p_" + to_string(p) + "]";
+                            s = "C23_1[k_" + itos(k) + "][q_" + itos(q) + "][p_" + itos(p) + "]";
                             model.addConstr(PH[k][q][p][r] == 0, s);
                             //outconstr << s << endl;
                         }
@@ -1094,7 +1112,7 @@ int main(int arge, char *argv[])
                         for (int r = 0; r < num_scenario; r++) {
                             string s;
 
-                            s = "C23_2[k_" + to_string(k) + "][q_" + to_string(q) + "][p_" + to_string(p) + "]";
+                            s = "C23_2[k_" + itos(k) + "][q_" + itos(q) + "][p_" + itos(p) + "]";
                             model.addConstr(PH[k][q][p][r] <= 1, s);
                             //outconstr << s << endl;
                         }
@@ -1724,7 +1742,7 @@ int main(int arge, char *argv[])
         //				sum += W[k][q][p][r];
         //			}
         //			string s;
-        //			s = "C37[k_" + to_string(k) + "][q_" + to_string(q) + "][r_" + to_string(r) + "]";
+        //			s = "C37[k_" + itos(k) + "][q_" + itos(q) + "][r_" + itos(r) + "]";
         //			model.addConstr(sum == z[k][q], s);
         //			//outconstr << s << endl;
         //		}
@@ -1741,7 +1759,7 @@ int main(int arge, char *argv[])
                         sum += W[k][q][p][r];
                     }
                     string s;
-                    s = "C37[k_" + to_string(k) + "][q_" + to_string(q) + "][r_" + to_string(r) + "]";
+                    s = "C37[k_" + itos(k) + "][q_" + itos(q) + "][r_" + itos(r) + "]";
                     model.addConstr(sum == 1, s);
                     //outconstr << s << endl;
                 }
@@ -1758,7 +1776,7 @@ int main(int arge, char *argv[])
                         sum += W[k][q][p][r];
                     }
                     string s;
-                    s = "C38[p_" + to_string(p) + "][k_" + to_string(k) + "][q_" + to_string(q) + "]";
+                    s = "C38[p_" + itos(p) + "][k_" + itos(k) + "][q_" + itos(q) + "]";
                     model.addConstr(f[k][q][p] == (K[k].d / num_scenario * sum), s);
                     //outconstr << s << endl;
                 }
@@ -1775,7 +1793,7 @@ int main(int arge, char *argv[])
         //			sum += f[k][q][real_p];
         //		}
         //		string s;
-        //		s = "c39[" + to_string(k) + "][" + to_string(q) + "]";
+        //		s = "c39[" + itos(k) + "][" + itos(q) + "]";
         //		model.addConstr(sum == K[k].d * z[k][q], s);
         //		//outconstr << s << endl;
         //	}
@@ -1790,7 +1808,7 @@ int main(int arge, char *argv[])
         //		sum += z[k][q];
         //	}
         //	string s;
-        //	s = "c40[k:" + to_string(k) + "]";
+        //	s = "c40[k:" + itos(k) + "]";
         //	model.addConstr(sum == 1, s);
         //	//outconstr << s << endl;
         //}
@@ -1832,7 +1850,7 @@ int main(int arge, char *argv[])
                         stringstream s_tail, s_head;
                         s_tail << G[n].arc[a].tail;
                         s_head << G[n].arc[a].head;
-                        s = "y[" + to_string(n) + "][" + s_tail.str() + "][" + s_head.str() + "][" + to_string(l) + "]";
+                        s = "y[" + itos(n) + "][" + s_tail.str() + "][" + s_head.str() + "][" + itos(l) + "]";
                         outfile << s << " = " << y[n][a][l].get(GRB_DoubleAttr_X) << "\t" << G[n].arc[a].fo_c << endl;
                     }
 
@@ -1844,7 +1862,7 @@ int main(int arge, char *argv[])
         for (int k = 0; k < n_k; k++) {
             for (int q = 0; q < max_q; q++) {
                 string s;
-                s = "z[" + to_string(k) + "][" + to_string(q) + "]";
+                s = "z[" + itos(k) + "][" + itos(q) + "]";
                 //z[commodity][q]
                 if (z[k][q].get(GRB_DoubleAttr_X) == 1) {
                     outfile << s << " = " << z[k][q].get(GRB_DoubleAttr_X) << endl;
@@ -1857,7 +1875,7 @@ int main(int arge, char *argv[])
             number_of_r = 7 - (A[l].gap / PERIOD) * (A[l].freq - 1);
             for (int r = 0; r < number_of_r; r++) {
                 string s;
-                s = "Q[" + to_string(l) + "][" + to_string(r) + "]";
+                s = "Q[" + itos(l) + "][" + itos(r) + "]";
                 if (Q[l][r].get(GRB_DoubleAttr_X) == 1) {
                     outfile << s << " = " << Q[l][r].get(GRB_DoubleAttr_X) << endl;
                 }
@@ -1869,7 +1887,7 @@ int main(int arge, char *argv[])
             for (int q = 0; q < max_q; q++) {
                 for (int p = 0; p < total_path; p++) {
                     string s;
-                    s = "f[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "]";
+                    s = "f[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "]";
                     if (f[k][q][p].get(GRB_DoubleAttr_X) > 0) {
                         outfile << s << "=" << f[k][q][p].get(GRB_DoubleAttr_X) << endl;
                     }
@@ -1884,7 +1902,7 @@ int main(int arge, char *argv[])
                 for (int q = 0; q < max_q; q++) {
                     for (int p = 0; p < total_path; p++) {
                         string s;
-                        s = "W[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(r) + "]";
+                        s = "W[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(r) + "]";
                         if (W[k][q][p][r].get(GRB_DoubleAttr_X) == 1){
                             outfile << s << "=" << W[k][q][p][r].get(GRB_DoubleAttr_X) << endl;
                         }
@@ -1900,7 +1918,7 @@ int main(int arge, char *argv[])
                 for (int q = 0; q < max_q; q++) {
                     for (int p = 0; p < total_path; p++) {
                         string s;
-                        s = "PH[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(r) + "]";
+                        s = "PH[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(r) + "]";
                         if (PH[k][q][p][r].get(GRB_DoubleAttr_X) == 1) {
                             outfile << s << "=" << PH[k][q][p][r].get(GRB_DoubleAttr_X) << endl;
                         }
@@ -1919,11 +1937,11 @@ int main(int arge, char *argv[])
                             string s;
                             if (n < N - 1) {
                                 for (int a = 0; a < G[n].n_arcs; a++) {
-                                    s = "PH_2[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(r) + "][t_" + to_string(G[n].arc[a].tail) + "][" + to_string(G[n].arc[a].head) + "]";
+                                    s = "PH_2[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(r) + "][t_" + itos(G[n].arc[a].tail) + "][" + itos(G[n].arc[a].head) + "]";
                                     if (PH_2[k][q][p][r][n][a].get(GRB_DoubleAttr_X) == 1) {
                                         outfile << s << "=" << PH_2[k][q][p][r][n][a].get(GRB_DoubleAttr_X) << endl;
                                     }
-                                    s = "PH_3[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(r) + "][t_" + to_string(G[n].arc[a].tail) + "][" + to_string(G[n].arc[a].head) + "]";
+                                    s = "PH_3[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(r) + "][t_" + itos(G[n].arc[a].tail) + "][" + itos(G[n].arc[a].head) + "]";
                                     if (PH_3[k][q][p][r][n][a].get(GRB_DoubleAttr_X) == 1) {
                                         outfile << s << "=" << PH_3[k][q][p][r][n][a].get(GRB_DoubleAttr_X) << endl;
                                     }
@@ -1932,7 +1950,7 @@ int main(int arge, char *argv[])
                             else if (n >= 3 && (n - 3) < e_sLine) {
                                 int line = n - 3;
                                 for (int a = 0; a < e_S[line].n_arc; a++) {
-                                    s = "PH_2[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(r) + "][t_" + to_string(e_S[line].arc[a].tail) + "][" + to_string(e_S[line].arc[a].head) + "]";
+                                    s = "PH_2[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(r) + "][t_" + itos(e_S[line].arc[a].tail) + "][" + itos(e_S[line].arc[a].head) + "]";
                                     if (PH_2[k][q][p][r][n][a].get(GRB_DoubleAttr_X) == 1) {
                                         outfile << s << "=" << PH_2[k][q][p][r][n][a].get(GRB_DoubleAttr_X) << endl;
                                     }
@@ -1941,11 +1959,11 @@ int main(int arge, char *argv[])
                             else if (n >= 3 && (n - 3) >= e_sLine) {
                                 int line = n - 3 - e_sLine;
                                 for (int a = 0; a < e_A[line].n_arc; a++) {
-                                    s = "PH_2[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(r) + "][t_" + to_string(e_A[line].arc[a].tail) + "][" + to_string(e_A[line].arc[a].head) + "]";
+                                    s = "PH_2[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(r) + "][t_" + itos(e_A[line].arc[a].tail) + "][" + itos(e_A[line].arc[a].head) + "]";
                                     if (PH_2[k][q][p][r][n][a].get(GRB_DoubleAttr_X) == 1) {
                                         outfile << s << "=" << PH_2[k][q][p][r][n][a].get(GRB_DoubleAttr_X) << endl;
                                     }
-                                    s = "PH_3[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(r) + "][t_" + to_string(e_A[line].arc[a].tail) + "][" + to_string(e_A[line].arc[a].head) + "]";
+                                    s = "PH_3[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(r) + "][t_" + itos(e_A[line].arc[a].tail) + "][" + itos(e_A[line].arc[a].head) + "]";
                                     if (PH_3[k][q][p][r][n][a].get(GRB_DoubleAttr_X) == 1) {
                                         outfile << s << "=" << PH_3[k][q][p][r][n][a].get(GRB_DoubleAttr_X) << endl;
                                     }
@@ -1965,7 +1983,7 @@ int main(int arge, char *argv[])
                         for (int l = 0; l < total_path; l++) {
                             if (l != p) {
                                 string s;
-                                s = "MU[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(l) + "][" + to_string(r) + "]";
+                                s = "MU[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(l) + "][" + itos(r) + "]";
                                 if (MU[k][q][p][l][r].get(GRB_DoubleAttr_X) == 1) {
                                     outfile << s << "=" << MU[k][q][p][l][r].get(GRB_DoubleAttr_X) << endl;
                                 }
@@ -1985,7 +2003,7 @@ int main(int arge, char *argv[])
                         for (int l = 0; l < total_path; l++) {
                             if (l != p) {
                                 string s;
-                                s = "NG[" + to_string(k) + "][" + to_string(q) + "][" + to_string(p) + "][" + to_string(l) + "][" + to_string(r) + "]";
+                                s = "NG[" + itos(k) + "][" + itos(q) + "][" + itos(p) + "][" + itos(l) + "][" + itos(r) + "]";
                                 if (NG[k][q][p][l][r].get(GRB_DoubleAttr_X) == 1){
                                     outfile << s << "=" << NG[k][q][p][l][r].get(GRB_DoubleAttr_X) << endl;
                                 }
@@ -2047,7 +2065,7 @@ void r_global_var(string s)
                 fin >> e_aLine;
                 fin >> my_sLine;
                 fin >> my_aLine;
-//                fin >> lcm;
+                fin >> lcm;
                 fin >> times;
                 fin >> L;
                 fin >> max_q;
@@ -2063,6 +2081,7 @@ void r_global_var(string s)
         }
     }
     fin.close();
+    return;
 }
 
 Graph* constr_grap(int n, Graph *g)
@@ -3119,7 +3138,7 @@ void input_e_points(eL *e, int n_line, int sORa) //v200
 void r_k_path(string s, Commodity *k)
 {
     ifstream fin;
-    ofstream fout("check_ij_path.txt");
+    ofstream fout("../model_data/check_ij_path.txt");
     fout << "k\tq\tp\tfrom\tto\ttime[p]\tcost[p]" << endl;
 
     fin.open(s.c_str(), ios::in);
@@ -3691,7 +3710,7 @@ double check_ij_path_cost(int k, int q, int p, int tail, int head)
 
 void generate_random_e(double mean, double stdv)
 {
-    ofstream outfile("info_scenario.txt");
+    ofstream outfile("../model_data/info_scenario.txt");
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine generator(seed);
     //std::default_random_engine generator;
@@ -3717,7 +3736,6 @@ void generate_random_e(double mean, double stdv)
     outfile.close();
     return;
 }
-
 
 void r_scenario(string s)
 {
@@ -3778,7 +3796,7 @@ void r_scenario(string s)
 
 void calculate_utility()
 {
-    ofstream outfile("utility.txt");
+    ofstream outfile("../model_data/utility.txt");
     outfile << "k\tq\tr\tp\tcost\ttime\tutility\te\tutility_e\n";
     for (int k = 0; k < n_k; k++) {
         for (int q = 0; q < max_q; q++) {
