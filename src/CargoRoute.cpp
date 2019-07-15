@@ -171,7 +171,7 @@ void CargoRoute::cal_path_cost(Path *path) {
     path->last_time = path->points.back().time - path->points.front().time;
 }
 
-void CargoRoute::branch_and_price() {
+Solution* CargoRoute::branch_and_price() {
     try {
         GRBEnv env = GRBEnv();
         GRBModel model = GRBModel(env);
@@ -238,12 +238,15 @@ void CargoRoute::branch_and_price() {
                 z_value[k].push_back(z[k][p].get(GRB_DoubleAttr_X));
             }
         }
+        Solution* sol = new Solution(cargos.size(), target_path, z_value, get_P_value(), get_r_column());
+        return sol;
     } catch(GRBException e) {
         cout << "Error code = " << e.getErrorCode() << endl;
         cout << e.getMessage() << endl;
     } catch(...) {
         cout << "Exception during optimization" << endl;
     }
+    return nullptr;
 }
 
 void CargoRoute::bp_init(GRBModel &model) {
@@ -849,6 +852,19 @@ double CargoRoute::getObjVal() const {
     return objVal;
 }
 
+double CargoRoute::get_P_value(){
+    double P_val = 0;
+    // first subproblem
+    P_val -= networks.getSea_network().getShips()[0].route.cost;
+
+    //second subproblem
+    vector<Route> routes = networks.getAir_network().getFlights()[0].routes;
+    P_val -= routes[0].cost * routes.size();
+
+    P_val += objVal;
+    return P_val;
+}
+
 vector<double> CargoRoute::get_r_column() {
     vector<double> r_column;
 
@@ -869,19 +885,6 @@ vector<double> CargoRoute::get_r_column() {
 
 }
 
-double CargoRoute::get_P_value(){
-    double P_val = 0;
-    // first subproblem
-    P_val -= networks.getSea_network().getShips()[0].route.cost;
-
-    //second subproblem
-    vector<Route> routes = networks.getAir_network().getFlights()[0].routes;
-    P_val -= routes[0].cost * routes.size();
-
-    P_val += objVal;
-    return P_val;
-}
-
 const vector<pair<int, int>> &CargoRoute::getSea_arc_pairs() const {
     return sea_arc_pairs;
 }
@@ -894,9 +897,10 @@ EntireNetwork &CargoRoute::getNetworks(){
     return networks;
 }
 
-void CargoRoute::run_bp() {
-    branch_and_price();
+Solution* CargoRoute::run_bp() {
+    Solution* sol = branch_and_price();
     reset_bp();
+    return sol;
 }
 
 void CargoRoute::rebuild_entire_network() {

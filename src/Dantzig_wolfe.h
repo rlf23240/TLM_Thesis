@@ -17,8 +17,10 @@ private:
     vector<double> P;
     vector<vector<double>> R;
     double delta;
+    vector<Solution*> solutions;
     void append_R_column(vector<double> r_column);
     vector<double> Run_Dantzig_wolfe();
+    void Final_result();
     void update_arc_by_pi(vector<double> pi);
     bool end_condition(vector<double> pi);
 };

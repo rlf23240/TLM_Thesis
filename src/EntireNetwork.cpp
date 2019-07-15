@@ -4,6 +4,7 @@
 
 #include "EntireNetwork.h"
 
+
 EntireNetwork::EntireNetwork(string data) {
     data_str = data;
     read_param_data(data);

@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 #include_directories(googletest/googletest/include)
 #include_directories(googletest/googlemock/include)
 
-add_executable(TLM_Thesis main.cpp src/Network.cpp src/Network.h src/Node.cpp src/Node.h src/param.h src/AirNetwork.cpp src/AirNetwork.h src/SeaNetwork.cpp src/SeaNetwork.h src/EntireNetwork.cpp src/EntireNetwork.h src/Path.cpp src/Point.cpp src/Cargo.cpp src/CargoRoute.cpp src/CargoRoute.h src/BB_node.cpp src/BB_node.h src/Dantzig_wolfe.cpp src/Dantzig_wolfe.h)
+add_executable(TLM_Thesis main.cpp src/Network.cpp src/Network.h src/Node.cpp src/Node.h src/param.h src/AirNetwork.cpp src/AirNetwork.h src/SeaNetwork.cpp src/SeaNetwork.h src/EntireNetwork.cpp src/EntireNetwork.h src/Path.cpp src/Point.cpp src/Cargo.cpp src/CargoRoute.cpp src/CargoRoute.h src/BB_node.cpp src/BB_node.h src/Dantzig_wolfe.cpp src/Dantzig_wolfe.h src/Solution.cpp)
 add_executable(Model model.cpp)
 #add_executable(Test Test/testMain.cpp Test/NodeTest.cpp src/Node.h src/Node.cpp src/Network.cpp src/Network.h Test/networkTest.cpp src/AirNetwork.cpp src/AirNetwork.h src/SeaNetwork.cpp src/SeaNetwork.h)
 

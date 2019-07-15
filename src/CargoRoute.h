@@ -7,7 +7,8 @@
 
 #include "Cargo.cpp"
 #include "EntireNetwork.h"
-#include "bb_node.h"
+#include "BB_node.h"
+#include "Solution.cpp"
 #include "param.h"
 #include "gurobi_c++.h"
 
@@ -19,7 +20,7 @@ public:
     double getObjVal() const;
     double get_P_value();
     vector<double> get_r_column();
-    void run_bp();
+    Solution* run_bp();
     void rebuild_entire_network();
     const vector<pair<int, int>> &getSea_arc_pairs() const;
     const vector<pair<int, int>> &getAir_arc_pairs() const;
@@ -57,7 +58,7 @@ private:
     void cal_paths_cost();
     void cal_path_cost(Path* path);
     void cal_path_reduced_cost(Path* path, int k);
-    void branch_and_price();
+    Solution* branch_and_price();
     void bp_init(GRBModel &model);
     void select_init_path();
     void LP_relaxation(GRBModel &model);

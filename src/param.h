@@ -20,6 +20,7 @@
 #include <stack>
 #include <time.h>
 #include <numeric>
+#include <iterator>
 
 
 #include "Path.cpp"

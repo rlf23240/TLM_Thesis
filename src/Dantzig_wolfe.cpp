@@ -6,27 +6,29 @@
 
 Dantzig_wolfe::Dantzig_wolfe(const CargoRoute &cargoRoute) : cargoRoute(cargoRoute) {
     vector<double> shadow_price;
-    this->cargoRoute.run_bp();
-    P.push_back(this->cargoRoute.get_P_value());
-    cout << "obj : " << this->cargoRoute.getObjVal() << endl;
-    append_R_column(this->cargoRoute.get_r_column());
+    Solution* sol;
+
+    sol = this->cargoRoute.run_bp();
+    cout << *sol;
+    P.push_back(sol->P);
+    append_R_column(sol->r);
     shadow_price = Run_Dantzig_wolfe();
     update_arc_by_pi(shadow_price);
+    solutions.push_back(sol);
 
     while(true){
-        this->cargoRoute.run_bp();
+        sol = this->cargoRoute.run_bp();
+        cout << *sol;
         if(end_condition(shadow_price)){
             break;
         }
         P.push_back(this->cargoRoute.get_P_value());
-        cout << "obj : " << this->cargoRoute.getObjVal() << endl;
         append_R_column(this->cargoRoute.get_r_column());
         shadow_price = Run_Dantzig_wolfe();
         update_arc_by_pi(shadow_price);
+        solutions.push_back(sol);
     }
-    Run_Dantzig_wolfe();
-
-
+    Final_result();
 
 }
 
@@ -51,26 +53,12 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
         int m = R.size(); //size of constraints
         int bigM = 99999;
 
-
-//        cout << "R : ";
-//        for (auto &row : R) {
-//            bool is_print = false;
-//            for (double val : row) {
-//                cout << val << "\t";
-//            }
-//            cout << endl;
-//        }
-//        cout << "P : ";
-//        for (double i : P) {
-//            cout << i << " ";
-//        }
-//        cout << endl;
-
         auto * lambda = new GRBVar[n];
         auto * v = new GRBVar[m];
         GRBVar w = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS, "w");
+
         for (int i = 0; i < n; i++) {
-            lambda[i] = model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS, "lambda");
+                lambda[i] = model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS, "lambda");
         }
         for (int i = 0; i < m; i++) {
             v[i] = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS, "v");
@@ -112,6 +100,7 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
 //        cout << "w : " <<w.get(GRB_DoubleAttr_X) << endl;
 
 
+
         cout << " R\tShadow Price : " << endl;
         vector<double> pi = vector<double>();
         for (int i = 0; i < m; i++) {
@@ -136,10 +125,9 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
         for (double i : P) {
             cout << i << " " ;
         }
-
         cout << endl;
-        return pi;
 
+        return pi;
 
     }catch (GRBException e) {
         cout << "Error code = " << e.getErrorCode() << endl;
@@ -149,6 +137,80 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
         cout << "Exception during optimization" << endl;
     }
     return vector<double>{};
+}
+
+void Dantzig_wolfe::Final_result() {
+    try{
+        GRBEnv env = GRBEnv();
+        GRBModel model = GRBModel(env);
+
+        int n = P.size(); //size of column
+        int m = R.size(); //size of constraints
+        int bigM = 99999;
+
+        auto * lambda = new GRBVar[n];
+        auto * v = new GRBVar[m];
+        GRBVar w = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS, "w");
+
+        for (int i = 0; i < n; i++) {
+            lambda[i] = model.addVar(0.0, 1.0, 0.0, GRB_INTEGER, "lambda");
+        }
+        for (int i = 0; i < m; i++) {
+            v[i] = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS, "v");
+        }
+
+        GRBLinExpr obj = GRBLinExpr();
+        for (int i = 0; i < m; i++) {
+            obj += (v[i] + w);
+        }
+        obj *= (-bigM);
+        for (int i = 0; i < n; i++) {
+            obj += P[i] * lambda[i];
+        }
+        model.setObjective(obj, GRB_MAXIMIZE);
+
+
+        for (int row = 0; row < m; row++) {
+            GRBLinExpr cons = GRBLinExpr();
+            for (int col = 0; col < n; col++) {
+                cons +=  R[row][col] * lambda[col];
+            }
+            cons -= (v[row]);
+            model.addConstr(cons <= 0, "c" + to_string(row));
+        }
+        GRBLinExpr cons = GRBLinExpr();
+        for (int i = 0; i < n; i++) {
+            cons += lambda[i];
+        }
+        model.addConstr(cons + w == 1, "c" + to_string(m));
+        model.optimize();
+
+        cout << "========================FINAL RESULT========================" << endl;
+        cout << "lambda : " ;
+        for(int i = 0; i < n; i++)
+            cout << lambda[i].get(GRB_DoubleAttr_X) << " ";
+        cout << endl;
+        cout << "P : " ;
+        for (double p : P) {
+            cout << p << " " ;
+        }
+        cout << endl;
+
+
+
+        for(int i = 0; i < P.size(); i++){
+            if(lambda[i].get(GRB_DoubleAttr_X) > 0){
+                cout << *solutions[i];
+            }
+        }
+
+    }catch (GRBException e) {
+        cout << "Error code = " << e.getErrorCode() << endl;
+        cout << e.getMessage() << endl;
+    }
+    catch (...) {
+        cout << "Exception during optimization" << endl;
+    }
 }
 
 void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
@@ -243,10 +305,12 @@ bool Dantzig_wolfe::end_condition(vector<double> pi) {
         val -= r[i] * pi[i];
     }
     val -= delta;
-    cout << "----------------P_bar : " << val << "-------------------"<< endl;
+//    cout << "----------------P_bar : " << val << "-------------------"<< endl;
 
     return val < 0;
 }
+
+
 
 
 
