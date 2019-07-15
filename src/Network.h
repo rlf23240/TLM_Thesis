@@ -27,6 +27,7 @@ protected:
     int* stop_cost;
     int** arc_cost;
     int** time_cost;
+
 public:
     virtual void add_nodes();
     virtual void run_algo() = 0;
@@ -43,8 +44,6 @@ public:
     unsigned  getNum_nodes() const;
     int *getStop_cost() const;
     int **getArc_cost() const;
-
-
 };
 
 

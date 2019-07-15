@@ -104,8 +104,6 @@ void Network::read_stop_cost(std::string cost_data_path) {
     }
 }
 
-
-
 void Network::read_time_cost(std::string time_data_path) {
     fstream file;
     file.open(time_data_path);
@@ -138,7 +136,6 @@ void Network::read_time_cost(std::string time_data_path) {
     }
 
 }
-
 
 void Network::add_nodes() {
     // add time space network nodes
@@ -228,7 +225,6 @@ void Network::forward_update(Route** dp, int node, int time) {
         }
     }
 }
-
 
 unsigned int Network::getNum_nodes() const {
     return num_nodes;

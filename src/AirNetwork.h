@@ -10,7 +10,7 @@
 #include <chrono>
 
 struct Flight{
-    Flight(char start_node, int gap, int freq, int cycle_time, int weight_ub, int volume_ub);
+    Flight(char start_node, int gap, int freq, int cycle_time, int volume_ub, int weight_ub);
 
     friend ostream &operator<<(ostream &os, const Flight &flight);
 
