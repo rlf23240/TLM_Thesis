@@ -5,8 +5,6 @@
 #include "Dantzig_wolfe.h"
 
 Dantzig_wolfe::Dantzig_wolfe(const CargoRoute &cargoRoute) : cargoRoute(cargoRoute) {
-
-
     vector<double> shadow_price;
     this->cargoRoute.run_bp();
     P.push_back(this->cargoRoute.get_P_value());
@@ -15,14 +13,20 @@ Dantzig_wolfe::Dantzig_wolfe(const CargoRoute &cargoRoute) : cargoRoute(cargoRou
     shadow_price = Run_Dantzig_wolfe();
     update_arc_by_pi(shadow_price);
 
-    for(int i = 0; i <3; i++){
+    while(true){
         this->cargoRoute.run_bp();
+        if(end_condition(shadow_price)){
+            break;
+        }
         P.push_back(this->cargoRoute.get_P_value());
         cout << "obj : " << this->cargoRoute.getObjVal() << endl;
         append_R_column(this->cargoRoute.get_r_column());
         shadow_price = Run_Dantzig_wolfe();
         update_arc_by_pi(shadow_price);
     }
+    Run_Dantzig_wolfe();
+
+
 
 }
 
@@ -99,27 +103,28 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
         model.optimize();
 
 
-        cout << endl;
-        cout << "v : ";
-        for(int i = 0; i < m ; i++){
-            cout << v[i].get(GRB_DoubleAttr_X) << " ";
-        }
-        cout << endl;
-        cout << "w : " <<w.get(GRB_DoubleAttr_X) << endl;
+//        cout << endl;
+//        cout << "v : ";
+//        for(int i = 0; i < m ; i++){
+//            cout << v[i].get(GRB_DoubleAttr_X) << " ";
+//        }
+//        cout << endl;
+//        cout << "w : " <<w.get(GRB_DoubleAttr_X) << endl;
 
 
         cout << " R\tShadow Price : " << endl;
         vector<double> pi = vector<double>();
         for (int i = 0; i < m; i++) {
             pi.push_back(model.getConstr(i).get(GRB_DoubleAttr_Pi));
+            bool isPrinted = (accumulate(R[i].begin(), R[i].end(), 0) != 0);
             for(int j = 0 ; j < n ; j++) {
-                cout << R[i][j] << "\t" ;
+                if(isPrinted)
+                    cout << R[i][j] << "\t" ;
             }
-            cout << pi.back() << endl;
+            if(isPrinted) cout << pi.back() << endl;
         }
         cout << endl;
-//
-        double delta;
+
         delta = model.getConstr(m).get(GRB_DoubleAttr_Pi);
         cout << "delta : " << delta << endl;
 
@@ -133,7 +138,6 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
         }
 
         cout << endl;
-
         return pi;
 
 
@@ -157,32 +161,45 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
         exit(1);
     }
     cout << endl;
+
     SeaNetwork sea_network = networks.getSea_network();
     for(int i = 0; i < sea_arc_pair.size(); i++){
         if(pi[i] != 0){
-            Point start = networks.idx_to_point(sea_arc_pair[i].first);
-            Point end = networks.idx_to_point(sea_arc_pair[i].second);
+            int start_idx = sea_arc_pair[i].first;
+            int end_idx = sea_arc_pair[i].second;
+            Point start = networks.idx_to_point(start_idx);
+            Point end = networks.idx_to_point(end_idx);
             for(auto &arc : sea_network.nodes[(char) start.node +65][start.time]->out_arcs){
                 if((int) arc->end_node->getName()[0] - 65 == end.node){
-                    arc->cost = MAX(0, arc->cost - pi[i]);
-                    this->cargoRoute.
+                    arc->fixed_cost -= pi[i];  //update cost
                 }
+            }
+            if(networks.arcs.find(start_idx) != networks.arcs.end() && networks.arcs[start_idx].find(end_idx) != networks.arcs[start_idx].end()){ //found arc in entirenetwork
+                networks.arcs[start_idx][end_idx]->minus_fixed_profit(pi[i]); //update profit
+//                cout << start << " " << end << " "<< networks.arcs[start_idx][end_idx]->fixed_profit << endl;
             }
         }
     }
 
-    sea_network.run_algo();
+//    sea_network.run_algo();
+    sea_network.generate_designed_ship();
     this->cargoRoute.getNetworks().setSea_network(sea_network);
 
     AirNetwork air_network = networks.getAir_network();
     for(unsigned long long int i = 0; i <  air_arc_pair.size(); i++){
         if(pi[sea_arc_pair.size() + i] != 0){
+            int start_idx = air_arc_pair[i].first;
+            int end_idx = air_arc_pair[i].second;
             Point start = networks.idx_to_point(air_arc_pair[i].first);
             Point end = networks.idx_to_point(air_arc_pair[i].second);
             for(auto &arc : air_network.nodes[(char) start.node +65][start.time % (7 * TIME_SLOT_A_DAY)]->out_arcs){
                 if((int) arc->end_node->getName()[0] - 65 == end.node){
-                    arc->cost = MAX(0, arc->cost - pi[sea_arc_pair.size() + i]);
+                    arc->fixed_cost -= pi[sea_arc_pair.size() + i];
                 }
+            }
+            if(networks.arcs.find(start_idx) != networks.arcs.end() && networks.arcs[start_idx].find(end_idx) != networks.arcs[start_idx].end()){ //found arc in entirenetwork
+                networks.arcs[start_idx][end_idx]->minus_fixed_profit(pi[sea_arc_pair.size() + i]); //update profit
+//                cout << start << " " << end << " "<< networks.arcs[start_idx][end_idx]->fixed_profit << endl;
             }
         }
     }
@@ -190,21 +207,47 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
 
     for(unsigned long long int i = 0; i < air_arc_pair.size(); i++){
         if(pi[sea_arc_pair.size() + air_arc_pair.size() + i] != 0){
+            int start_idx = air_arc_pair[i].first;
+            int end_idx = air_arc_pair[i].second;
             Point start = networks.idx_to_point(air_arc_pair[i].first);
             Point end = networks.idx_to_point(air_arc_pair[i].second);
             for(auto &arc : air_network.nodes[(char) start.node +65][start.time % (7 * TIME_SLOT_A_DAY)]->out_arcs){
                 if((int) arc->end_node->getName()[0] - 65 == end.node){
-                    arc->cost =  MAX(0, arc->cost - pi[sea_arc_pair.size() + air_arc_pair.size() + i]);
+                    arc->fixed_cost -= pi[sea_arc_pair.size() + air_arc_pair.size() + i];
                 }
+            }
+            if(networks.arcs.find(start_idx) != networks.arcs.end() && networks.arcs[start_idx].find(end_idx) != networks.arcs[start_idx].end()){ //found arc in entirenetwork
+                networks.arcs[start_idx][end_idx]->minus_fixed_profit(pi[sea_arc_pair.size() + air_arc_pair.size() + i]); //update profit
+//                cout << start << " " << end << " "<< networks.arcs[start_idx][end_idx]->fixed_profit << endl;
             }
         }
     }
-    air_network.run_algo();
+//    air_network.run_algo();
+    air_network.generate_designed_flight();
     this->cargoRoute.getNetworks().setAir_network(air_network);
     this->cargoRoute.rebuild_entire_network();
-//    cout << this->cargoRoute.getNetworks().getAir_network().getFlights()[0].routes[0];
-//    this->cargoRoute.getNetworks().setAir_network(air_network);
-//    cout << this->cargoRoute.getNetworks().getAir_network().getFlights()[0].routes[0];
 }
+
+bool Dantzig_wolfe::end_condition(vector<double> pi) {
+    if(pi.size() != R.size()){
+        cout << "Fail" <<endl;
+        exit(1);
+    }
+
+    double val = 0;
+
+    double P = cargoRoute.get_P_value();
+    val += P;
+    vector<double> r = cargoRoute.get_r_column();
+    for(int i = 0; i < r.size(); i++){
+        val -= r[i] * pi[i];
+    }
+    val -= delta;
+    cout << "----------------P_bar : " << val << "-------------------"<< endl;
+
+    return val < 0;
+}
+
+
 
 

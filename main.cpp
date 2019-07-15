@@ -5,6 +5,6 @@
 
 using namespace std;
 int main() {
-    Dantzig_wolfe dantzig_wolfe = Dantzig_wolfe(CargoRoute("A1"));
+    Dantzig_wolfe dantzig_wolfe = Dantzig_wolfe(CargoRoute("A"));
     return 0;
 }

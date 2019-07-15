@@ -12,7 +12,7 @@ using namespace std;
 
 
 /*-----------------Route struct------------------------------*/
-Route::Route(const vector<string> &nodes, int cost) : nodes(nodes), cost(cost) {}
+Route::Route(const vector<string> &nodes, double cost) : nodes(nodes), cost(cost) {}
 
 Route::Route() = default;
 
@@ -215,7 +215,7 @@ void Network::forward_update(Route** dp, int node, int time) {
         //Calculate cost if append end node to current route
         Route cur_route = dp[node][time];
         Route end_route = dp[end_node_idx][end_time];
-        int new_cost = cur_route.cost + arc->cost + end_node->getCost();
+        double new_cost = cur_route.cost + arc->get_reduced_cost()+ end_node->getCost();
 
         // if yes, replace old route.
         if (new_cost < end_route.cost){

@@ -19,6 +19,7 @@
 #include <queue>
 #include <stack>
 #include <time.h>
+#include <numeric>
 
 
 #include "Path.cpp"
@@ -31,7 +32,7 @@ static const int SHIP_STOP_DAY = 1;
 static const int FIX_COST_OF_VIRTUAL_ARC = 100;
 
 static const int NUM_INIT_PATHS = 1;
-static const int MAX_BP_ITER = 15;
+static const int MAX_BP_ITER = 10;
 
 
 

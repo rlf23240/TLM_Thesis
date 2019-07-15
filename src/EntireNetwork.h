@@ -32,6 +32,7 @@ public:
     SeaNetwork &getSea_network();
     void setAir_network(const AirNetwork &air_network);
     void setSea_network(const SeaNetwork &sea_network);
+    unordered_map<int, unordered_map<int, Arc*>> arcs;
 
 private :
     void create_networks(string data);
@@ -58,7 +59,6 @@ private :
     int num_cur_flights;
     int num_cur_ships;
     unsigned int num_nodes;
-    unordered_map<int, unordered_map<int, Arc*>> arcs;
     int num_layers = 7;
     vector<vector<Node*>>* nodes = new vector<vector<Node*>>[num_layers]; //total 7 time space network
 };

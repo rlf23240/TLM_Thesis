@@ -7,21 +7,18 @@ Arc::Arc(Node *start_node, Node *end_node, int cost) : start_node(start_node), e
     weight_ub = INT_MAX;
     volume_ub = INT_MAX;
     set_unit_profit(start_node, end_node);
-    set_unit_cost(start_node, end_node);
 }
 
 Arc::Arc(Node *start_node, Node *end_node, int cost, int volume_ub) : start_node(start_node), end_node(end_node),
                                                                       cost(cost), volume_ub(volume_ub) {
     volume_ub = INT_MAX;
     set_unit_profit(start_node, end_node);
-    set_unit_cost(start_node, end_node);
 }
 
 Arc::Arc(Node *start_node, Node *end_node, int cost, int volume_ub, int weight_ub) : start_node(start_node),
                                                                                      end_node(end_node), cost(cost),
                                                                                      volume_ub(volume_ub), weight_ub(weight_ub) {
     set_unit_profit(start_node, end_node);
-    set_unit_cost(start_node, end_node);
 }
 
 void Arc::set_unit_profit(Node *start_node, Node *end_node) {
@@ -43,22 +40,17 @@ void Arc::set_unit_profit(Node *start_node, Node *end_node) {
     }
 }
 
-void Arc::set_unit_cost(Node *start_node, Node *end_node) {
-    std::random_device rd;
-    std::mt19937 generator(rd());
-    std::uniform_real_distribution<float> ship_cost_dis(0.1, 0.2);
-    std::uniform_real_distribution<float> flight_cost_dis(0.5, 1.5);
-    if((start_node->getLayer() == 0 && end_node->getLayer() == 0) || (start_node->getLayer() == 3 && end_node->getLayer() == 3 ) || (start_node->getLayer() == 5 && end_node->getLayer() == 5 )){
-        unit_cost = ship_cost_dis(generator) * (end_node->getTime() - start_node->getTime());
-    }else if((start_node->getLayer() == 1 && end_node->getLayer() == 1) || (start_node->getLayer() == 4 && end_node->getLayer() == 4) || (start_node->getLayer() == 6 && end_node->getLayer() == 6)) {
-        unit_cost = flight_cost_dis(generator) * (end_node->getTime() - start_node->getTime());
-    }else{
-        unit_profit = 0;
-    }
-}
 
 void Arc::minus_fixed_profit(double pi) {
     Arc::fixed_profit -= pi;
+}
+
+void Arc::minus_fixed_cost(double pi) {
+    Arc::fixed_cost -= pi;
+}
+
+double Arc::get_reduced_cost() {
+    return MAX(0,cost + fixed_cost);
 }
 
 

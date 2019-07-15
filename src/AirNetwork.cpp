@@ -22,7 +22,7 @@ AirNetwork::AirNetwork(const string data_path, int num_cur_flights, int num_riva
     read_data(data_path);
     run_algo();
     generate_flights(cur_flights, num_cur_flights, 0);
-    generate_flights(rival_flights, num_rival_flights,1);
+    generate_flights(rival_flights, num_rival_flights, 1);
 
     print_flights(designed_flights, "Designed");
     print_flights(cur_flights, "Existing");

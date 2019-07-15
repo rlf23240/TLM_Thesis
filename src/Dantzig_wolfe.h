@@ -16,9 +16,11 @@ private:
     CargoRoute cargoRoute;
     vector<double> P;
     vector<vector<double>> R;
+    double delta;
     void append_R_column(vector<double> r_column);
     vector<double> Run_Dantzig_wolfe();
     void update_arc_by_pi(vector<double> pi);
+    bool end_condition(vector<double> pi);
 };
 
 

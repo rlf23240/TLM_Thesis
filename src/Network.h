@@ -13,12 +13,12 @@ using namespace std;
 
 
 struct Route{
-    Route(const vector<string> &nodes, int cost);
+    Route(const vector<string> &nodes, double cost);
     Route(Route route, int gap);
     Route();
     friend ostream &operator<<(ostream &os, const Route &route);
     vector<string> nodes;
-    int cost = INT_MAX;
+    double cost = INT_MAX;
 };
 
 class Network {

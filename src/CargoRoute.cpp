@@ -163,7 +163,8 @@ void CargoRoute::cal_path_cost(Path *path) {
         current = &path->points[p];
         next = &path->points[p+1];
         double arc_cost = arcs[networks.get_node_idx(current->layer, current->node, current->time)]
-                              [networks.get_node_idx(next->layer, next->node, next->time)]->unit_cost;
+                              [networks.get_node_idx(next->layer, next->node, next->time)]->get_reduced_cost();
+
         cost += arc_cost;
     }
     path->path_cost = cost;
@@ -312,7 +313,7 @@ void CargoRoute::column_generation(GRBModel &model) {
         update_arcs();
         pair<Path*, int> path_pair = select_most_profit_path();
         best_path = path_pair.first;
-        if (path_pair.first->reduced_cost < 0) {
+        if (path_pair.first->reduced_cost <= 0) {
             break;
         }else{
             append_column(path_pair.first, path_pair.second);
@@ -637,6 +638,7 @@ void CargoRoute::cal_path_reduced_cost(Path* path, int k){
     }
 
     reduced_cost -= cons1[k].get(GRB_DoubleAttr_Pi);
+    reduced_cost = MAX(reduced_cost, 0);
 
     for(int p = 0; p < target_path[k].size(); p++){
         reduced_cost -= cons2[k][p].get(GRB_DoubleAttr_Pi);
@@ -800,15 +802,15 @@ double CargoRoute::get_air_complicate_constr_val(int start_idx, int end_idx, int
 }
 
 void CargoRoute::show_model_result(GRBModel &model) {
-    for(int k = 0 ; k < cargos.size(); k++){
-//        cout << target_path[k].size() << " ";
-        for(int p = 0; p < target_path[k].size(); p++){
-    if(u[k][p].get(GRB_DoubleAttr_X) != 0 && u[k][p].get(GRB_DoubleAttr_X) != 1) {
-        cout << "u^" << k <<"_"<< p << ": " << u[k][p].get(GRB_DoubleAttr_X) << "\t";
-        cout << "z" << k <<"_"<< p << ": " << z[k][p].get(GRB_DoubleAttr_X) << endl;
-    }
-}
-}
+//    for(int k = 0 ; k < cargos.size(); k++){
+////        cout << target_path[k].size() << " ";
+//        for(int p = 0; p < target_path[k].size(); p++){
+//            if(u[k][p].get(GRB_DoubleAttr_X) != 0 && u[k][p].get(GRB_DoubleAttr_X) != 1) {
+//                cout << "u^" << k <<"_"<< p << ": " << u[k][p].get(GRB_DoubleAttr_X) << "\t";
+//                cout << "z" << k <<"_"<< p << ": " << z[k][p].get(GRB_DoubleAttr_X) << endl;
+//            }
+//        }
+//    }
 //    for(int k = 0 ; k < cargos.size(); k++){
 //        cout << target_path[k].size() << " ";
 //        for(int p = 0; p < target_path[k].size(); p++){
@@ -905,6 +907,13 @@ void CargoRoute::reset_bp() {
 
     for(auto &path: all_paths){
         path->reduced_cost = 0;
+        Point *cur,*next;
+        for(int p = 0; p < path->points.size()-1; p++){
+            cur = &path->points[p];
+            next = &path->points[p+1];
+            arcs[networks.get_node_idx(*cur)][networks.get_node_idx(*next)]->fixed_profit = 0;
+            arcs[networks.get_node_idx(*cur)][networks.get_node_idx(*next)]->fixed_cost = 0;
+        }
     }
     incumbent = 0;
     integer_set.clear();

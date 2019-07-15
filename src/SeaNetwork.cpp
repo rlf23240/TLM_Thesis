@@ -77,6 +77,7 @@ void SeaNetwork::run_algo() {
         Route route = DP_shortest_path(ship.start_node, ship.start_time, ship.start_node, ship.start_time+ship.cycle_time);
         ship.route = route;
     }
+
 }
 
 void SeaNetwork::forward_update(Route **dp, int node, int time) {
@@ -96,7 +97,7 @@ void SeaNetwork::forward_update(Route **dp, int node, int time) {
             //Calculate cost if append end node to current route
             Route cur_route = dp[node][time];
             Route end_route = dp[end_node_idx][end_time];
-            int new_cost = cur_route.cost + arc->cost + end_node->getCost() * (1 + additional_stay_days);
+            double new_cost = cur_route.cost + arc->get_reduced_cost()+ end_node->getCost() * (1 + additional_stay_days);
 
             // if yes, replace old route.
             if (new_cost < end_route.cost) {

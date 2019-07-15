@@ -257,6 +257,7 @@ void EntireNetwork::add_virtual_network(string data) {
                 arc = new Arc(nodes[layer][i][t], nodes[4][i][t], 0);
                 add_arc(nodes[layer][i][t], nodes[4][i][t], arc);
             }
+            //from rival ship to virtual
 
             if (!nodes[5][i][t]->out_arcs.empty()) {
                 //in arc
@@ -266,7 +267,7 @@ void EntireNetwork::add_virtual_network(string data) {
                 arc = new Arc(nodes[5][i][t], nodes[layer][i][t+1], 0);
                 add_arc(nodes[5][i][t], nodes[layer][i][t+1], arc);
             }
-            //from current flight to virtual
+            //from rival flight to virtual
             if (!nodes[6][i][t]->out_arcs.empty()) {
                 //in arc
                 arc = new Arc(nodes[layer][i][t], nodes[6][i][t], 0);
