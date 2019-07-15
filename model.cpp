@@ -329,6 +329,7 @@ int main(int arge, char *argv[])
         ofstream fbefore("../model_data/test_before.txt");
         ofstream fafter("../model_data/test_after.txt");
 
+        //region Variable
         //y[network][arc][line]
         GRBVar ***y = new GRBVar **[N - 1];
         for (int n = 0; n < N - 1; n++) {
@@ -529,93 +530,95 @@ int main(int arge, char *argv[])
         cout << "MU, NG are created!\n";
 
         cout << "all Variables are created!\n";
+        //endregion
         model.update();
 
+        //region setObj
         /*set objective function*/
         GRBLinExpr p_s = 0;		//profit from transporting by sea
         GRBLinExpr p_a = 0;		//profit from transporting by air
         GRBLinExpr fixed_c = 0;		//fixed cost for operating new line
         GRBLinExpr total = 0;
 
-        //p_s
-        double coefficient = 0;
-        for (int s = 0; s < sLine; s++) {
-            for (int a = 0; a < G[0].n_arcs; a++) {
-                coefficient = G[0].arc[a].r - G[0].arc[a].v_c;
-
-                recordPath *current = &G[0].arc[a].inPath;
-                current = current->next;
-                while (current != NULL) {
-                    int k = current->k;
-                    int q = current->q;
-                    //int m = current->i;
-                    int p = current->p;
-
-                    int real_p = K[k].kq[q].path_no[p];
-
-                    p_s += (coefficient * f[k][q][real_p]);
-                    current = current->next;
-                }
-            }
-        }
-        for (int s = 0; s < my_sLine; s++) {
-            for (int a = 0; a < e_S[s].n_arc; a++) {
-                coefficient = e_S[s].arc[a].r - e_S[s].arc[a].v_c;
-
-                recordPath *current = &e_S[s].arc[a].inPath;
-                current = current->next;
-                while (current != NULL) {
-                    int k = current->k;
-                    int q = current->q;
-                    //int m = current->i;
-                    int p = current->p;
-                    int real_p = K[k].kq[q].path_no[p];
-
-                    p_s += (coefficient * f[k][q][real_p]);
-                    current = current->next;
-                }
-            }
-        }
-
-        //p_a
-        for (int s = 0; s < aLine; s++) {
-            for (int a = 0; a < G[1].n_arcs; a++) {
-                coefficient = G[1].arc[a].r - G[1].arc[a].v_c;
-
-                recordPath *current = &G[1].arc[a].inPath;
-                current = current->next;
-                while (current != NULL) {
-                    int k = current->k;
-                    int q = current->q;
-                    //int m = current->i;
-                    int p = current->p;
-
-                    int real_p = K[k].kq[q].path_no[p];
-                    //p_a += (coefficient * f[k][q][real_p] * K[k].omega);
-                    p_a += (coefficient * f[k][q][real_p]);
-                    current = current->next;
-                }
-            }
-        }
-        for (int s = 0; s < my_aLine; s++) {
-            for (int a = 0; a < e_A[s].n_arc; a++) {
-                coefficient = e_A[s].arc[a].r - e_A[s].arc[a].v_c;
-
-                recordPath *current = &e_A[s].arc[a].inPath;
-                current = current->next;
-                while (current != NULL) {
-                    int k = current->k;
-                    int q = current->q;
-                    //int m = current->i;
-                    int p = current->p;
-
-                    int real_p = K[k].kq[q].path_no[p];
-                    //p_a += (coefficient * f[k][q][real_p] *K[k].omega);
-                    p_a += (coefficient * f[k][q][real_p]);
-                    current = current->next;
-                }
-            }
-        }
+//        p_s
+//        double coefficient = 0;
+//        for (int s = 0; s < sLine; s++) {
+//            for (int a = 0; a < G[0].n_arcs; a++) {
+//                coefficient = G[0].arc[a].r - G[0].arc[a].v_c;
+//
+//                recordPath *current = &G[0].arc[a].inPath;
+//                current = current->next;
+//                while (current != NULL) {
+//                    int k = current->k;
+//                    int q = current->q;
+//                    //int m = current->i;
+//                    int p = current->p;
+//
+//                    int real_p = K[k].kq[q].path_no[p];
+//
+//                    p_s += (coefficient * f[k][q][real_p]);
+//                    current = current->next;
+//                }
+//            }
+//        }
+//        for (int s = 0; s < my_sLine; s++) {
+//            for (int a = 0; a < e_S[s].n_arc; a++) {
+//                coefficient = e_S[s].arc[a].r - e_S[s].arc[a].v_c;
+//
+//                recordPath *current = &e_S[s].arc[a].inPath;
+//                current = current->next;
+//                while (current != NULL) {
+//                    int k = current->k;
+//                    int q = current->q;
+//                    //int m = current->i;
+//                    int p = current->p;
+//                    int real_p = K[k].kq[q].path_no[p];
+//
+//                    p_s += (coefficient * f[k][q][real_p]);
+//                    current = current->next;
+//                }
+//            }
+//        }
+//
+//        //p_a
+//        for (int s = 0; s < aLine; s++) {
+//            for (int a = 0; a < G[1].n_arcs; a++) {
+//                coefficient = G[1].arc[a].r - G[1].arc[a].v_c;
+//
+//                recordPath *current = &G[1].arc[a].inPath;
+//                current = current->next;
+//                while (current != NULL) {
+//                    int k = current->k;
+//                    int q = current->q;
+//                    //int m = current->i;
+//                    int p = current->p;
+//
+//                    int real_p = K[k].kq[q].path_no[p];
+//                    //p_a += (coefficient * f[k][q][real_p] * K[k].omega);
+//                    p_a += (coefficient * f[k][q][real_p]);
+//                    current = current->next;
+//                }
+//            }
+//        }
+//        for (int s = 0; s < my_aLine; s++) {
+//            for (int a = 0; a < e_A[s].n_arc; a++) {
+//                coefficient = e_A[s].arc[a].r - e_A[s].arc[a].v_c;
+//
+//                recordPath *current = &e_A[s].arc[a].inPath;
+//                current = current->next;
+//                while (current != NULL) {
+//                    int k = current->k;
+//                    int q = current->q;
+//                    //int m = current->i;
+//                    int p = current->p;
+//
+//                    int real_p = K[k].kq[q].path_no[p];
+//                    //p_a += (coefficient * f[k][q][real_p] *K[k].omega);
+//                    p_a += (coefficient * f[k][q][real_p]);
+//                    current = current->next;
+//                }
+//            }
+//        }
 
         //fixed_c
         for (int n = 0; n < N - 1; n++) {
@@ -630,13 +633,14 @@ int main(int arge, char *argv[])
         model.setObjective(total, GRB_MAXIMIZE);
 
         cout << "obj is set!\n";
+        //endregion
 
-
-        /*set constraints*/
-
-        //maritime costraints////
         int sea = 0; //G[sea]
+        int air = 1;	//G[air]
 
+        //region Sea
+        /*set constraints*/
+        //maritime costraints////
         //----(2) flow balance: source node
         //S, Hs
         for (int l = 0; l < G[sea].n_line; l++) {
@@ -823,9 +827,11 @@ int main(int arge, char *argv[])
             }
         }
         cout << "C6\n";
+        //endregion
 
+        //region Air
         ////air flight constraints////
-        int air = 1;	//G[air]
+
 
         //----(7) flow balance: source node
         //A
@@ -1022,807 +1028,7 @@ int main(int arge, char *argv[])
             //outconstr << s << endl;
         }
         cout << "C14\n";
-
-        //model.addConstr(y[1][0][0] == 1);
-        //model.addConstr(y[1][3][0] == 1);
-
-        ////cargo path-based flow
-        ////discrete choice model
-        //---- C15	the preference(left)
-        //---- C16	the preference(right)
-        //---- C17	transform to linear_1
-        //---- C18	transform to linear_2
-        //---- C19	transform to linear_3
-        //---- C20	one highest
-        //---- C21	MU <= PH
-        //---- C22	W <= MU
-        for (int p = 0; p < total_path; p++) {
-            for (int l = 0; l < total_path; l++) {
-                if (l != p) {
-
-                    for (int k = 0; k < n_k; k++) {
-                        for (int q = 0; q < max_q; q++) {
-                            for (int r = 0; r < num_scenario; r++) {
-                                string s;
-                                s = "C15[p_" + itos(p) + "][l_" + itos(l) + "[k_" + itos(k) + "][q_" + itos(q) + "][r_" + itos(r) + "]";
-                                model.addConstr(M * NG[k][q][p][l][r] - 2 * M <= K[k].kq[q].path_utility[p][r] - K[k].kq[q].path_utility[l][r] - M * MU[k][q][p][l][r], s);
-                                //outconstr << s << endl;
-
-                                s = "C16[p_" + itos(p) + "][l_" + itos(l) + "[k_" + itos(k) + "][q_" + itos(q) + "][r_" + itos(r) + "]";
-                                model.addConstr(K[k].kq[q].path_utility[p][r] - K[k].kq[q].path_utility[l][r] - M * MU[k][q][p][l][r] <= (1 - NG[k][q][p][l][r]) * M, s);
-                                //outconstr << s << endl;
-
-                                s = "C17[p_" + itos(p) + "][l_" + itos(l) + "[k_" + itos(k) + "][q_" + itos(q) + "][r_" + itos(r) + "]";
-                                model.addConstr(PH[k][q][p][r] + PH[k][q][l][r] <= 1 + NG[k][q][p][l][r], s);
-                                //outconstr << s << endl;
-
-                                s = "C18[p_" + itos(p) + "][l_" + itos(l) + "[k_" + itos(k) + "][q_" + itos(q) + "][r_" + itos(r) + "]";
-                                model.addConstr(NG[k][q][p][l][r] <= PH[k][q][p][r], s);
-                                //outconstr << s << endl;
-
-                                s = "C19[p_" + itos(p) + "][l_" + itos(l) + "[k_" + itos(k) + "][q_" + itos(q) + "][r_" + itos(r) + "]";
-                                model.addConstr(NG[k][q][p][l][r] <= PH[k][q][l][r], s);
-                                //outconstr << s << endl;
-
-                                s = "C20[p_" + itos(p) + "][l_" + itos(l) + "[k_" + itos(k) + "][q_" + itos(q) + "][r_" + itos(r) + "]";
-                                model.addConstr(MU[k][q][p][l][r] + MU[k][q][l][p][r] <= 1, s);
-                                //outconstr << s << endl;
-
-                                s = "C21[p_" + itos(p) + "][l_" + itos(l) + "[k_" + itos(k) + "][q_" + itos(q) + "][r_" + itos(r) + "]";
-                                model.addConstr(MU[k][q][p][l][r] <= PH[k][q][p][r], s);
-                                //outconstr << s << endl;
-
-                                s = "C22[p_" + itos(p) + "][l_" + itos(l) + "[k_" + itos(k) + "][q_" + itos(q) + "][r_" + itos(r) + "]";
-                                model.addConstr(W[k][q][p][r] <= MU[k][q][p][l][r], s);
-                                //outconstr << s << endl;
-
-                            }
-                        }
-                    }
-
-                }
-            }
-        }
-        cout << "C15 ~ C22\n";
-
-        //---- C23_1 ph[k][q][p] = 0 if p is not included in P^n
-        //---- C23_2 ph[k][q][p] = 1 if p is included in P^n
-        for (int k = 0; k < n_k; k++) {
-            for (int q = 0; q < max_q; q++) {
-                for (int p = 0; p < total_path; p++) {
-                    int check_p = 0;
-
-                    for (int np = 0; np < K[k].kq[q].num_p; np++) {
-                        int real_p = K[k].kq[q].path_no[np];
-                        if (real_p == p) {
-                            check_p++;
-                        }
-                    }
-
-                    if (check_p == 0) {
-                        for (int r = 0; r < num_scenario; r++) {
-                            string s;
-                            s = "C23_1[k_" + itos(k) + "][q_" + itos(q) + "][p_" + itos(p) + "]";
-                            model.addConstr(PH[k][q][p][r] == 0, s);
-                            //outconstr << s << endl;
-                        }
-                    }
-                    else
-                    {
-                        for (int r = 0; r < num_scenario; r++) {
-                            string s;
-
-                            s = "C23_2[k_" + itos(k) + "][q_" + itos(q) + "][p_" + itos(p) + "]";
-                            model.addConstr(PH[k][q][p][r] <= 1, s);
-                            //outconstr << s << endl;
-                        }
-                    }
-
-                }
-
-            }
-        }
-        cout << "C23\n";
-
-        ////C24---- PH_2[k][q][p][r][n][a] >= PH_2[k+1][q][l][r][n][a]	(volumne)
-        ////C25---- PH_3[k][q][p][r][n][a] >= PH_3[k+1][q][l][r][n][a]	(weight)
-        for (int r = 0; r < num_scenario; r++) {
-            model.addConstr(PH_2[1][0][8][r][0][12] >= PH_2[2][0][22][r][0][12]);
-            model.addConstr(PH_2[1][0][8][r][0][12] >= PH_2[3][0][26][r][0][12]);
-            model.addConstr(PH_2[1][0][8][r][0][12] >= PH_2[3][0][27][r][0][12]);
-            model.addConstr(PH_2[1][0][8][r][0][12] >= PH_2[3][0][28][r][0][12]);
-            model.addConstr(PH_2[2][0][22][r][0][12] >= PH_2[3][0][26][r][0][12]);
-            model.addConstr(PH_2[2][0][22][r][0][12] >= PH_2[3][0][27][r][0][12]);
-            model.addConstr(PH_2[2][0][22][r][0][12] >= PH_2[3][0][28][r][0][12]);
-            model.addConstr(PH_2[0][0][5][r][0][20] >= PH_2[3][0][26][r][0][20]);
-            model.addConstr(PH_2[0][0][5][r][0][27] >= PH_2[1][0][17][r][0][27]);
-            model.addConstr(PH_2[0][0][5][r][0][27] >= PH_2[1][0][18][r][0][27]);
-            model.addConstr(PH_2[2][0][21][r][1][2] >= PH_2[3][0][24][r][1][2]);
-            model.addConstr(PH_3[2][0][21][r][1][2] >= PH_3[3][0][24][r][1][2]);
-            model.addConstr(PH_2[0][0][4][r][1][6] >= PH_2[4][0][33][r][1][6]);
-            model.addConstr(PH_3[0][0][4][r][1][6] >= PH_3[4][0][33][r][1][6]);
-            model.addConstr(PH_2[0][0][4][r][1][8] >= PH_2[3][0][25][r][1][8]);
-            model.addConstr(PH_3[0][0][4][r][1][8] >= PH_3[3][0][25][r][1][8]);
-            model.addConstr(PH_2[1][0][14][r][1][10] >= PH_2[4][0][30][r][1][10]);
-            model.addConstr(PH_3[1][0][14][r][1][10] >= PH_3[4][0][30][r][1][10]);
-            model.addConstr(PH_2[1][0][14][r][1][11] >= PH_2[4][0][30][r][1][11]);
-            model.addConstr(PH_3[1][0][14][r][1][11] >= PH_3[4][0][30][r][1][11]);
-            model.addConstr(PH_2[1][0][11][r][1][21] >= PH_2[2][0][19][r][1][21]);
-            model.addConstr(PH_3[1][0][11][r][1][21] >= PH_3[2][0][19][r][1][21]);
-            model.addConstr(PH_2[1][0][9][r][1][22] >= PH_2[2][0][19][r][1][22]);
-            model.addConstr(PH_3[1][0][9][r][1][22] >= PH_3[2][0][19][r][1][22]);
-            model.addConstr(PH_2[1][0][11][r][1][22] >= PH_2[2][0][19][r][1][22]);
-            model.addConstr(PH_3[1][0][11][r][1][22] >= PH_3[2][0][19][r][1][22]);
-            model.addConstr(PH_2[1][0][12][r][1][25] >= PH_2[2][0][20][r][1][25]);
-            model.addConstr(PH_3[1][0][12][r][1][25] >= PH_3[2][0][20][r][1][25]);
-            model.addConstr(PH_2[0][0][0][r][3][4] >= PH_2[1][0][10][r][3][4]);
-            model.addConstr(PH_2[0][0][0][r][3][4] >= PH_2[1][0][11][r][3][4]);
-            model.addConstr(PH_2[0][0][0][r][3][4] >= PH_2[1][0][12][r][3][4]);
-            model.addConstr(PH_2[0][0][0][r][3][4] >= PH_2[1][0][13][r][3][4]);
-            model.addConstr(PH_2[1][0][10][r][3][8] >= PH_2[2][0][23][r][3][8]);
-            model.addConstr(PH_2[1][0][10][r][3][8] >= PH_2[3][0][29][r][3][8]);
-            model.addConstr(PH_2[2][0][23][r][3][8] >= PH_2[3][0][29][r][3][8]);
-            model.addConstr(PH_2[1][0][10][r][3][9] >= PH_2[2][0][23][r][3][9]);
-            model.addConstr(PH_2[1][0][10][r][3][9] >= PH_2[3][0][29][r][3][9]);
-            model.addConstr(PH_2[2][0][23][r][3][9] >= PH_2[3][0][29][r][3][9]);
-            model.addConstr(PH_2[1][0][10][r][3][10] >= PH_2[2][0][23][r][3][10]);
-            model.addConstr(PH_2[1][0][10][r][3][11] >= PH_2[2][0][23][r][3][11]);
-
-
-        }
-        cout << "C24\n";
-        cout << "C25\n";
-
-
-        //C26,C27---- the availability in scenario r (volumne)
-        for (int r = 0; r < num_scenario; r++) {
-
-            //plus
-            model.addConstr(PH_2[4][0][30][r][0][1] <= y[0][1][0]);
-            model.addConstr(PH_2[4][0][31][r][0][2] <= y[0][2][0]);
-            model.addConstr(PH_2[1][0][7][r][0][4] <= y[0][4][0]);
-            model.addConstr(PH_2[1][0][8][r][0][5] <= y[0][5][0]);
-            model.addConstr(PH_2[1][0][9][r][0][5] <= y[0][5][0]);
-            model.addConstr(PH_2[2][0][19][r][0][7] <= y[0][7][0]);
-            model.addConstr(PH_2[2][0][20][r][0][7] <= y[0][7][0]);
-            model.addConstr(PH_2[0][0][1][r][0][9] <= y[0][9][0]);
-            model.addConstr(PH_2[1][0][8][r][0][10] <= y[0][10][0]);
-            model.addConstr(PH_2[1][0][8][r][0][12] <= y[0][12][0]);
-            model.addConstr(PH_2[2][0][22][r][0][12] <= y[0][12][0]);
-            model.addConstr(PH_2[3][0][26][r][0][12] <= y[0][12][0]);
-            model.addConstr(PH_2[3][0][27][r][0][12] <= y[0][12][0]);
-            model.addConstr(PH_2[3][0][28][r][0][12] <= y[0][12][0]);
-            model.addConstr(PH_2[4][0][35][r][0][16] <= y[0][16][0]);
-            model.addConstr(PH_2[3][0][26][r][0][19] <= y[0][19][0]);
-            model.addConstr(PH_2[0][0][5][r][0][20] <= y[0][20][0]);
-            model.addConstr(PH_2[3][0][26][r][0][20] <= y[0][20][0]);
-            model.addConstr(PH_2[0][0][6][r][0][25] <= y[0][25][0]);
-            model.addConstr(PH_2[0][0][5][r][0][26] <= y[0][26][0]);
-            model.addConstr(PH_2[0][0][5][r][0][27] <= y[0][27][0]);
-            model.addConstr(PH_2[1][0][17][r][0][27] <= y[0][27][0]);
-            model.addConstr(PH_2[1][0][18][r][0][27] <= y[0][27][0]);
-            model.addConstr(PH_2[4][0][32][r][1][1] <= y[1][1][0]);
-            model.addConstr(PH_2[2][0][21][r][1][2] <= y[1][2][0]);
-            model.addConstr(PH_2[3][0][24][r][1][2] <= y[1][2][0]);
-            model.addConstr(PH_2[3][0][24][r][1][4] <= y[1][4][0]);
-            model.addConstr(PH_2[4][0][33][r][1][5] <= y[1][5][0]);
-            model.addConstr(PH_2[0][0][4][r][1][6] <= y[1][6][0]);
-            model.addConstr(PH_2[4][0][33][r][1][6] <= y[1][6][0]);
-            model.addConstr(PH_2[3][0][24][r][1][7] <= y[1][7][0]);
-            model.addConstr(PH_2[0][0][4][r][1][8] <= y[1][8][0]);
-            model.addConstr(PH_2[3][0][25][r][1][8] <= y[1][8][0]);
-            model.addConstr(PH_2[3][0][25][r][1][9] <= y[1][9][0]);
-            model.addConstr(PH_2[1][0][14][r][1][10] <= y[1][10][0]);
-            model.addConstr(PH_2[4][0][30][r][1][10] <= y[1][10][0]);
-            model.addConstr(PH_2[1][0][14][r][1][11] <= y[1][11][0]);
-            model.addConstr(PH_2[4][0][30][r][1][11] <= y[1][11][0]);
-            model.addConstr(PH_2[1][0][14][r][1][12] <= y[1][12][0]);
-            model.addConstr(PH_2[1][0][15][r][1][13] <= y[1][13][0]);
-            model.addConstr(PH_2[0][0][2][r][1][14] <= y[1][14][0]);
-            model.addConstr(PH_2[1][0][15][r][1][15] <= y[1][15][0]);
-            model.addConstr(PH_2[1][0][11][r][1][21] <= y[1][21][0]);
-            model.addConstr(PH_2[2][0][19][r][1][21] <= y[1][21][0]);
-            model.addConstr(PH_2[1][0][9][r][1][22] <= y[1][22][0]);
-            model.addConstr(PH_2[1][0][11][r][1][22] <= y[1][22][0]);
-            model.addConstr(PH_2[2][0][19][r][1][22] <= y[1][22][0]);
-            model.addConstr(PH_2[1][0][12][r][1][25] <= y[1][25][0]);
-            model.addConstr(PH_2[2][0][20][r][1][25] <= y[1][25][0]);
-            model.addConstr(PH_2[3][0][27][r][1][34] <= y[1][34][0]);
-            model.addConstr(PH_2[3][0][28][r][1][36] <= y[1][36][0]);
-            model.addConstr(PH_2[3][0][27][r][1][37] <= y[1][37][0]);
-            model.addConstr(PH_2[3][0][28][r][1][38] <= y[1][38][0]);
-            model.addConstr(PH_2[3][0][28][r][1][39] <= y[1][39][0]);
-            model.addConstr(PH_2[1][0][17][r][1][41] <= y[1][41][0]);
-            model.addConstr(PH_2[1][0][17][r][1][42] <= y[1][42][0]);
-            model.addConstr(PH_2[1][0][18][r][1][45] <= y[1][45][0]);
-
-
-
-
-            //c26
-            model.addConstr(S[0].cap_v * (1 - PH_2[3][0][28][r][0][12]) - K[3].d - M * (1 - y[0][12][0]) + small <= +(K[2].d * W[2][0][22][r]) + (K[1].d * W[1][0][8][r]));
-            model.addConstr(S[0].cap_v * (1 - PH_2[3][0][27][r][0][12]) - K[3].d - M * (1 - y[0][12][0]) + small <= +(K[2].d * W[2][0][22][r]) + (K[1].d * W[1][0][8][r]));
-            model.addConstr(S[0].cap_v * (1 - PH_2[3][0][26][r][0][12]) - K[3].d - M * (1 - y[0][12][0]) + small <= +(K[2].d * W[2][0][22][r]) + (K[1].d * W[1][0][8][r]));
-            model.addConstr(S[0].cap_v * (1 - PH_2[2][0][22][r][0][12]) - K[2].d - M * (1 - y[0][12][0]) + small <= +(K[1].d * W[1][0][8][r]));
-            model.addConstr(S[0].cap_v * (1 - PH_2[3][0][26][r][0][20]) - K[3].d - M * (1 - y[0][20][0]) + small <= +(K[0].d * W[0][0][5][r]));
-            model.addConstr(S[0].cap_v * (1 - PH_2[1][0][18][r][0][27]) - K[1].d - M * (1 - y[0][27][0]) + small <= +(K[0].d * W[0][0][5][r]));
-            model.addConstr(S[0].cap_v * (1 - PH_2[1][0][17][r][0][27]) - K[1].d - M * (1 - y[0][27][0]) + small <= +(K[0].d * W[0][0][5][r]));
-            model.addConstr(A[0].cap_v * (1 - PH_2[3][0][24][r][1][2]) - K[3].d - M * (1 - y[1][2][0]) + small <= +(K[2].d * W[2][0][21][r]));
-            model.addConstr(A[0].cap_v * (1 - PH_2[4][0][33][r][1][6]) - K[4].d - M * (1 - y[1][6][0]) + small <= +(K[0].d * W[0][0][4][r]));
-            model.addConstr(A[0].cap_v * (1 - PH_2[3][0][25][r][1][8]) - K[3].d - M * (1 - y[1][8][0]) + small <= +(K[0].d * W[0][0][4][r]));
-            model.addConstr(A[0].cap_v * (1 - PH_2[4][0][30][r][1][10]) - K[4].d - M * (1 - y[1][10][0]) + small <= +(K[1].d * W[1][0][14][r]));
-            model.addConstr(A[0].cap_v * (1 - PH_2[4][0][30][r][1][11]) - K[4].d - M * (1 - y[1][11][0]) + small <= +(K[1].d * W[1][0][14][r]));
-            model.addConstr(A[0].cap_v * (1 - PH_2[2][0][19][r][1][21]) - K[2].d - M * (1 - y[1][21][0]) + small <= +(K[1].d * W[1][0][11][r]));
-            model.addConstr(A[0].cap_v * (1 - PH_2[2][0][19][r][1][22]) - K[2].d - M * (1 - y[1][22][0]) + small <= +(K[1].d * W[1][0][9][r]) + (K[1].d * W[1][0][11][r]));
-            model.addConstr(A[0].cap_v * (1 - PH_2[2][0][20][r][1][25]) - K[2].d - M * (1 - y[1][25][0]) + small <= +(K[1].d * W[1][0][12][r]));
-            model.addConstr(e_S[0].cap_v * (1 - PH_2[1][0][13][r][3][4]) - K[1].d + small <= +(K[0].d * W[0][0][0][r]));
-            model.addConstr(e_S[0].cap_v * (1 - PH_2[1][0][12][r][3][4]) - K[1].d + small <= +(K[0].d * W[0][0][0][r]));
-            model.addConstr(e_S[0].cap_v * (1 - PH_2[1][0][11][r][3][4]) - K[1].d + small <= +(K[0].d * W[0][0][0][r]));
-            model.addConstr(e_S[0].cap_v * (1 - PH_2[1][0][10][r][3][4]) - K[1].d + small <= +(K[0].d * W[0][0][0][r]));
-            model.addConstr(e_S[0].cap_v * (1 - PH_2[3][0][29][r][3][8]) - K[3].d + small <= +(K[2].d * W[2][0][23][r]) + (K[1].d * W[1][0][10][r]));
-            model.addConstr(e_S[0].cap_v * (1 - PH_2[2][0][23][r][3][8]) - K[2].d + small <= +(K[1].d * W[1][0][10][r]));
-            model.addConstr(e_S[0].cap_v * (1 - PH_2[3][0][29][r][3][9]) - K[3].d + small <= +(K[2].d * W[2][0][23][r]) + (K[1].d * W[1][0][10][r]));
-            model.addConstr(e_S[0].cap_v * (1 - PH_2[2][0][23][r][3][9]) - K[2].d + small <= +(K[1].d * W[1][0][10][r]));
-            model.addConstr(e_S[0].cap_v * (1 - PH_2[2][0][23][r][3][10]) - K[2].d + small <= +(K[1].d * W[1][0][10][r]));
-            model.addConstr(e_S[0].cap_v * (1 - PH_2[2][0][23][r][3][11]) - K[2].d + small <= +(K[1].d * W[1][0][10][r]));
-            //c27
-            model.addConstr((S[0].cap_v - K[3].d) * PH_2[3][0][28][r][0][12] + M * (1 - PH_2[3][0][28][r][0][12]) - M * (1 - y[0][12][0]) >= +(K[2].d * W[2][0][22][r]) + (K[1].d * W[1][0][8][r]));
-            model.addConstr((S[0].cap_v - K[3].d) * PH_2[3][0][27][r][0][12] + M * (1 - PH_2[3][0][27][r][0][12]) - M * (1 - y[0][12][0]) >= +(K[2].d * W[2][0][22][r]) + (K[1].d * W[1][0][8][r]));
-            model.addConstr((S[0].cap_v - K[3].d) * PH_2[3][0][26][r][0][12] + M * (1 - PH_2[3][0][26][r][0][12]) - M * (1 - y[0][12][0]) >= +(K[2].d * W[2][0][22][r]) + (K[1].d * W[1][0][8][r]));
-            model.addConstr((S[0].cap_v - K[2].d) * PH_2[2][0][22][r][0][12] + M * (1 - PH_2[2][0][22][r][0][12]) - M * (1 - y[0][12][0]) >= +(K[1].d * W[1][0][8][r]));
-            model.addConstr((S[0].cap_v - K[3].d) * PH_2[3][0][26][r][0][20] + M * (1 - PH_2[3][0][26][r][0][20]) - M * (1 - y[0][20][0]) >= +(K[0].d * W[0][0][5][r]));
-            model.addConstr((S[0].cap_v - K[1].d) * PH_2[1][0][18][r][0][27] + M * (1 - PH_2[1][0][18][r][0][27]) - M * (1 - y[0][27][0]) >= +(K[0].d * W[0][0][5][r]));
-            model.addConstr((S[0].cap_v - K[1].d) * PH_2[1][0][17][r][0][27] + M * (1 - PH_2[1][0][17][r][0][27]) - M * (1 - y[0][27][0]) >= +(K[0].d * W[0][0][5][r]));
-            model.addConstr((A[0].cap_v - K[3].d) * PH_2[3][0][24][r][1][2] + M * (1 - PH_2[3][0][24][r][1][2]) - M * (1 - y[1][2][0]) >= +(K[2].d * W[2][0][21][r]));
-            model.addConstr((A[0].cap_v - K[4].d) * PH_2[4][0][33][r][1][6] + M * (1 - PH_2[4][0][33][r][1][6]) - M * (1 - y[1][6][0]) >= +(K[0].d * W[0][0][4][r]));
-            model.addConstr((A[0].cap_v - K[3].d) * PH_2[3][0][25][r][1][8] + M * (1 - PH_2[3][0][25][r][1][8]) - M * (1 - y[1][8][0]) >= +(K[0].d * W[0][0][4][r]));
-            model.addConstr((A[0].cap_v - K[4].d) * PH_2[4][0][30][r][1][10] + M * (1 - PH_2[4][0][30][r][1][10]) - M * (1 - y[1][10][0]) >= +(K[1].d * W[1][0][14][r]));
-            model.addConstr((A[0].cap_v - K[4].d) * PH_2[4][0][30][r][1][11] + M * (1 - PH_2[4][0][30][r][1][11]) - M * (1 - y[1][11][0]) >= +(K[1].d * W[1][0][14][r]));
-            model.addConstr((A[0].cap_v - K[2].d) * PH_2[2][0][19][r][1][21] + M * (1 - PH_2[2][0][19][r][1][21]) - M * (1 - y[1][21][0]) >= +(K[1].d * W[1][0][11][r]));
-            model.addConstr((A[0].cap_v - K[2].d) * PH_2[2][0][19][r][1][22] + M * (1 - PH_2[2][0][19][r][1][22]) - M * (1 - y[1][22][0]) >= +(K[1].d * W[1][0][9][r]) + (K[1].d * W[1][0][11][r]));
-            model.addConstr((A[0].cap_v - K[2].d) * PH_2[2][0][20][r][1][25] + M * (1 - PH_2[2][0][20][r][1][25]) - M * (1 - y[1][25][0]) >= +(K[1].d * W[1][0][12][r]));
-            model.addConstr((e_S[0].cap_v - K[1].d) * PH_2[1][0][13][r][3][4] + M * (1 - PH_2[1][0][13][r][3][4]) >= +(K[0].d * W[0][0][0][r]));
-            model.addConstr((e_S[0].cap_v - K[1].d) * PH_2[1][0][12][r][3][4] + M * (1 - PH_2[1][0][12][r][3][4]) >= +(K[0].d * W[0][0][0][r]));
-            model.addConstr((e_S[0].cap_v - K[1].d) * PH_2[1][0][11][r][3][4] + M * (1 - PH_2[1][0][11][r][3][4]) >= +(K[0].d * W[0][0][0][r]));
-            model.addConstr((e_S[0].cap_v - K[1].d) * PH_2[1][0][10][r][3][4] + M * (1 - PH_2[1][0][10][r][3][4]) >= +(K[0].d * W[0][0][0][r]));
-            model.addConstr((e_S[0].cap_v - K[3].d) * PH_2[3][0][29][r][3][8] + M * (1 - PH_2[3][0][29][r][3][8]) >= +(K[2].d * W[2][0][23][r]) + (K[1].d * W[1][0][10][r]));
-            model.addConstr((e_S[0].cap_v - K[2].d) * PH_2[2][0][23][r][3][8] + M * (1 - PH_2[2][0][23][r][3][8]) >= +(K[1].d * W[1][0][10][r]));
-            model.addConstr((e_S[0].cap_v - K[3].d) * PH_2[3][0][29][r][3][9] + M * (1 - PH_2[3][0][29][r][3][9]) >= +(K[2].d * W[2][0][23][r]) + (K[1].d * W[1][0][10][r]));
-            model.addConstr((e_S[0].cap_v - K[2].d) * PH_2[2][0][23][r][3][9] + M * (1 - PH_2[2][0][23][r][3][9]) >= +(K[1].d * W[1][0][10][r]));
-            model.addConstr((e_S[0].cap_v - K[2].d) * PH_2[2][0][23][r][3][10] + M * (1 - PH_2[2][0][23][r][3][10]) >= +(K[1].d * W[1][0][10][r]));
-            model.addConstr((e_S[0].cap_v - K[2].d) * PH_2[2][0][23][r][3][11] + M * (1 - PH_2[2][0][23][r][3][11]) >= +(K[1].d * W[1][0][10][r]));
-
-            //C26,C27 only one path on the arc
-            model.addConstr(S[0].cap_v * (1 - PH_2[4][0][30][r][0][1]) - K[4].d - M * (1 - y[0][1][0]) + small <= 0);
-            model.addConstr((S[0].cap_v - K[4].d) * PH_2[4][0][30][r][0][1] + M * (1 - PH_2[4][0][30][r][0][1]) - M * (1 - y[0][1][0]) >= 0);
-            model.addConstr(S[0].cap_v * (1 - PH_2[4][0][31][r][0][2]) - K[4].d - M * (1 - y[0][2][0]) + small <= 0);
-            model.addConstr((S[0].cap_v - K[4].d) * PH_2[4][0][31][r][0][2] + M * (1 - PH_2[4][0][31][r][0][2]) - M * (1 - y[0][2][0]) >= 0);
-            model.addConstr(S[0].cap_v * (1 - PH_2[1][0][7][r][0][4]) - K[1].d - M * (1 - y[0][4][0]) + small <= 0);
-            model.addConstr((S[0].cap_v - K[1].d) * PH_2[1][0][7][r][0][4] + M * (1 - PH_2[1][0][7][r][0][4]) - M * (1 - y[0][4][0]) >= 0);
-            model.addConstr(S[0].cap_v * (1 - PH_2[1][0][8][r][0][5]) - K[1].d - M * (1 - y[0][5][0]) + small <= 0);
-            model.addConstr((S[0].cap_v - K[1].d) * PH_2[1][0][8][r][0][5] + M * (1 - PH_2[1][0][8][r][0][5]) - M * (1 - y[0][5][0]) >= 0);
-            model.addConstr(S[0].cap_v * (1 - PH_2[1][0][9][r][0][5]) - K[1].d - M * (1 - y[0][5][0]) + small <= 0);
-            model.addConstr((S[0].cap_v - K[1].d) * PH_2[1][0][9][r][0][5] + M * (1 - PH_2[1][0][9][r][0][5]) - M * (1 - y[0][5][0]) >= 0);
-            model.addConstr(S[0].cap_v * (1 - PH_2[2][0][19][r][0][7]) - K[2].d - M * (1 - y[0][7][0]) + small <= 0);
-            model.addConstr((S[0].cap_v - K[2].d) * PH_2[2][0][19][r][0][7] + M * (1 - PH_2[2][0][19][r][0][7]) - M * (1 - y[0][7][0]) >= 0);
-            model.addConstr(S[0].cap_v * (1 - PH_2[2][0][20][r][0][7]) - K[2].d - M * (1 - y[0][7][0]) + small <= 0);
-            model.addConstr((S[0].cap_v - K[2].d) * PH_2[2][0][20][r][0][7] + M * (1 - PH_2[2][0][20][r][0][7]) - M * (1 - y[0][7][0]) >= 0);
-            model.addConstr(S[0].cap_v * (1 - PH_2[0][0][1][r][0][9]) - K[0].d - M * (1 - y[0][9][0]) + small <= 0);
-            model.addConstr((S[0].cap_v - K[0].d) * PH_2[0][0][1][r][0][9] + M * (1 - PH_2[0][0][1][r][0][9]) - M * (1 - y[0][9][0]) >= 0);
-            model.addConstr(S[0].cap_v * (1 - PH_2[1][0][8][r][0][10]) - K[1].d - M * (1 - y[0][10][0]) + small <= 0);
-            model.addConstr((S[0].cap_v - K[1].d) * PH_2[1][0][8][r][0][10] + M * (1 - PH_2[1][0][8][r][0][10]) - M * (1 - y[0][10][0]) >= 0);
-            model.addConstr(S[0].cap_v * (1 - PH_2[1][0][8][r][0][12]) - K[1].d - M * (1 - y[0][12][0]) + small <= 0);
-            model.addConstr((S[0].cap_v - K[1].d) * PH_2[1][0][8][r][0][12] + M * (1 - PH_2[1][0][8][r][0][12]) - M * (1 - y[0][12][0]) >= 0);
-            model.addConstr(S[0].cap_v * (1 - PH_2[4][0][35][r][0][16]) - K[4].d - M * (1 - y[0][16][0]) + small <= 0);
-            model.addConstr((S[0].cap_v - K[4].d) * PH_2[4][0][35][r][0][16] + M * (1 - PH_2[4][0][35][r][0][16]) - M * (1 - y[0][16][0]) >= 0);
-            model.addConstr(S[0].cap_v * (1 - PH_2[3][0][26][r][0][19]) - K[3].d - M * (1 - y[0][19][0]) + small <= 0);
-            model.addConstr((S[0].cap_v - K[3].d) * PH_2[3][0][26][r][0][19] + M * (1 - PH_2[3][0][26][r][0][19]) - M * (1 - y[0][19][0]) >= 0);
-            model.addConstr(S[0].cap_v * (1 - PH_2[0][0][5][r][0][20]) - K[0].d - M * (1 - y[0][20][0]) + small <= 0);
-            model.addConstr((S[0].cap_v - K[0].d) * PH_2[0][0][5][r][0][20] + M * (1 - PH_2[0][0][5][r][0][20]) - M * (1 - y[0][20][0]) >= 0);
-            model.addConstr(S[0].cap_v * (1 - PH_2[0][0][6][r][0][25]) - K[0].d - M * (1 - y[0][25][0]) + small <= 0);
-            model.addConstr((S[0].cap_v - K[0].d) * PH_2[0][0][6][r][0][25] + M * (1 - PH_2[0][0][6][r][0][25]) - M * (1 - y[0][25][0]) >= 0);
-            model.addConstr(S[0].cap_v * (1 - PH_2[0][0][5][r][0][26]) - K[0].d - M * (1 - y[0][26][0]) + small <= 0);
-            model.addConstr((S[0].cap_v - K[0].d) * PH_2[0][0][5][r][0][26] + M * (1 - PH_2[0][0][5][r][0][26]) - M * (1 - y[0][26][0]) >= 0);
-            model.addConstr(S[0].cap_v * (1 - PH_2[0][0][5][r][0][27]) - K[0].d - M * (1 - y[0][27][0]) + small <= 0);
-            model.addConstr((S[0].cap_v - K[0].d) * PH_2[0][0][5][r][0][27] + M * (1 - PH_2[0][0][5][r][0][27]) - M * (1 - y[0][27][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[4][0][32][r][1][1]) - K[4].d - M * (1 - y[1][1][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[4].d) * PH_2[4][0][32][r][1][1] + M * (1 - PH_2[4][0][32][r][1][1]) - M * (1 - y[1][1][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[4][0][32][r][1][1]) - K[4].b * K[4].d - M * (1 - y[1][1][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[4].b * K[4].d) * PH_3[4][0][32][r][1][1] + M * (1 - PH_3[4][0][32][r][1][1]) - M * (1 - y[1][1][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[2][0][21][r][1][2]) - K[2].d - M * (1 - y[1][2][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[2].d) * PH_2[2][0][21][r][1][2] + M * (1 - PH_2[2][0][21][r][1][2]) - M * (1 - y[1][2][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[2][0][21][r][1][2]) - K[2].b * K[2].d - M * (1 - y[1][2][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[2].b * K[2].d) * PH_3[2][0][21][r][1][2] + M * (1 - PH_3[2][0][21][r][1][2]) - M * (1 - y[1][2][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[3][0][24][r][1][4]) - K[3].d - M * (1 - y[1][4][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[3].d) * PH_2[3][0][24][r][1][4] + M * (1 - PH_2[3][0][24][r][1][4]) - M * (1 - y[1][4][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[3][0][24][r][1][4]) - K[3].b * K[3].d - M * (1 - y[1][4][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[3].b * K[3].d) * PH_3[3][0][24][r][1][4] + M * (1 - PH_3[3][0][24][r][1][4]) - M * (1 - y[1][4][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[4][0][33][r][1][5]) - K[4].d - M * (1 - y[1][5][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[4].d) * PH_2[4][0][33][r][1][5] + M * (1 - PH_2[4][0][33][r][1][5]) - M * (1 - y[1][5][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[4][0][33][r][1][5]) - K[4].b * K[4].d - M * (1 - y[1][5][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[4].b * K[4].d) * PH_3[4][0][33][r][1][5] + M * (1 - PH_3[4][0][33][r][1][5]) - M * (1 - y[1][5][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[0][0][4][r][1][6]) - K[0].d - M * (1 - y[1][6][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[0].d) * PH_2[0][0][4][r][1][6] + M * (1 - PH_2[0][0][4][r][1][6]) - M * (1 - y[1][6][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[0][0][4][r][1][6]) - K[0].b * K[0].d - M * (1 - y[1][6][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[0].b * K[0].d) * PH_3[0][0][4][r][1][6] + M * (1 - PH_3[0][0][4][r][1][6]) - M * (1 - y[1][6][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[3][0][24][r][1][7]) - K[3].d - M * (1 - y[1][7][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[3].d) * PH_2[3][0][24][r][1][7] + M * (1 - PH_2[3][0][24][r][1][7]) - M * (1 - y[1][7][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[3][0][24][r][1][7]) - K[3].b * K[3].d - M * (1 - y[1][7][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[3].b * K[3].d) * PH_3[3][0][24][r][1][7] + M * (1 - PH_3[3][0][24][r][1][7]) - M * (1 - y[1][7][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[0][0][4][r][1][8]) - K[0].d - M * (1 - y[1][8][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[0].d) * PH_2[0][0][4][r][1][8] + M * (1 - PH_2[0][0][4][r][1][8]) - M * (1 - y[1][8][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[0][0][4][r][1][8]) - K[0].b * K[0].d - M * (1 - y[1][8][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[0].b * K[0].d) * PH_3[0][0][4][r][1][8] + M * (1 - PH_3[0][0][4][r][1][8]) - M * (1 - y[1][8][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[3][0][25][r][1][9]) - K[3].d - M * (1 - y[1][9][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[3].d) * PH_2[3][0][25][r][1][9] + M * (1 - PH_2[3][0][25][r][1][9]) - M * (1 - y[1][9][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[3][0][25][r][1][9]) - K[3].b * K[3].d - M * (1 - y[1][9][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[3].b * K[3].d) * PH_3[3][0][25][r][1][9] + M * (1 - PH_3[3][0][25][r][1][9]) - M * (1 - y[1][9][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[1][0][14][r][1][10]) - K[1].d - M * (1 - y[1][10][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[1].d) * PH_2[1][0][14][r][1][10] + M * (1 - PH_2[1][0][14][r][1][10]) - M * (1 - y[1][10][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[1][0][14][r][1][10]) - K[1].b * K[1].d - M * (1 - y[1][10][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[1].b * K[1].d) * PH_3[1][0][14][r][1][10] + M * (1 - PH_3[1][0][14][r][1][10]) - M * (1 - y[1][10][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[1][0][14][r][1][11]) - K[1].d - M * (1 - y[1][11][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[1].d) * PH_2[1][0][14][r][1][11] + M * (1 - PH_2[1][0][14][r][1][11]) - M * (1 - y[1][11][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[1][0][14][r][1][11]) - K[1].b * K[1].d - M * (1 - y[1][11][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[1].b * K[1].d) * PH_3[1][0][14][r][1][11] + M * (1 - PH_3[1][0][14][r][1][11]) - M * (1 - y[1][11][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[1][0][14][r][1][12]) - K[1].d - M * (1 - y[1][12][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[1].d) * PH_2[1][0][14][r][1][12] + M * (1 - PH_2[1][0][14][r][1][12]) - M * (1 - y[1][12][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[1][0][14][r][1][12]) - K[1].b * K[1].d - M * (1 - y[1][12][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[1].b * K[1].d) * PH_3[1][0][14][r][1][12] + M * (1 - PH_3[1][0][14][r][1][12]) - M * (1 - y[1][12][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[1][0][15][r][1][13]) - K[1].d - M * (1 - y[1][13][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[1].d) * PH_2[1][0][15][r][1][13] + M * (1 - PH_2[1][0][15][r][1][13]) - M * (1 - y[1][13][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[1][0][15][r][1][13]) - K[1].b * K[1].d - M * (1 - y[1][13][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[1].b * K[1].d) * PH_3[1][0][15][r][1][13] + M * (1 - PH_3[1][0][15][r][1][13]) - M * (1 - y[1][13][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[0][0][2][r][1][14]) - K[0].d - M * (1 - y[1][14][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[0].d) * PH_2[0][0][2][r][1][14] + M * (1 - PH_2[0][0][2][r][1][14]) - M * (1 - y[1][14][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[0][0][2][r][1][14]) - K[0].b * K[0].d - M * (1 - y[1][14][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[0].b * K[0].d) * PH_3[0][0][2][r][1][14] + M * (1 - PH_3[0][0][2][r][1][14]) - M * (1 - y[1][14][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[1][0][15][r][1][15]) - K[1].d - M * (1 - y[1][15][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[1].d) * PH_2[1][0][15][r][1][15] + M * (1 - PH_2[1][0][15][r][1][15]) - M * (1 - y[1][15][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[1][0][15][r][1][15]) - K[1].b * K[1].d - M * (1 - y[1][15][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[1].b * K[1].d) * PH_3[1][0][15][r][1][15] + M * (1 - PH_3[1][0][15][r][1][15]) - M * (1 - y[1][15][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[1][0][11][r][1][21]) - K[1].d - M * (1 - y[1][21][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[1].d) * PH_2[1][0][11][r][1][21] + M * (1 - PH_2[1][0][11][r][1][21]) - M * (1 - y[1][21][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[1][0][11][r][1][21]) - K[1].b * K[1].d - M * (1 - y[1][21][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[1].b * K[1].d) * PH_3[1][0][11][r][1][21] + M * (1 - PH_3[1][0][11][r][1][21]) - M * (1 - y[1][21][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[1][0][9][r][1][22]) - K[1].d - M * (1 - y[1][22][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[1].d) * PH_2[1][0][9][r][1][22] + M * (1 - PH_2[1][0][9][r][1][22]) - M * (1 - y[1][22][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[1][0][9][r][1][22]) - K[1].b * K[1].d - M * (1 - y[1][22][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[1].b * K[1].d) * PH_3[1][0][9][r][1][22] + M * (1 - PH_3[1][0][9][r][1][22]) - M * (1 - y[1][22][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[1][0][11][r][1][22]) - K[1].d - M * (1 - y[1][22][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[1].d) * PH_2[1][0][11][r][1][22] + M * (1 - PH_2[1][0][11][r][1][22]) - M * (1 - y[1][22][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[1][0][11][r][1][22]) - K[1].b * K[1].d - M * (1 - y[1][22][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[1].b * K[1].d) * PH_3[1][0][11][r][1][22] + M * (1 - PH_3[1][0][11][r][1][22]) - M * (1 - y[1][22][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[1][0][12][r][1][25]) - K[1].d - M * (1 - y[1][25][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[1].d) * PH_2[1][0][12][r][1][25] + M * (1 - PH_2[1][0][12][r][1][25]) - M * (1 - y[1][25][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[1][0][12][r][1][25]) - K[1].b * K[1].d - M * (1 - y[1][25][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[1].b * K[1].d) * PH_3[1][0][12][r][1][25] + M * (1 - PH_3[1][0][12][r][1][25]) - M * (1 - y[1][25][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[3][0][27][r][1][34]) - K[3].d - M * (1 - y[1][34][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[3].d) * PH_2[3][0][27][r][1][34] + M * (1 - PH_2[3][0][27][r][1][34]) - M * (1 - y[1][34][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[3][0][27][r][1][34]) - K[3].b * K[3].d - M * (1 - y[1][34][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[3].b * K[3].d) * PH_3[3][0][27][r][1][34] + M * (1 - PH_3[3][0][27][r][1][34]) - M * (1 - y[1][34][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[3][0][28][r][1][36]) - K[3].d - M * (1 - y[1][36][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[3].d) * PH_2[3][0][28][r][1][36] + M * (1 - PH_2[3][0][28][r][1][36]) - M * (1 - y[1][36][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[3][0][28][r][1][36]) - K[3].b * K[3].d - M * (1 - y[1][36][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[3].b * K[3].d) * PH_3[3][0][28][r][1][36] + M * (1 - PH_3[3][0][28][r][1][36]) - M * (1 - y[1][36][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[3][0][27][r][1][37]) - K[3].d - M * (1 - y[1][37][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[3].d) * PH_2[3][0][27][r][1][37] + M * (1 - PH_2[3][0][27][r][1][37]) - M * (1 - y[1][37][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[3][0][27][r][1][37]) - K[3].b * K[3].d - M * (1 - y[1][37][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[3].b * K[3].d) * PH_3[3][0][27][r][1][37] + M * (1 - PH_3[3][0][27][r][1][37]) - M * (1 - y[1][37][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[3][0][28][r][1][38]) - K[3].d - M * (1 - y[1][38][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[3].d) * PH_2[3][0][28][r][1][38] + M * (1 - PH_2[3][0][28][r][1][38]) - M * (1 - y[1][38][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[3][0][28][r][1][38]) - K[3].b * K[3].d - M * (1 - y[1][38][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[3].b * K[3].d) * PH_3[3][0][28][r][1][38] + M * (1 - PH_3[3][0][28][r][1][38]) - M * (1 - y[1][38][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[3][0][28][r][1][39]) - K[3].d - M * (1 - y[1][39][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[3].d) * PH_2[3][0][28][r][1][39] + M * (1 - PH_2[3][0][28][r][1][39]) - M * (1 - y[1][39][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[3][0][28][r][1][39]) - K[3].b * K[3].d - M * (1 - y[1][39][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[3].b * K[3].d) * PH_3[3][0][28][r][1][39] + M * (1 - PH_3[3][0][28][r][1][39]) - M * (1 - y[1][39][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[1][0][17][r][1][41]) - K[1].d - M * (1 - y[1][41][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[1].d) * PH_2[1][0][17][r][1][41] + M * (1 - PH_2[1][0][17][r][1][41]) - M * (1 - y[1][41][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[1][0][17][r][1][41]) - K[1].b * K[1].d - M * (1 - y[1][41][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[1].b * K[1].d) * PH_3[1][0][17][r][1][41] + M * (1 - PH_3[1][0][17][r][1][41]) - M * (1 - y[1][41][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[1][0][17][r][1][42]) - K[1].d - M * (1 - y[1][42][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[1].d) * PH_2[1][0][17][r][1][42] + M * (1 - PH_2[1][0][17][r][1][42]) - M * (1 - y[1][42][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[1][0][17][r][1][42]) - K[1].b * K[1].d - M * (1 - y[1][42][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[1].b * K[1].d) * PH_3[1][0][17][r][1][42] + M * (1 - PH_3[1][0][17][r][1][42]) - M * (1 - y[1][42][0]) >= 0);
-            model.addConstr(A[0].cap_v * (1 - PH_2[1][0][18][r][1][45]) - K[1].d - M * (1 - y[1][45][0]) + small <= 0);
-            model.addConstr((A[0].cap_v - K[1].d) * PH_2[1][0][18][r][1][45] + M * (1 - PH_2[1][0][18][r][1][45]) - M * (1 - y[1][45][0]) >= 0);
-            model.addConstr(A[0].cap_u * (1 - PH_3[1][0][18][r][1][45]) - K[1].b * K[1].d - M * (1 - y[1][45][0]) + small <= 0);
-            model.addConstr((A[0].cap_u - K[1].b * K[1].d) * PH_3[1][0][18][r][1][45] + M * (1 - PH_3[1][0][18][r][1][45]) - M * (1 - y[1][45][0]) >= 0);
-            model.addConstr(e_S[0].cap_v * (1 - PH_2[0][0][0][r][3][2]) - K[0].d + small <= 0);
-            model.addConstr((e_S[0].cap_v - K[0].d) * PH_2[0][0][0][r][3][2] + M * (1 - PH_2[0][0][0][r][3][2]) >= 0);
-            model.addConstr(e_S[0].cap_v * (1 - PH_2[0][0][0][r][3][3]) - K[0].d + small <= 0);
-            model.addConstr((e_S[0].cap_v - K[0].d) * PH_2[0][0][0][r][3][3] + M * (1 - PH_2[0][0][0][r][3][3]) >= 0);
-            model.addConstr(e_S[0].cap_v * (1 - PH_2[0][0][0][r][3][4]) - K[0].d + small <= 0);
-            model.addConstr((e_S[0].cap_v - K[0].d) * PH_2[0][0][0][r][3][4] + M * (1 - PH_2[0][0][0][r][3][4]) >= 0);
-            model.addConstr(e_S[0].cap_v * (1 - PH_2[1][0][10][r][3][5]) - K[1].d + small <= 0);
-            model.addConstr((e_S[0].cap_v - K[1].d) * PH_2[1][0][10][r][3][5] + M * (1 - PH_2[1][0][10][r][3][5]) >= 0);
-            model.addConstr(e_S[0].cap_v * (1 - PH_2[1][0][10][r][3][6]) - K[1].d + small <= 0);
-            model.addConstr((e_S[0].cap_v - K[1].d) * PH_2[1][0][10][r][3][6] + M * (1 - PH_2[1][0][10][r][3][6]) >= 0);
-            model.addConstr(e_S[0].cap_v * (1 - PH_2[1][0][10][r][3][7]) - K[1].d + small <= 0);
-            model.addConstr((e_S[0].cap_v - K[1].d) * PH_2[1][0][10][r][3][7] + M * (1 - PH_2[1][0][10][r][3][7]) >= 0);
-            model.addConstr(e_S[0].cap_v * (1 - PH_2[1][0][10][r][3][8]) - K[1].d + small <= 0);
-            model.addConstr((e_S[0].cap_v - K[1].d) * PH_2[1][0][10][r][3][8] + M * (1 - PH_2[1][0][10][r][3][8]) >= 0);
-            model.addConstr(e_S[0].cap_v * (1 - PH_2[1][0][10][r][3][9]) - K[1].d + small <= 0);
-            model.addConstr((e_S[0].cap_v - K[1].d) * PH_2[1][0][10][r][3][9] + M * (1 - PH_2[1][0][10][r][3][9]) >= 0);
-            model.addConstr(e_S[0].cap_v * (1 - PH_2[1][0][10][r][3][10]) - K[1].d + small <= 0);
-            model.addConstr((e_S[0].cap_v - K[1].d) * PH_2[1][0][10][r][3][10] + M * (1 - PH_2[1][0][10][r][3][10]) >= 0);
-            model.addConstr(e_S[0].cap_v * (1 - PH_2[1][0][10][r][3][11]) - K[1].d + small <= 0);
-            model.addConstr((e_S[0].cap_v - K[1].d) * PH_2[1][0][10][r][3][11] + M * (1 - PH_2[1][0][10][r][3][11]) >= 0);
-            model.addConstr(e_A[0].cap_v * (1 - PH_2[4][0][34][r][4][0]) - K[4].d + small <= 0);
-            model.addConstr((e_A[0].cap_v - K[4].d) * PH_2[4][0][34][r][4][0] + M * (1 - PH_2[4][0][34][r][4][0]) >= 0);
-            model.addConstr(e_A[0].cap_u * (1 - PH_3[4][0][34][r][4][0]) - K[4].b * K[4].d + small <= 0);
-            model.addConstr((e_A[0].cap_u - K[4].b * K[4].d) * PH_3[4][0][34][r][4][0] + M * (1 - PH_3[4][0][34][r][4][0]) >= 0);
-            model.addConstr(e_A[0].cap_v * (1 - PH_2[4][0][34][r][4][1]) - K[4].d + small <= 0);
-            model.addConstr((e_A[0].cap_v - K[4].d) * PH_2[4][0][34][r][4][1] + M * (1 - PH_2[4][0][34][r][4][1]) >= 0);
-            model.addConstr(e_A[0].cap_u * (1 - PH_3[4][0][34][r][4][1]) - K[4].b * K[4].d + small <= 0);
-            model.addConstr((e_A[0].cap_u - K[4].b * K[4].d) * PH_3[4][0][34][r][4][1] + M * (1 - PH_3[4][0][34][r][4][1]) >= 0);
-            model.addConstr(e_A[0].cap_v * (1 - PH_2[4][0][34][r][4][2]) - K[4].d + small <= 0);
-            model.addConstr((e_A[0].cap_v - K[4].d) * PH_2[4][0][34][r][4][2] + M * (1 - PH_2[4][0][34][r][4][2]) >= 0);
-            model.addConstr(e_A[0].cap_u * (1 - PH_3[4][0][34][r][4][2]) - K[4].b * K[4].d + small <= 0);
-            model.addConstr((e_A[0].cap_u - K[4].b * K[4].d) * PH_3[4][0][34][r][4][2] + M * (1 - PH_3[4][0][34][r][4][2]) >= 0);
-            model.addConstr(e_A[0].cap_v * (1 - PH_2[1][0][16][r][4][5]) - K[1].d + small <= 0);
-            model.addConstr((e_A[0].cap_v - K[1].d) * PH_2[1][0][16][r][4][5] + M * (1 - PH_2[1][0][16][r][4][5]) >= 0);
-            model.addConstr(e_A[0].cap_u * (1 - PH_3[1][0][16][r][4][5]) - K[1].b * K[1].d + small <= 0);
-            model.addConstr((e_A[0].cap_u - K[1].b * K[1].d) * PH_3[1][0][16][r][4][5] + M * (1 - PH_3[1][0][16][r][4][5]) >= 0);
-            model.addConstr(e_A[0].cap_v * (1 - PH_2[0][0][3][r][4][6]) - K[0].d + small <= 0);
-            model.addConstr((e_A[0].cap_v - K[0].d) * PH_2[0][0][3][r][4][6] + M * (1 - PH_2[0][0][3][r][4][6]) >= 0);
-            model.addConstr(e_A[0].cap_u * (1 - PH_3[0][0][3][r][4][6]) - K[0].b * K[0].d + small <= 0);
-            model.addConstr((e_A[0].cap_u - K[0].b * K[0].d) * PH_3[0][0][3][r][4][6] + M * (1 - PH_3[0][0][3][r][4][6]) >= 0);
-            model.addConstr(e_A[0].cap_v * (1 - PH_2[0][0][3][r][4][7]) - K[0].d + small <= 0);
-            model.addConstr((e_A[0].cap_v - K[0].d) * PH_2[0][0][3][r][4][7] + M * (1 - PH_2[0][0][3][r][4][7]) >= 0);
-            model.addConstr(e_A[0].cap_u * (1 - PH_3[0][0][3][r][4][7]) - K[0].b * K[0].d + small <= 0);
-            model.addConstr((e_A[0].cap_u - K[0].b * K[0].d) * PH_3[0][0][3][r][4][7] + M * (1 - PH_3[0][0][3][r][4][7]) >= 0);
-            model.addConstr(e_A[0].cap_v * (1 - PH_2[1][0][13][r][4][8]) - K[1].d + small <= 0);
-            model.addConstr((e_A[0].cap_v - K[1].d) * PH_2[1][0][13][r][4][8] + M * (1 - PH_2[1][0][13][r][4][8]) >= 0);
-            model.addConstr(e_A[0].cap_u * (1 - PH_3[1][0][13][r][4][8]) - K[1].b * K[1].d + small <= 0);
-            model.addConstr((e_A[0].cap_u - K[1].b * K[1].d) * PH_3[1][0][13][r][4][8] + M * (1 - PH_3[1][0][13][r][4][8]) >= 0);
-            model.addConstr(e_A[0].cap_v * (1 - PH_2[1][0][13][r][4][9]) - K[1].d + small <= 0);
-            model.addConstr((e_A[0].cap_v - K[1].d) * PH_2[1][0][13][r][4][9] + M * (1 - PH_2[1][0][13][r][4][9]) >= 0);
-            model.addConstr(e_A[0].cap_u * (1 - PH_3[1][0][13][r][4][9]) - K[1].b * K[1].d + small <= 0);
-            model.addConstr((e_A[0].cap_u - K[1].b * K[1].d) * PH_3[1][0][13][r][4][9] + M * (1 - PH_3[1][0][13][r][4][9]) >= 0);
-            model.addConstr(e_A[0].cap_v * (1 - PH_2[3][0][29][r][4][16]) - K[3].d + small <= 0);
-            model.addConstr((e_A[0].cap_v - K[3].d) * PH_2[3][0][29][r][4][16] + M * (1 - PH_2[3][0][29][r][4][16]) >= 0);
-            model.addConstr(e_A[0].cap_u * (1 - PH_3[3][0][29][r][4][16]) - K[3].b * K[3].d + small <= 0);
-            model.addConstr((e_A[0].cap_u - K[3].b * K[3].d) * PH_3[3][0][29][r][4][16] + M * (1 - PH_3[3][0][29][r][4][16]) >= 0);
-
-        }
-        cout << "C26,C27\n";
-
-        //C28,C29---- the availability in scenario r (weight)
-        for (int r = 0; r < num_scenario; r++) {
-            //plus
-            model.addConstr(PH_3[4][0][32][r][1][1] <= y[1][1][0]);
-            model.addConstr(PH_3[2][0][21][r][1][2] <= y[1][2][0]);
-            model.addConstr(PH_3[3][0][24][r][1][2] <= y[1][2][0]);
-            model.addConstr(PH_3[3][0][24][r][1][4] <= y[1][4][0]);
-            model.addConstr(PH_3[4][0][33][r][1][5] <= y[1][5][0]);
-            model.addConstr(PH_3[0][0][4][r][1][6] <= y[1][6][0]);
-            model.addConstr(PH_3[4][0][33][r][1][6] <= y[1][6][0]);
-            model.addConstr(PH_3[3][0][24][r][1][7] <= y[1][7][0]);
-            model.addConstr(PH_3[0][0][4][r][1][8] <= y[1][8][0]);
-            model.addConstr(PH_3[3][0][25][r][1][8] <= y[1][8][0]);
-            model.addConstr(PH_3[3][0][25][r][1][9] <= y[1][9][0]);
-            model.addConstr(PH_3[1][0][14][r][1][10] <= y[1][10][0]);
-            model.addConstr(PH_3[4][0][30][r][1][10] <= y[1][10][0]);
-            model.addConstr(PH_3[1][0][14][r][1][11] <= y[1][11][0]);
-            model.addConstr(PH_3[4][0][30][r][1][11] <= y[1][11][0]);
-            model.addConstr(PH_3[1][0][14][r][1][12] <= y[1][12][0]);
-            model.addConstr(PH_3[1][0][15][r][1][13] <= y[1][13][0]);
-            model.addConstr(PH_3[0][0][2][r][1][14] <= y[1][14][0]);
-            model.addConstr(PH_3[1][0][15][r][1][15] <= y[1][15][0]);
-            model.addConstr(PH_3[1][0][11][r][1][21] <= y[1][21][0]);
-            model.addConstr(PH_3[2][0][19][r][1][21] <= y[1][21][0]);
-            model.addConstr(PH_3[1][0][9][r][1][22] <= y[1][22][0]);
-            model.addConstr(PH_3[1][0][11][r][1][22] <= y[1][22][0]);
-            model.addConstr(PH_3[2][0][19][r][1][22] <= y[1][22][0]);
-            model.addConstr(PH_3[1][0][12][r][1][25] <= y[1][25][0]);
-            model.addConstr(PH_3[2][0][20][r][1][25] <= y[1][25][0]);
-            model.addConstr(PH_3[3][0][27][r][1][34] <= y[1][34][0]);
-            model.addConstr(PH_3[3][0][28][r][1][36] <= y[1][36][0]);
-            model.addConstr(PH_3[3][0][27][r][1][37] <= y[1][37][0]);
-            model.addConstr(PH_3[3][0][28][r][1][38] <= y[1][38][0]);
-            model.addConstr(PH_3[3][0][28][r][1][39] <= y[1][39][0]);
-            model.addConstr(PH_3[1][0][17][r][1][41] <= y[1][41][0]);
-            model.addConstr(PH_3[1][0][17][r][1][42] <= y[1][42][0]);
-            model.addConstr(PH_3[1][0][18][r][1][45] <= y[1][45][0]);
-
-
-
-            //c28
-            model.addConstr(A[0].cap_u * (1 - PH_3[3][0][24][r][1][2]) - K[3].b * K[3].d - M * (1 - y[1][2][0]) + small <= +(K[2].b *K[2].d * W[2][0][21][r]));
-            model.addConstr(A[0].cap_u * (1 - PH_3[4][0][33][r][1][6]) - K[4].b * K[4].d - M * (1 - y[1][6][0]) + small <= +(K[0].b *K[0].d * W[0][0][4][r]));
-            model.addConstr(A[0].cap_u * (1 - PH_3[3][0][25][r][1][8]) - K[3].b * K[3].d - M * (1 - y[1][8][0]) + small <= +(K[0].b *K[0].d * W[0][0][4][r]));
-            model.addConstr(A[0].cap_u * (1 - PH_3[4][0][30][r][1][10]) - K[4].b * K[4].d - M * (1 - y[1][10][0]) + small <= +(K[1].b *K[1].d * W[1][0][14][r]));
-            model.addConstr(A[0].cap_u * (1 - PH_3[4][0][30][r][1][11]) - K[4].b * K[4].d - M * (1 - y[1][11][0]) + small <= +(K[1].b *K[1].d * W[1][0][14][r]));
-            model.addConstr(A[0].cap_u * (1 - PH_3[2][0][19][r][1][21]) - K[2].b * K[2].d - M * (1 - y[1][21][0]) + small <= +(K[1].b *K[1].d * W[1][0][11][r]));
-            model.addConstr(A[0].cap_u * (1 - PH_3[2][0][19][r][1][22]) - K[2].b * K[2].d - M * (1 - y[1][22][0]) + small <= +(K[1].b *K[1].d * W[1][0][9][r]) + (K[1].b *K[1].d * W[1][0][11][r]));
-            model.addConstr(A[0].cap_u * (1 - PH_3[2][0][20][r][1][25]) - K[2].b * K[2].d - M * (1 - y[1][25][0]) + small <= +(K[1].b *K[1].d * W[1][0][12][r]));
-
-            //c29
-            model.addConstr((A[0].cap_u - K[3].b * K[3].d) * PH_3[3][0][24][r][1][2] + M * (1 - PH_3[3][0][24][r][1][2]) - M * (1 - y[1][2][0]) >= +(K[2].b * K[2].d * W[2][0][21][r]));
-            model.addConstr((A[0].cap_u - K[4].b * K[4].d) * PH_3[4][0][33][r][1][6] + M * (1 - PH_3[4][0][33][r][1][6]) - M * (1 - y[1][6][0]) >= +(K[0].b * K[0].d * W[0][0][4][r]));
-            model.addConstr((A[0].cap_u - K[3].b * K[3].d) * PH_3[3][0][25][r][1][8] + M * (1 - PH_3[3][0][25][r][1][8]) - M * (1 - y[1][8][0]) >= +(K[0].b * K[0].d * W[0][0][4][r]));
-            model.addConstr((A[0].cap_u - K[4].b * K[4].d) * PH_3[4][0][30][r][1][10] + M * (1 - PH_3[4][0][30][r][1][10]) - M * (1 - y[1][10][0]) >= +(K[1].b * K[1].d * W[1][0][14][r]));
-            model.addConstr((A[0].cap_u - K[4].b * K[4].d) * PH_3[4][0][30][r][1][11] + M * (1 - PH_3[4][0][30][r][1][11]) - M * (1 - y[1][11][0]) >= +(K[1].b * K[1].d * W[1][0][14][r]));
-            model.addConstr((A[0].cap_u - K[2].b * K[2].d) * PH_3[2][0][19][r][1][21] + M * (1 - PH_3[2][0][19][r][1][21]) - M * (1 - y[1][21][0]) >= +(K[1].b * K[1].d * W[1][0][11][r]));
-            model.addConstr((A[0].cap_u - K[2].b * K[2].d) * PH_3[2][0][19][r][1][22] + M * (1 - PH_3[2][0][19][r][1][22]) - M * (1 - y[1][22][0]) >= +(K[1].b * K[1].d * W[1][0][9][r]) + (K[1].b * K[1].d * W[1][0][11][r]));
-            model.addConstr((A[0].cap_u - K[2].b * K[2].d) * PH_3[2][0][20][r][1][25] + M * (1 - PH_3[2][0][20][r][1][25]) - M * (1 - y[1][25][0]) >= +(K[1].b * K[1].d * W[1][0][12][r]));
-
-        }
-
-        cout << "C28,C29\n";
-
-
-        //C34 ---- PH_2[k][q][p][r][n][a] >= PH[k][q][p][r]
-        //C35 ---- PH_3[k][q][n][p][r][n][a] >= PH[k][q][n][p][r]
-        for (int r = 0; r < num_scenario; r++) {
-            model.addConstr(PH_2[4][0][30][r][0][1] >= PH[4][0][30][r]);
-            model.addConstr(PH_2[4][0][31][r][0][2] >= PH[4][0][31][r]);
-            model.addConstr(PH_2[1][0][7][r][0][4] >= PH[1][0][7][r]);
-            model.addConstr(PH_2[1][0][8][r][0][5] >= PH[1][0][8][r]);
-            model.addConstr(PH_2[1][0][9][r][0][5] >= PH[1][0][9][r]);
-            model.addConstr(PH_2[2][0][19][r][0][7] >= PH[2][0][19][r]);
-            model.addConstr(PH_2[2][0][20][r][0][7] >= PH[2][0][20][r]);
-            model.addConstr(PH_2[0][0][1][r][0][9] >= PH[0][0][1][r]);
-            model.addConstr(PH_2[1][0][8][r][0][10] >= PH[1][0][8][r]);
-            model.addConstr(PH_2[1][0][8][r][0][12] >= PH[1][0][8][r]);
-            model.addConstr(PH_2[2][0][22][r][0][12] >= PH[2][0][22][r]);
-            model.addConstr(PH_2[3][0][26][r][0][12] >= PH[3][0][26][r]);
-            model.addConstr(PH_2[3][0][27][r][0][12] >= PH[3][0][27][r]);
-            model.addConstr(PH_2[3][0][28][r][0][12] >= PH[3][0][28][r]);
-            model.addConstr(PH_2[4][0][35][r][0][16] >= PH[4][0][35][r]);
-            model.addConstr(PH_2[3][0][26][r][0][19] >= PH[3][0][26][r]);
-            model.addConstr(PH_2[0][0][5][r][0][20] >= PH[0][0][5][r]);
-            model.addConstr(PH_2[3][0][26][r][0][20] >= PH[3][0][26][r]);
-            model.addConstr(PH_2[0][0][6][r][0][25] >= PH[0][0][6][r]);
-            model.addConstr(PH_2[0][0][5][r][0][26] >= PH[0][0][5][r]);
-            model.addConstr(PH_2[0][0][5][r][0][27] >= PH[0][0][5][r]);
-            model.addConstr(PH_2[1][0][17][r][0][27] >= PH[1][0][17][r]);
-            model.addConstr(PH_2[1][0][18][r][0][27] >= PH[1][0][18][r]);
-            model.addConstr(PH_2[4][0][32][r][1][1] >= PH[4][0][32][r]);
-            model.addConstr(PH_3[4][0][32][r][1][1] >= PH[4][0][32][r]);
-            model.addConstr(PH_2[2][0][21][r][1][2] >= PH[2][0][21][r]);
-            model.addConstr(PH_3[2][0][21][r][1][2] >= PH[2][0][21][r]);
-            model.addConstr(PH_2[3][0][24][r][1][2] >= PH[3][0][24][r]);
-            model.addConstr(PH_3[3][0][24][r][1][2] >= PH[3][0][24][r]);
-            model.addConstr(PH_2[3][0][24][r][1][4] >= PH[3][0][24][r]);
-            model.addConstr(PH_3[3][0][24][r][1][4] >= PH[3][0][24][r]);
-            model.addConstr(PH_2[4][0][33][r][1][5] >= PH[4][0][33][r]);
-            model.addConstr(PH_3[4][0][33][r][1][5] >= PH[4][0][33][r]);
-            model.addConstr(PH_2[0][0][4][r][1][6] >= PH[0][0][4][r]);
-            model.addConstr(PH_3[0][0][4][r][1][6] >= PH[0][0][4][r]);
-            model.addConstr(PH_2[4][0][33][r][1][6] >= PH[4][0][33][r]);
-            model.addConstr(PH_3[4][0][33][r][1][6] >= PH[4][0][33][r]);
-            model.addConstr(PH_2[3][0][24][r][1][7] >= PH[3][0][24][r]);
-            model.addConstr(PH_3[3][0][24][r][1][7] >= PH[3][0][24][r]);
-            model.addConstr(PH_2[0][0][4][r][1][8] >= PH[0][0][4][r]);
-            model.addConstr(PH_3[0][0][4][r][1][8] >= PH[0][0][4][r]);
-            model.addConstr(PH_2[3][0][25][r][1][8] >= PH[3][0][25][r]);
-            model.addConstr(PH_3[3][0][25][r][1][8] >= PH[3][0][25][r]);
-            model.addConstr(PH_2[3][0][25][r][1][9] >= PH[3][0][25][r]);
-            model.addConstr(PH_3[3][0][25][r][1][9] >= PH[3][0][25][r]);
-            model.addConstr(PH_2[1][0][14][r][1][10] >= PH[1][0][14][r]);
-            model.addConstr(PH_3[1][0][14][r][1][10] >= PH[1][0][14][r]);
-            model.addConstr(PH_2[4][0][30][r][1][10] >= PH[4][0][30][r]);
-            model.addConstr(PH_3[4][0][30][r][1][10] >= PH[4][0][30][r]);
-            model.addConstr(PH_2[1][0][14][r][1][11] >= PH[1][0][14][r]);
-            model.addConstr(PH_3[1][0][14][r][1][11] >= PH[1][0][14][r]);
-            model.addConstr(PH_2[4][0][30][r][1][11] >= PH[4][0][30][r]);
-            model.addConstr(PH_3[4][0][30][r][1][11] >= PH[4][0][30][r]);
-            model.addConstr(PH_2[1][0][14][r][1][12] >= PH[1][0][14][r]);
-            model.addConstr(PH_3[1][0][14][r][1][12] >= PH[1][0][14][r]);
-            model.addConstr(PH_2[1][0][15][r][1][13] >= PH[1][0][15][r]);
-            model.addConstr(PH_3[1][0][15][r][1][13] >= PH[1][0][15][r]);
-            model.addConstr(PH_2[0][0][2][r][1][14] >= PH[0][0][2][r]);
-            model.addConstr(PH_3[0][0][2][r][1][14] >= PH[0][0][2][r]);
-            model.addConstr(PH_2[1][0][15][r][1][15] >= PH[1][0][15][r]);
-            model.addConstr(PH_3[1][0][15][r][1][15] >= PH[1][0][15][r]);
-            model.addConstr(PH_2[1][0][11][r][1][21] >= PH[1][0][11][r]);
-            model.addConstr(PH_3[1][0][11][r][1][21] >= PH[1][0][11][r]);
-            model.addConstr(PH_2[2][0][19][r][1][21] >= PH[2][0][19][r]);
-            model.addConstr(PH_3[2][0][19][r][1][21] >= PH[2][0][19][r]);
-            model.addConstr(PH_2[1][0][9][r][1][22] >= PH[1][0][9][r]);
-            model.addConstr(PH_3[1][0][9][r][1][22] >= PH[1][0][9][r]);
-            model.addConstr(PH_2[1][0][11][r][1][22] >= PH[1][0][11][r]);
-            model.addConstr(PH_3[1][0][11][r][1][22] >= PH[1][0][11][r]);
-            model.addConstr(PH_2[2][0][19][r][1][22] >= PH[2][0][19][r]);
-            model.addConstr(PH_3[2][0][19][r][1][22] >= PH[2][0][19][r]);
-            model.addConstr(PH_2[1][0][12][r][1][25] >= PH[1][0][12][r]);
-            model.addConstr(PH_3[1][0][12][r][1][25] >= PH[1][0][12][r]);
-            model.addConstr(PH_2[2][0][20][r][1][25] >= PH[2][0][20][r]);
-            model.addConstr(PH_3[2][0][20][r][1][25] >= PH[2][0][20][r]);
-            model.addConstr(PH_2[3][0][27][r][1][34] >= PH[3][0][27][r]);
-            model.addConstr(PH_3[3][0][27][r][1][34] >= PH[3][0][27][r]);
-            model.addConstr(PH_2[3][0][28][r][1][36] >= PH[3][0][28][r]);
-            model.addConstr(PH_3[3][0][28][r][1][36] >= PH[3][0][28][r]);
-            model.addConstr(PH_2[3][0][27][r][1][37] >= PH[3][0][27][r]);
-            model.addConstr(PH_3[3][0][27][r][1][37] >= PH[3][0][27][r]);
-            model.addConstr(PH_2[3][0][28][r][1][38] >= PH[3][0][28][r]);
-            model.addConstr(PH_3[3][0][28][r][1][38] >= PH[3][0][28][r]);
-            model.addConstr(PH_2[3][0][28][r][1][39] >= PH[3][0][28][r]);
-            model.addConstr(PH_3[3][0][28][r][1][39] >= PH[3][0][28][r]);
-            model.addConstr(PH_2[1][0][17][r][1][41] >= PH[1][0][17][r]);
-            model.addConstr(PH_3[1][0][17][r][1][41] >= PH[1][0][17][r]);
-            model.addConstr(PH_2[1][0][17][r][1][42] >= PH[1][0][17][r]);
-            model.addConstr(PH_3[1][0][17][r][1][42] >= PH[1][0][17][r]);
-            model.addConstr(PH_2[1][0][18][r][1][45] >= PH[1][0][18][r]);
-            model.addConstr(PH_3[1][0][18][r][1][45] >= PH[1][0][18][r]);
-            model.addConstr(PH_2[0][0][0][r][3][2] >= PH[0][0][0][r]);
-            model.addConstr(PH_2[0][0][0][r][3][3] >= PH[0][0][0][r]);
-            model.addConstr(PH_2[0][0][0][r][3][4] >= PH[0][0][0][r]);
-            model.addConstr(PH_2[1][0][10][r][3][4] >= PH[1][0][10][r]);
-            model.addConstr(PH_2[1][0][11][r][3][4] >= PH[1][0][11][r]);
-            model.addConstr(PH_2[1][0][12][r][3][4] >= PH[1][0][12][r]);
-            model.addConstr(PH_2[1][0][13][r][3][4] >= PH[1][0][13][r]);
-            model.addConstr(PH_2[1][0][10][r][3][5] >= PH[1][0][10][r]);
-            model.addConstr(PH_2[1][0][10][r][3][6] >= PH[1][0][10][r]);
-            model.addConstr(PH_2[1][0][10][r][3][7] >= PH[1][0][10][r]);
-            model.addConstr(PH_2[1][0][10][r][3][8] >= PH[1][0][10][r]);
-            model.addConstr(PH_2[2][0][23][r][3][8] >= PH[2][0][23][r]);
-            model.addConstr(PH_2[3][0][29][r][3][8] >= PH[3][0][29][r]);
-            model.addConstr(PH_2[1][0][10][r][3][9] >= PH[1][0][10][r]);
-            model.addConstr(PH_2[2][0][23][r][3][9] >= PH[2][0][23][r]);
-            model.addConstr(PH_2[3][0][29][r][3][9] >= PH[3][0][29][r]);
-            model.addConstr(PH_2[1][0][10][r][3][10] >= PH[1][0][10][r]);
-            model.addConstr(PH_2[2][0][23][r][3][10] >= PH[2][0][23][r]);
-            model.addConstr(PH_2[1][0][10][r][3][11] >= PH[1][0][10][r]);
-            model.addConstr(PH_2[2][0][23][r][3][11] >= PH[2][0][23][r]);
-            model.addConstr(PH_2[4][0][34][r][4][0] >= PH[4][0][34][r]);
-            model.addConstr(PH_3[4][0][34][r][4][0] >= PH[4][0][34][r]);
-            model.addConstr(PH_2[4][0][34][r][4][1] >= PH[4][0][34][r]);
-            model.addConstr(PH_3[4][0][34][r][4][1] >= PH[4][0][34][r]);
-            model.addConstr(PH_2[4][0][34][r][4][2] >= PH[4][0][34][r]);
-            model.addConstr(PH_3[4][0][34][r][4][2] >= PH[4][0][34][r]);
-            model.addConstr(PH_2[1][0][16][r][4][5] >= PH[1][0][16][r]);
-            model.addConstr(PH_3[1][0][16][r][4][5] >= PH[1][0][16][r]);
-            model.addConstr(PH_2[0][0][3][r][4][6] >= PH[0][0][3][r]);
-            model.addConstr(PH_3[0][0][3][r][4][6] >= PH[0][0][3][r]);
-            model.addConstr(PH_2[0][0][3][r][4][7] >= PH[0][0][3][r]);
-            model.addConstr(PH_3[0][0][3][r][4][7] >= PH[0][0][3][r]);
-            model.addConstr(PH_2[1][0][13][r][4][8] >= PH[1][0][13][r]);
-            model.addConstr(PH_3[1][0][13][r][4][8] >= PH[1][0][13][r]);
-            model.addConstr(PH_2[1][0][13][r][4][9] >= PH[1][0][13][r]);
-            model.addConstr(PH_3[1][0][13][r][4][9] >= PH[1][0][13][r]);
-            model.addConstr(PH_2[3][0][29][r][4][16] >= PH[3][0][29][r]);
-            model.addConstr(PH_3[3][0][29][r][4][16] >= PH[3][0][29][r]);
-
-
-        }
-        cout << "C34\n";
-        cout << "C35\n";
-
-        ////C36 all arc are available then the path available
-        for (int r = 0; r < num_scenario; r++) {
-            model.addConstr(PH[0][0][0][r] - 1 >= +(PH_2[0][0][0][r][3][2] - 1) + (PH_2[0][0][0][r][3][3] - 1) + (PH_2[0][0][0][r][3][4] - 1));
-            model.addConstr(PH[0][0][1][r] - 1 >= +(PH_2[0][0][1][r][0][9] - 1));
-            model.addConstr(PH[0][0][2][r] - 1 >= +(PH_2[0][0][2][r][1][14] - 1) + (PH_3[0][0][2][r][1][14] - 1));
-            model.addConstr(PH[0][0][3][r] - 1 >= +(PH_2[0][0][3][r][4][6] - 1) + (PH_3[0][0][3][r][4][6] - 1) + (PH_2[0][0][3][r][4][7] - 1) + (PH_3[0][0][3][r][4][7] - 1));
-            model.addConstr(PH[0][0][4][r] - 1 >= +(PH_2[0][0][4][r][1][6] - 1) + (PH_3[0][0][4][r][1][6] - 1) + (PH_2[0][0][4][r][1][8] - 1) + (PH_3[0][0][4][r][1][8] - 1));
-            model.addConstr(PH[0][0][5][r] - 1 >= +(PH_2[0][0][5][r][0][20] - 1) + (PH_2[0][0][5][r][0][26] - 1) + (PH_2[0][0][5][r][0][27] - 1));
-            model.addConstr(PH[0][0][6][r] - 1 >= +(PH_2[0][0][6][r][0][25] - 1));
-            model.addConstr(PH[1][0][7][r] - 1 >= +(PH_2[1][0][7][r][0][4] - 1));
-            model.addConstr(PH[1][0][8][r] - 1 >= +(PH_2[1][0][8][r][0][5] - 1) + (PH_2[1][0][8][r][0][10] - 1) + (PH_2[1][0][8][r][0][12] - 1));
-            model.addConstr(PH[1][0][9][r] - 1 >= +(PH_2[1][0][9][r][0][5] - 1) + (PH_2[1][0][9][r][1][22] - 1) + (PH_3[1][0][9][r][1][22] - 1));
-            model.addConstr(PH[1][0][10][r] - 1 >= +(PH_2[1][0][10][r][3][4] - 1) + (PH_2[1][0][10][r][3][5] - 1) + (PH_2[1][0][10][r][3][6] - 1) + (PH_2[1][0][10][r][3][7] - 1) + (PH_2[1][0][10][r][3][8] - 1) + (PH_2[1][0][10][r][3][9] - 1) + (PH_2[1][0][10][r][3][10] - 1) + (PH_2[1][0][10][r][3][11] - 1));
-            model.addConstr(PH[1][0][11][r] - 1 >= +(PH_2[1][0][11][r][3][4] - 1) + (PH_2[1][0][11][r][1][21] - 1) + (PH_3[1][0][11][r][1][21] - 1) + (PH_2[1][0][11][r][1][22] - 1) + (PH_3[1][0][11][r][1][22] - 1));
-            model.addConstr(PH[1][0][12][r] - 1 >= +(PH_2[1][0][12][r][1][25] - 1) + (PH_3[1][0][12][r][1][25] - 1) + (PH_2[1][0][12][r][3][4] - 1));
-            model.addConstr(PH[1][0][13][r] - 1 >= +(PH_2[1][0][13][r][4][8] - 1) + (PH_3[1][0][13][r][4][8] - 1) + (PH_2[1][0][13][r][4][9] - 1) + (PH_3[1][0][13][r][4][9] - 1) + (PH_2[1][0][13][r][3][4] - 1));
-            model.addConstr(PH[1][0][14][r] - 1 >= +(PH_2[1][0][14][r][1][10] - 1) + (PH_3[1][0][14][r][1][10] - 1) + (PH_2[1][0][14][r][1][11] - 1) + (PH_3[1][0][14][r][1][11] - 1) + (PH_2[1][0][14][r][1][12] - 1) + (PH_3[1][0][14][r][1][12] - 1));
-            model.addConstr(PH[1][0][15][r] - 1 >= +(PH_2[1][0][15][r][1][13] - 1) + (PH_3[1][0][15][r][1][13] - 1) + (PH_2[1][0][15][r][1][15] - 1) + (PH_3[1][0][15][r][1][15] - 1));
-            model.addConstr(PH[1][0][16][r] - 1 >= +(PH_2[1][0][16][r][4][5] - 1) + (PH_3[1][0][16][r][4][5] - 1));
-            model.addConstr(PH[1][0][17][r] - 1 >= +(PH_2[1][0][17][r][0][27] - 1) + (PH_2[1][0][17][r][1][41] - 1) + (PH_3[1][0][17][r][1][41] - 1) + (PH_2[1][0][17][r][1][42] - 1) + (PH_3[1][0][17][r][1][42] - 1));
-            model.addConstr(PH[1][0][18][r] - 1 >= +(PH_2[1][0][18][r][0][27] - 1) + (PH_2[1][0][18][r][1][45] - 1) + (PH_3[1][0][18][r][1][45] - 1));
-            model.addConstr(PH[2][0][19][r] - 1 >= +(PH_2[2][0][19][r][0][7] - 1) + (PH_2[2][0][19][r][1][21] - 1) + (PH_3[2][0][19][r][1][21] - 1) + (PH_2[2][0][19][r][1][22] - 1) + (PH_3[2][0][19][r][1][22] - 1));
-            model.addConstr(PH[2][0][20][r] - 1 >= +(PH_2[2][0][20][r][0][7] - 1) + (PH_2[2][0][20][r][1][25] - 1) + (PH_3[2][0][20][r][1][25] - 1));
-            model.addConstr(PH[2][0][21][r] - 1 >= +(PH_2[2][0][21][r][1][2] - 1) + (PH_3[2][0][21][r][1][2] - 1));
-            model.addConstr(PH[2][0][22][r] - 1 >= +(PH_2[2][0][22][r][0][12] - 1));
-            model.addConstr(PH[2][0][23][r] - 1 >= +(PH_2[2][0][23][r][3][8] - 1) + (PH_2[2][0][23][r][3][9] - 1) + (PH_2[2][0][23][r][3][10] - 1) + (PH_2[2][0][23][r][3][11] - 1));
-            model.addConstr(PH[3][0][24][r] - 1 >= +(PH_2[3][0][24][r][1][2] - 1) + (PH_3[3][0][24][r][1][2] - 1) + (PH_2[3][0][24][r][1][4] - 1) + (PH_3[3][0][24][r][1][4] - 1) + (PH_2[3][0][24][r][1][7] - 1) + (PH_3[3][0][24][r][1][7] - 1));
-            model.addConstr(PH[3][0][25][r] - 1 >= +(PH_2[3][0][25][r][1][8] - 1) + (PH_3[3][0][25][r][1][8] - 1) + (PH_2[3][0][25][r][1][9] - 1) + (PH_3[3][0][25][r][1][9] - 1));
-            model.addConstr(PH[3][0][26][r] - 1 >= +(PH_2[3][0][26][r][0][12] - 1) + (PH_2[3][0][26][r][0][19] - 1) + (PH_2[3][0][26][r][0][20] - 1));
-            model.addConstr(PH[3][0][27][r] - 1 >= +(PH_2[3][0][27][r][0][12] - 1) + (PH_2[3][0][27][r][1][34] - 1) + (PH_3[3][0][27][r][1][34] - 1) + (PH_2[3][0][27][r][1][37] - 1) + (PH_3[3][0][27][r][1][37] - 1));
-            model.addConstr(PH[3][0][28][r] - 1 >= +(PH_2[3][0][28][r][0][12] - 1) + (PH_2[3][0][28][r][1][36] - 1) + (PH_3[3][0][28][r][1][36] - 1) + (PH_2[3][0][28][r][1][38] - 1) + (PH_3[3][0][28][r][1][38] - 1) + (PH_2[3][0][28][r][1][39] - 1) + (PH_3[3][0][28][r][1][39] - 1));
-            model.addConstr(PH[3][0][29][r] - 1 >= +(PH_2[3][0][29][r][3][8] - 1) + (PH_2[3][0][29][r][3][9] - 1) + (PH_2[3][0][29][r][4][16] - 1) + (PH_3[3][0][29][r][4][16] - 1));
-            model.addConstr(PH[4][0][30][r] - 1 >= +(PH_2[4][0][30][r][0][1] - 1) + (PH_2[4][0][30][r][1][10] - 1) + (PH_3[4][0][30][r][1][10] - 1) + (PH_2[4][0][30][r][1][11] - 1) + (PH_3[4][0][30][r][1][11] - 1));
-            model.addConstr(PH[4][0][31][r] - 1 >= +(PH_2[4][0][31][r][0][2] - 1));
-            model.addConstr(PH[4][0][32][r] - 1 >= +(PH_2[4][0][32][r][1][1] - 1) + (PH_3[4][0][32][r][1][1] - 1));
-            model.addConstr(PH[4][0][33][r] - 1 >= +(PH_2[4][0][33][r][1][5] - 1) + (PH_3[4][0][33][r][1][5] - 1) + (PH_2[4][0][33][r][1][6] - 1) + (PH_3[4][0][33][r][1][6] - 1));
-            model.addConstr(PH[4][0][34][r] - 1 >= +(PH_2[4][0][34][r][4][0] - 1) + (PH_3[4][0][34][r][4][0] - 1) + (PH_2[4][0][34][r][4][1] - 1) + (PH_3[4][0][34][r][4][1] - 1) + (PH_2[4][0][34][r][4][2] - 1) + (PH_3[4][0][34][r][4][2] - 1));
-            model.addConstr(PH[4][0][35][r] - 1 >= +(PH_2[4][0][35][r][0][16] - 1));
-        }
-        cout << "C36\n";
-
-        ////---- C37	choose one path in scenario r
-        //for (int k = 0; k < n_k; k++){
-        //	for (int q = 0; q < max_q; q++) {
-        //		for (int r = 0; r < num_scenario; r++) {
-        //			GRBLinExpr sum = 0;
-        //			for (int p = 0; p < total_path; p++) {
-        //				sum += W[k][q][p][r];
-        //			}
-        //			string s;
-        //			s = "C37[k_" + itos(k) + "][q_" + itos(q) + "][r_" + itos(r) + "]";
-        //			model.addConstr(sum == z[k][q], s);
-        //			//outconstr << s << endl;
-        //		}
-        //	}
-        //}
-        //cout << "C37\n";
-
-        //---- C37	choose one path in scenario r
-        for (int k = 0; k < n_k; k++){
-            for (int r = 0; r < num_scenario; r++) {
-                GRBLinExpr sum = 0;
-                for (int q = 0; q < max_q; q++) {
-                    for (int p = 0; p < total_path; p++) {
-                        sum += W[k][q][p][r];
-                    }
-                    string s;
-                    s = "C37[k_" + itos(k) + "][q_" + itos(q) + "][r_" + itos(r) + "]";
-                    model.addConstr(sum == 1, s);
-                    //outconstr << s << endl;
-                }
-            }
-        }
-        cout << "C37revised\n";
-
-        //---- C38	the flow on path r
-        for (int p = 0; p < total_path; p++) {
-            for (int k = 0; k < n_k; k++) {
-                for (int q = 0; q < max_q; q++) {
-                    GRBLinExpr sum = 0;
-                    for (int r = 0; r < num_scenario; r++) {
-                        sum += W[k][q][p][r];
-                    }
-                    string s;
-                    s = "C38[p_" + itos(p) + "][k_" + itos(k) + "][q_" + itos(q) + "]";
-                    model.addConstr(f[k][q][p] == (K[k].d / num_scenario * sum), s);
-                    //outconstr << s << endl;
-                }
-            }
-        }
-        cout << "C38\n";
-
-        ////---- C39	satisfied demand which selected
-        //for (int k = 0; k < n_k; k++) {
-        //	for (int q = 0; q < max_q; q++) {
-        //		GRBLinExpr sum = 0;
-        //		for (int p = 0; p < K[k].kq[q].num_p; p++) {
-        //			int real_p = K[k].kq[q].path_no[p];
-        //			sum += f[k][q][real_p];
-        //		}
-        //		string s;
-        //		s = "c39[" + itos(k) + "][" + itos(q) + "]";
-        //		model.addConstr(sum == K[k].d * z[k][q], s);
-        //		//outconstr << s << endl;
-        //	}
-        //}
-        //cout << "C39\n";
-
-        ////---- C40	only choose one pattern for commodity k
-        ////K
-        //for (int k = 0; k < n_k; k++) {
-        //	GRBLinExpr sum = 0;
-        //	for (int q = 0; q < max_q; q++) {
-        //		sum += z[k][q];
-        //	}
-        //	string s;
-        //	s = "c40[k:" + itos(k) + "]";
-        //	model.addConstr(sum == 1, s);
-        //	//outconstr << s << endl;
-        //}
-        //cout << "C40\n";
-
-        ///*model.addConstr(y[0][5][0] == 1);*/
-
-        ////set dAir
-        ////model.addConstr(y[1][0][0] == 1);
-        ////model.addConstr(y[1][10][0] == 1);
-
-        ////set dAir2
-        ////model.addConstr(y[1][3][0] == 1);
-        ////model.addConstr(y[1][13][0] == 1);
+        //endregion
 
         outconstr.close();
         fout.close();
@@ -2024,7 +1230,6 @@ int main(int arge, char *argv[])
     catch (...){
         cout << "Exception during optimization" << endl;
     }
-    system("pause");
     return 0;
 }
 
