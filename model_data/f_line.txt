@@ -1,0 +1,22 @@
+c	l	which transportation, s:maritime, a:air freight
+c	no	the number of the line (start from 0)
+c	cyc_d	cycle time for design line (measure in d)
+c	cyc_t	cycle time for design line (measure in t)
+c	n_voy	number of voyage during the planning horizon (= horizon/cyc_t)
+c	cap_v	the capacity w.r.t. volume for design line
+c	h_port	the home port(departure nodes) for desgin line
+c	-1	the end of h_port
+c	------
+c	cyc_h	cycle time for design line (measure in h)
+c	cap_w	the capacity w.r.t. weight for design line
+c	f	frequency for flight a per week
+c	g	the gap time between two flight for flight a(measure in t)
+c	b_port	the based airport for flight a
+
+c	no	cyc_d	cyc_t	n_voy	cap_v	h_port
+s	0	14	42	2	2000	18	186	-1
+c	no	cyc_h	cyc_t	f	g	cap_v	cap_w	b_port
+a	0	40	5	2	6	10	120000	3
+c	sORa	no	n_voy	cyc_t	cap_v	cap_u	num_arcs	depart_node
+e	s	0	2	42	2000	0	22	2740
+e	a	0	0	5	10	120000	20

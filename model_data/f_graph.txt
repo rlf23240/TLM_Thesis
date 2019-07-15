@@ -1,0 +1,9 @@
+c	g	graph number,0:sea,1:air,2:dummy
+c	n	number of nodes in network
+c	a	number of arcs in network
+c	l	number of design line in network
+
+c	g	n	a	l
+g	0	420	58	1
+g	1	420	60	1
+g	2	1890	397	1

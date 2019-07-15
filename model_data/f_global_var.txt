@@ -1,0 +1,14 @@
+c	p	problem	type
+c	s	number of candidate seaport
+c	a	number of candidate airport
+c	k	number of commodity
+c	t	number of total terminals
+c	sL	number of design sea line
+c	aL	number of design air flight
+c	l	the lcm of design maritime line(measure in t)
+c	t	how many times the lcm continue
+c	h	planning horizon(= lcm*times)
+c	q	max_q; the max cycle time in design maritime line (measure in week)
+
+c	s	a	k	t	sL	aL	e_sL	e_aL	my_sL	my_aL	l	t	h	q	scenario
+p	4	4	5	18	1	1	1	1	0	0	0	1	105	1	20

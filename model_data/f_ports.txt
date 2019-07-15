@@ -1,0 +1,14 @@
+c	portKind	s: seaport/ a:airport
+c	p	port no.(start from 0)
+c	fb_c	(fi) fixed berthing(landing) charge at port i
+c	s_t	(si) minimal service time at port i
+
+c	p	fb_c	s_t	cap
+s	0	190	1	200000
+s	1	190	1	200000
+s	2	180	1	200000
+s	3	180	1	200000
+a	0	1380	0	20000
+a	1	1380	0	20000
+a	2	1380	0	20000
+a	3	1380	0	20000
