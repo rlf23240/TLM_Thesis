@@ -11,13 +11,14 @@
 class Dantzig_wolfe {
 public:
     explicit Dantzig_wolfe(const CargoRoute &cargoRoute);
-
+    void output_result(string name);
 private:
     CargoRoute cargoRoute;
     vector<double> P;
     vector<vector<double>> R;
-    double delta;
+    double sigma;
     vector<Solution*> solutions;
+    Solution* best_sol = nullptr;
     void append_R_column(vector<double> r_column);
     vector<double> Run_Dantzig_wolfe();
     void Final_result();

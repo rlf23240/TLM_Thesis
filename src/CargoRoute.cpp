@@ -805,36 +805,8 @@ double CargoRoute::get_air_complicate_constr_val(int start_idx, int end_idx, int
 }
 
 void CargoRoute::show_model_result(GRBModel &model) {
-//    for(int k = 0 ; k < cargos.size(); k++){
-////        cout << target_path[k].size() << " ";
-//        for(int p = 0; p < target_path[k].size(); p++){
-//            if(u[k][p].get(GRB_DoubleAttr_X) != 0 && u[k][p].get(GRB_DoubleAttr_X) != 1) {
-//                cout << "u^" << k <<"_"<< p << ": " << u[k][p].get(GRB_DoubleAttr_X) << "\t";
-//                cout << "z" << k <<"_"<< p << ": " << z[k][p].get(GRB_DoubleAttr_X) << endl;
-//            }
-//        }
-//    }
-//    for(int k = 0 ; k < cargos.size(); k++){
-//        cout << target_path[k].size() << " ";
-//        for(int p = 0; p < target_path[k].size(); p++){
-//            if(u[k][p].get(GRB_DoubleAttr_X) > 0) {
-//                cout << "z" << k <<"_"<< p << ": " << z[k][p].get(GRB_DoubleAttr_X) << " ";
-//            }
-//        }
-//        cout << endl;
-//    }
-//
-//    for(int k = 0 ; k < cargos.size(); k++){
-//        cout << rival_path[k].size() << " ";
-//        for(int n = 0; n < rival_path[k].size(); n++){
-//            if(z_[k][n].get(GRB_DoubleAttr_X) > 0) {
-//                cout << "z_" << k <<"_"<< n << ": " << z_[k][n].get(GRB_DoubleAttr_X) << " ";
-//            }
-//        }
-//        cout << endl;
-//    }
     cout << "Obj : " << model.get(GRB_DoubleAttr_ObjVal) << "\tIncumbent : " << incumbent << endl;
-    cout << "==============End of model result===============" << endl;
+    cout << "==============LP relaxation===============" << endl;
 }
 
 unordered_set<pair<int, int>, pair_hash> CargoRoute::get_arc_set(Path *path) {

@@ -24,11 +24,28 @@ struct Solution{
         os << "-----------------------------------------------------------------------------------" << endl;
         for(int k = 0; k < solution.cargo_size; k++){
             for(int p = 0; p < solution.target_path[k].size(); p++){
-                os << "Cargo : "<< k << ", z : " << solution.z_value[k][p] <<", " << *solution.target_path[k][p] ;
+                os << "Cargo :"<< k << ",\tz :" << solution.z_value[k][p] <<",\t" << *solution.target_path[k][p] ;
             }
         }
         os << "-----------------------------------------------------------------------------------" << endl;
         return os;
+    }
+
+    void to_file(string name){
+        fstream file;
+        file.open("../results/" + name + ".txt", ios::out);
+        if(!file.is_open()){
+            cout << "fail to open results file" << endl;
+            exit(1);
+        }
+
+        file << "P : " << P << endl;
+        for(int k = 0; k < cargo_size; k++){
+            for(int p = 0; p < target_path[k].size(); p++){
+                file << "Cargo :"<< k << ",\tz :" << z_value[k][p] <<",\t" << *target_path[k][p] ;
+            }
+        }
+        file.close();
     }
 
 

@@ -114,8 +114,8 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
         }
         cout << endl;
 
-        delta = model.getConstr(m).get(GRB_DoubleAttr_Pi);
-        cout << "delta : " << delta << endl;
+        sigma = model.getConstr(m).get(GRB_DoubleAttr_Pi);
+        cout << "sigma : " << sigma << endl;
 
         cout << "lambda : " ;
         for(int i = 0; i < n; i++)
@@ -196,11 +196,10 @@ void Dantzig_wolfe::Final_result() {
         }
         cout << endl;
 
-
-
         for(int i = 0; i < P.size(); i++){
             if(lambda[i].get(GRB_DoubleAttr_X) > 0){
                 cout << *solutions[i];
+                best_sol = solutions[i];
             }
         }
 
@@ -304,10 +303,18 @@ bool Dantzig_wolfe::end_condition(vector<double> pi) {
     for(int i = 0; i < r.size(); i++){
         val -= r[i] * pi[i];
     }
-    val -= delta;
+    val -= sigma;
 //    cout << "----------------P_bar : " << val << "-------------------"<< endl;
 
     return val < 0;
+}
+
+void Dantzig_wolfe::output_result(string name) {
+    if(best_sol == nullptr){
+        cout << "Fail to output results" << endl;
+        exit(1);
+    }
+    best_sol->to_file(name);
 }
 
 

@@ -120,8 +120,8 @@ def air_data_generator(name, n, num_flights):
 
         for i in range(num_flights):
             node = chr(65 + random.randint(0,n-1))
-            cycle_time = random.randint(5,8)
-            gap = cycle_time + numpy.random.poisson(0.2) + 1
+            cycle_time = random.randint(5,7)
+            gap = cycle_time + 1
             weight_ub = random.randint(5,10)*100
             volume_ub = random.randint(5,10)*100
             freq = floor(20 / gap)

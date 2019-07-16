@@ -152,10 +152,13 @@ void SeaNetwork::generate_designed_ship() {
     if(cur_node != start_node){
         next_node = start_node;
         next_time = cur_time + time_cost[cur_node][next_node];
-        total_cost += stop_cost[next_node];
-        total_cost += arc_cost[cur_node][next_node];
-        nodes.push_back((char) (65 + next_node) + to_string(next_time));
+        if(next_time < TOTAL_TIME_SLOT) {
+            total_cost += stop_cost[next_node];
+            total_cost += arc_cost[cur_node][next_node];
+            nodes.push_back((char) (65 + next_node) + to_string(next_time));
+        }
     }
+
 
     Route route = Route(nodes, total_cost);
     Ship new_ship = Ship((char) (65 + start_node), start_time, 1, cur_ship.cycle_time, cur_ship.volume_ub);

@@ -1041,7 +1041,7 @@ int main(int arge, char *argv[])
         cout << "obj: " << model.get(GRB_DoubleAttr_ObjVal) << endl;
 
         /*output data*/
-        ofstream outfile("result.txt");
+        ofstream outfile("results.txt");
         outfile << "Obj: " << model.get(GRB_DoubleAttr_ObjVal) << endl;
         outfile << "runtime: " << model.get(GRB_DoubleAttr_Runtime) << endl;
 
