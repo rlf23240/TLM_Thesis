@@ -299,6 +299,10 @@ void SeaNetwork::forward_append(vector<Route *> **dp, int node, int time, int fi
     }
 }
 
+void SeaNetwork::set_designed_ship(Route route) {
+    designed_ships[0].route = route;
+}
+
 
 
 

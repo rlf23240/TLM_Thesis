@@ -362,6 +362,20 @@ void CargoRoute::Constr_init(GRBModel &model) {
     set_integer(model);
 }
 
+void CargoRoute::set_constrs(GRBModel &model) {
+    set_constr1(model);
+    set_constr2(model);
+//    cal_e();
+//    set_constr3(model);
+//    set_constr4(model);
+    set_constr5(model);
+    set_constr6(model);
+    set_constr7(model);
+    set_complicate_constr1(model);
+    set_complicate_constr2(model);
+    set_complicate_constr3(model);
+}
+
 void CargoRoute::set_constr1(GRBModel &model){
     cons1 = new GRBConstr[cargos.size()];
     for(int k = 0; k < cargos.size(); k++){
@@ -544,6 +558,41 @@ void CargoRoute::set_constr7(GRBModel &model) {
                 }
             }
         }
+    }
+}
+
+void CargoRoute::set_complicate_constr1(GRBModel &model) {
+    GRBLinExpr lhs;
+    double rhs;
+    for (auto &sea_arc_pair : sea_arc_pairs) {
+        lhs= complicate_constr_lhs(sea_arc_pair.first, sea_arc_pair.second);
+        rhs= complicate_sea_rhs(sea_arc_pair.first, sea_arc_pair.second, networks.getSea_network().getShips()[0].volume_ub);
+
+        model.addConstr(lhs <= rhs);
+    }
+}
+
+void CargoRoute::set_complicate_constr2(GRBModel &model) {
+    GRBLinExpr lhs;
+    double rhs;
+
+    for (auto &air_arc_pair : air_arc_pairs) {
+        lhs= complicate_constr_lhs(air_arc_pair.first, air_arc_pair.second);
+        rhs= complicate_air_rhs(air_arc_pair.first, air_arc_pair.second, networks.getAir_network().getFlights()[0].volume_ub);
+
+        model.addConstr(lhs <= rhs);
+    }
+}
+
+void CargoRoute::set_complicate_constr3(GRBModel &model) {
+    GRBLinExpr lhs;
+    double rhs;
+
+    for (auto &air_arc_pair : air_arc_pairs) {
+        lhs= complicate_constr_lhs(air_arc_pair.first, air_arc_pair.second);
+        rhs = complicate_air_rhs(air_arc_pair.first, air_arc_pair.second, networks.getAir_network().getFlights()[0].weight_ub);
+
+        model.addConstr(lhs <= rhs);
     }
 }
 
@@ -804,6 +853,59 @@ double CargoRoute::get_air_complicate_constr_val(int start_idx, int end_idx, int
     return val;
 }
 
+GRBLinExpr CargoRoute::complicate_constr_lhs(int start_idx, int end_idx){
+    GRBLinExpr cons = 0;
+    for(int k = 0; k < cargos.size(); k++){
+        for (int p = 0; p < target_path[k].size(); p++) {
+            Path* path = target_path[k][p];
+            for(int i = 0; i < path->points.size()-1; i++){
+                int out_point_idx = networks.get_node_idx(path->points[i]);
+                int in_point_idx = networks.get_node_idx(path->points[i+1]);
+                if(out_point_idx == start_idx && in_point_idx == end_idx){
+                    cons += cargos[k]->volume * z[k][p];
+                }
+            }
+        }
+    }
+    return cons;
+}
+
+double CargoRoute::complicate_sea_rhs(int start_idx, int end_idx, int ub) {
+    double val = 0;
+    Route route = networks.getSea_network().getShips()[0].route;
+    for(int i = 0; i < route.nodes.size()-1; i++){
+        Point out_point = Point(0, (int) route.nodes[i][0] - 65 , stoi(route.nodes[i].substr(1)));
+        Point in_point = Point(0, (int) route.nodes[i+1][0] - 65 , stoi(route.nodes[i+1].substr(1)));
+        int out_point_idx = networks.get_node_idx(out_point);
+        int in_point_idx = networks.get_node_idx(in_point);
+        if(out_point_idx == start_idx && in_point_idx == end_idx){
+            val += ub;
+            return val;
+        }
+    }
+
+    return val;
+}
+
+double CargoRoute::complicate_air_rhs(int start_idx, int end_idx, int ub) {
+    double val = 0;
+    for(int week = 0; week < TIME_PERIOD / 7; week++) {
+        for(const auto &route : networks.getAir_network().getFlights()[0].routes) {
+            for (int i = 0; i < route.nodes.size() - 1; i++) {
+                Point out_point = Point(1, (int) route.nodes[i][0] - 65, week * 7 * TIME_SLOT_A_DAY + stoi(route.nodes[i].substr(1)));
+                Point in_point = Point(1, (int) route.nodes[i+1][0] - 65, week * 7 * TIME_SLOT_A_DAY + stoi(route.nodes[i + 1].substr(1)));
+                int out_point_idx = networks.get_node_idx(out_point);
+                int in_point_idx = networks.get_node_idx(in_point);
+                if (out_point_idx == start_idx && in_point_idx == end_idx) {
+                    val += ub;
+                    return val;
+                }
+            }
+        }
+    }
+    return val;
+}
+
 void CargoRoute::show_model_result(GRBModel &model) {
     cout << "Obj : " << model.get(GRB_DoubleAttr_ObjVal) << "\tIncumbent : " << incumbent << endl;
     cout << "==============LP relaxation===============" << endl;
@@ -831,7 +933,7 @@ double CargoRoute::get_P_value(){
 
     //second subproblem
     vector<Route> routes = networks.getAir_network().getFlights()[0].routes;
-    P_val -= routes[0].cost * routes.size();
+    P_val -= routes[0].cost * routes.size() * 4;
 
     P_val += objVal;
     return P_val;
@@ -907,3 +1009,56 @@ void CargoRoute::reset_bp() {
     cons6.clear();
     cons6.clear();
 }
+
+double CargoRoute::Run_full_model() {
+    path_categories = networks.getPaths_categories();
+    get_available_path(path_categories, all_paths);
+    arcs = networks.getArcs();
+    cal_paths_profit();
+    cal_paths_cost();
+
+    z = new vector<GRBVar>[cargos.size()];
+    z_ = new vector<GRBVar>[cargos.size()];
+    u = new vector<GRBVar>[cargos.size()];
+    target_path = new vector<Path*>[cargos.size()];
+    rival_path = new vector<Path*>[cargos.size()];
+
+    for (int k = 0 ; k < cargos.size(); k++) {
+        int departure = cargos[k]->departure - 65;
+        int destination = cargos[k]->destination - 65 ;
+
+        for (const auto &path : path_categories[departure][destination]) {
+            if(cargos[k]->start_time <= path->get_start_time()
+               && cargos[k]->arrive_time >= path->get_end_time()) {
+                if(!path->only_rival) {
+                    target_path[k].emplace_back(path);
+                }
+                else{
+                    rival_path[k].emplace_back(path);
+                }
+            }
+        }
+    }
+
+
+    try {
+        GRBEnv env = GRBEnv();
+        GRBModel model = GRBModel(env);
+
+        Var_init(model);
+        Obj_init(model);
+        set_constrs(model);
+        model.optimize();
+
+        return model.get(GRB_DoubleAttr_ObjVal);
+
+    } catch(GRBException e) {
+        cout << "Error code = " << e.getErrorCode() << endl;
+        cout << e.getMessage() << endl;
+    } catch(...) {
+        cout << "Exception during optimization" << endl;
+    }
+    return 0;
+}
+
+

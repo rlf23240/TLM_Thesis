@@ -316,6 +316,17 @@ void AirNetwork::forward_append(vector<Route*>** dp, int node, int time) {
     }
 }
 
+void AirNetwork::set_designed_flight(Route route) {
+    vector<Route> routes;
+    Flight designed_flight = designed_flights[0];
+    routes.push_back(route);
+    for(int i = 1; i < designed_flight.freq; i++){
+        Route next_route = Route(route,  designed_flight.gap * i);
+        routes.push_back(next_route);
+    }
+    designed_flights[0].routes.assign(routes.begin(), routes.end());
+}
+
 
 
 

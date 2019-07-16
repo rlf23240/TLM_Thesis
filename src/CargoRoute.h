@@ -26,6 +26,8 @@ public:
     const vector<pair<int, int>> &getAir_arc_pairs() const;
     EntireNetwork &getNetworks();
 
+    double Run_full_model();
+
 private:
     unsigned int num_nodes;
     double **e, **e_, **v, **v_;
@@ -66,6 +68,7 @@ private:
     void Var_init(GRBModel &model);
     void Obj_init(GRBModel &model);
     void Constr_init(GRBModel &model);
+    void set_constrs(GRBModel &model);
     void set_constr1(GRBModel &model);
     void set_constr2(GRBModel &model);
     void cal_e();
@@ -75,6 +78,9 @@ private:
     void set_constr5(GRBModel &model);
     void set_constr6(GRBModel &model);
     void set_constr7(GRBModel &model);
+    void set_complicate_constr1(GRBModel &model);
+    void set_complicate_constr2(GRBModel &model);
+    void set_complicate_constr3(GRBModel &model);
     void update_arcs();
     pair<Path*, int> select_most_profit_path();
     void append_column(Path* best_path, int best_k);
@@ -91,7 +97,11 @@ private:
     unordered_set<pair<int, int>, pair_hash> get_arc_set(Path* path);
     double get_sea_complicate_constr_val(int start_idx, int end_idx, int ub);
     double get_air_complicate_constr_val(int start_idx, int end_idx, int ub);
+    GRBLinExpr complicate_constr_lhs(int start_idx, int end_idx);
+    double complicate_sea_rhs(int start_idx, int end_idx, int ub);
+    double complicate_air_rhs(int start_idx, int end_idx, int ub);
     void reset_bp();
+
 
     void show_model_result(GRBModel &model);
 };

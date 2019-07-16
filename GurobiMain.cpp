@@ -6,5 +6,5 @@
 
 
 int main() {
-    GurobiModel model = GurobiModel(EntireNetwork("A1"));
+    GurobiModel model = GurobiModel("A1");
 }

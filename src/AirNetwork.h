@@ -34,6 +34,7 @@ private:
     void generate_flights(vector<Flight> &flight, int n, int seed);
     vector<Route*> find_routes_from_single_node(char start_node, int start_time, char end_node, int end_time);
     void forward_append(vector<Route*>** dp, int node, int time);
+
 public:
     explicit AirNetwork(string data_path, int num_cur_flights, int num_rival_ships);
     AirNetwork();
@@ -43,6 +44,7 @@ public:
     const vector<Flight> &getFlights() const;
     const vector<Flight> &getCur_flights() const;
     const vector<Flight> &getRival_flights() const;
+    void set_designed_flight(Route route);
 };
 
 #endif //TLM_THESIS_AIRNETWORK_H

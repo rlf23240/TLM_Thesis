@@ -5,12 +5,12 @@
 #ifndef TLM_THESIS_GUROBIMODEL_H
 #define TLM_THESIS_GUROBIMODEL_H
 
-#include "EntireNetwork.h"
+#include "CargoRoute.h"
 #include "param.h"
 
 class GurobiModel {
 public:
-    explicit GurobiModel(const EntireNetwork &network);
+    explicit GurobiModel(string data);
 
 private:
     EntireNetwork network;

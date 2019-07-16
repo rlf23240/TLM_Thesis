@@ -6,7 +6,6 @@
 #define TLM_THESIS_BB_NODE_H
 
 #include "param.h"
-#include "gurobi_c++.h"
 
 class BB_node {
 private:
