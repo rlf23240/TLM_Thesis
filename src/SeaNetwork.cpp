@@ -232,6 +232,73 @@ const vector<Ship> &SeaNetwork::getRival_ships() const {
     return rival_ships;
 }
 
+vector<Route *> SeaNetwork::find_all_routes() {
+    vector<Route*> all_routes;
+
+    for(auto &ship : designed_ships) {
+        vector<Route*> routes;
+        routes = find_routes_from_single_node(ship.start_node, ship.start_time, ship.start_node, ship.start_time+ship.cycle_time);
+        all_routes.insert(all_routes.end(), routes.begin(), routes.end());
+    }
+    return all_routes;
+}
+
+vector<Route *> SeaNetwork::find_routes_from_single_node(char start_node, int start_time, char end_node, int end_time) {
+    vector<Route*> **dp = new vector<Route*> *[num_nodes];
+    for (int i = 0; i < num_nodes; i++)
+        dp[i] = new vector<Route*>[TOTAL_TIME_SLOT];
+
+
+    int start_node_idx = (int) start_node - 'A';
+    int end_node_idx = (int) end_node - 'A';
+
+    vector<string> init_node = vector<string>();
+    init_node.push_back(start_node + to_string(start_time));
+
+    dp[start_node_idx][start_time].push_back(new Route(init_node, stop_cost[start_node_idx]));
+    forward_append(dp, start_node_idx, start_time, end_time);
+
+    for (int t = start_time + 1; t < end_time; t++) {
+        for (int node = 0; node < num_nodes; node++) {
+            forward_append(dp, node, t, end_time);
+        }
+    }
+    return dp[end_node_idx][end_time];
+}
+
+void SeaNetwork::forward_append(vector<Route *> **dp, int node, int time, int finish_time) {
+    char node_char = (char) ('A' + node);
+    Node *cur_node = nodes[node_char][time];
+
+    for (auto &arc : cur_node->out_arcs) {
+        Node *end_node = arc->end_node;
+        char end_node_char = end_node->getName()[0];
+        if(node_char == end_node_char) continue;
+
+        int end_node_idx = (int) end_node_char - 65;
+        int additional_stay_days = (node_char == end_node_char) ? 0 : SHIP_STOP_DAY;
+
+        int end_time = stoi(end_node->getName().substr(1)) + additional_stay_days;
+        if(end_time > finish_time) continue;
+        try {
+             vector<Route*> cur_routes = dp[node][time];
+             vector<Route*> end_routes = dp[end_node_idx][end_time];
+            for(const auto& route : cur_routes) {
+                double new_cost = route->cost + arc->get_reduced_cost() + end_node->getCost() * (1 + additional_stay_days);
+                vector<string> new_nodes;
+                new_nodes.assign(route->nodes.begin(), route->nodes.end());
+                if (additional_stay_days != 0)
+                    new_nodes.push_back(end_node_char + to_string(end_time - additional_stay_days));
+                new_nodes.push_back(end_node_char + to_string(end_time));
+                dp[end_node_idx][end_time].push_back(new Route(new_nodes, new_cost));
+            }
+        }
+        catch (bad_alloc &e) {
+//            cout << e.what() << " " << end_node_idx << endl;
+        }
+    }
+}
+
 
 
 

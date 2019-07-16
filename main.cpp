@@ -5,7 +5,7 @@
 
 using namespace std;
 int main() {
-    vector<string> data_sets{"D","E"};
+    vector<string> data_sets{"E"};
     vector<double> times{};
     for(const string &data_set : data_sets) {
         clock_t start = clock();

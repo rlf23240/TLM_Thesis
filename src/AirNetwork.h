@@ -32,11 +32,13 @@ private:
     void read_data(std::string data_path) override;
     void print_flights(const vector<Flight>& flights, const string& prefix);
     void generate_flights(vector<Flight> &flight, int n, int seed);
-
+    vector<Route*> find_routes_from_single_node(char start_node, int start_time, char end_node, int end_time);
+    void forward_append(vector<Route*>** dp, int node, int time);
 public:
     explicit AirNetwork(string data_path, int num_cur_flights, int num_rival_ships);
     AirNetwork();
     void run_algo() override;
+    vector<Route*> find_all_routes();
     void generate_designed_flight();
     const vector<Flight> &getFlights() const;
     const vector<Flight> &getCur_flights() const;

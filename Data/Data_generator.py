@@ -157,6 +157,8 @@ def cargo_data_generator(name, n,num_cargos):
         time_sensitivity = 'H' if end_time - starting_time <=  20 else 'L'
         product_value = 'H' if  volume <= 500 else 'L'
 
+        # time_sensitivity = 'H' if random.random() > 0.3 else 'L'
+
         alpha, beta = None, None
         if time_sensitivity == "H" and product_value == "H" :
             alpha = -0.0051
