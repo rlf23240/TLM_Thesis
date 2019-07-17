@@ -280,22 +280,19 @@ void SeaNetwork::forward_append(vector<Route *> **dp, int node, int time, int fi
 
         int end_time = stoi(end_node->getName().substr(1)) + additional_stay_days;
         if(end_time > finish_time) continue;
-        try {
-             vector<Route*> cur_routes = dp[node][time];
-             vector<Route*> end_routes = dp[end_node_idx][end_time];
-            for(const auto& route : cur_routes) {
-                double new_cost = route->cost + arc->get_reduced_cost() + end_node->getCost() * (1 + additional_stay_days);
-                vector<string> new_nodes;
-                new_nodes.assign(route->nodes.begin(), route->nodes.end());
-                if (additional_stay_days != 0)
-                    new_nodes.push_back(end_node_char + to_string(end_time - additional_stay_days));
-                new_nodes.push_back(end_node_char + to_string(end_time));
-                dp[end_node_idx][end_time].push_back(new Route(new_nodes, new_cost));
-            }
+
+         vector<Route*> cur_routes = dp[node][time];
+         vector<Route*> end_routes = dp[end_node_idx][end_time];
+        for(const auto& route : cur_routes) {
+            double new_cost = route->cost + arc->get_reduced_cost() + end_node->getCost() * (1 + additional_stay_days);
+            vector<string> new_nodes;
+            new_nodes.assign(route->nodes.begin(), route->nodes.end());
+            if (additional_stay_days != 0)
+                new_nodes.push_back(end_node_char + to_string(end_time - additional_stay_days));
+            new_nodes.push_back(end_node_char + to_string(end_time));
+            dp[end_node_idx][end_time].push_back(new Route(new_nodes, new_cost));
         }
-        catch (bad_alloc &e) {
-//            cout << e.what() << " " << end_node_idx << endl;
-        }
+
     }
 }
 

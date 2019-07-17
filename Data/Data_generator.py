@@ -184,9 +184,9 @@ def param(name, n, num_ships, num_flights, total_time_slot) :
 
 
 if __name__ == "__main__" :
-    data_generator(name = "A", n = 4, num_flights= 4, num_ships=4, num_cargos=40)
-    data_generator(name = "A1", n = 4, num_flights= 1, num_ships=1, num_cargos=30)
-    data_generator(name = "A2", n = 4, num_flights= 1, num_ships=1, num_cargos=40)
+    # data_generator(name = "A", n = 4, num_flights= 4, num_ships=4, num_cargos=40)
+    # data_generator(name = "A1", n = 4, num_flights= 1, num_ships=1, num_cargos=30)
+    data_generator(name = "A2", n = 4, num_flights= 1, num_ships=1, num_cargos=10)
     # data_generator(name = "A3", n = 4, num_flights= 1, num_ships=1, num_cargos=40)
     # data_generator(name = "B", n = 6, num_flights= 6, num_ships=6, num_cargos=6。0)
    # data_generator(name = "B2", n = 6, num_flights= 2, num_ships=2, num_cargos=30)

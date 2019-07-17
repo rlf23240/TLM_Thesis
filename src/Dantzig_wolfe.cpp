@@ -107,11 +107,9 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
             pi.push_back(model.getConstr(i).get(GRB_DoubleAttr_Pi));
             bool isPrinted = (accumulate(R[i].begin(), R[i].end(), 0) != 0);
             for(int j = 0 ; j < n ; j++) {
-                if(isPrinted) {
-//                    cout << R[i][j] << "\t" ;
-                }
+//               cout << R[i][j] << "\t" ;
             }
-            if(isPrinted) cout << pi.back() << endl;
+//            if(isPrinted) cout << pi.back() << endl;
         }
         cout << endl;
 
@@ -284,11 +282,11 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
 
 //    air_network.run_algo();
 //    sea_network.run_algo();
-//    air_network.generate_designed_flight();
-//    this->cargoRoute.getNetworks().setAir_network(air_network);
-//    sea_network.generate_designed_ship();
-//    this->cargoRoute.getNetworks().setSea_network(sea_network);
-    this->cargoRoute.getNetworks().generate_new_routes();
+    air_network.generate_designed_flight();
+    this->cargoRoute.getNetworks().setAir_network(air_network);
+    sea_network.generate_designed_ship();
+    this->cargoRoute.getNetworks().setSea_network(sea_network);
+//    this->cargoRoute.getNetworks().generate_new_routes();
     this->cargoRoute.rebuild_entire_network();
 }
 

@@ -7,7 +7,7 @@
 
 int main() {
 
-    vector<string> data_sets{"A1","A2"};
+    vector<string> data_sets{"A2"};
 
     for(const string &data_set : data_sets) {
         clock_t start = clock();
