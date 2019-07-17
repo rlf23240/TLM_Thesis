@@ -292,7 +292,6 @@ void SeaNetwork::forward_append(vector<Route *> **dp, int node, int time, int fi
             new_nodes.push_back(end_node_char + to_string(end_time));
             dp[end_node_idx][end_time].push_back(new Route(new_nodes, new_cost));
         }
-
     }
 }
 

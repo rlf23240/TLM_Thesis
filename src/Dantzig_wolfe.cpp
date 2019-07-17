@@ -295,11 +295,12 @@ bool Dantzig_wolfe::end_condition(vector<double> pi) {
         cout << "Fail" <<endl;
         exit(1);
     }
+    if(P.size() > 30) return true;
 
     double val = 0;
 
-    double P = cargoRoute.get_P_value();
-    val += P;
+    double P_val = cargoRoute.get_P_value();
+    val += P_val;
     vector<double> r = cargoRoute.get_r_column();
     for(int i = 0; i < r.size(); i++){
         val -= r[i] * pi[i];

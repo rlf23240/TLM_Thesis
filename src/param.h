@@ -35,6 +35,4 @@ static const int FIX_COST_OF_VIRTUAL_ARC = 100;
 static const int NUM_INIT_PATHS = 1;
 static const int MAX_BP_ITER = 20;
 
-
-
 #endif //TLM_THESIS_PARAM_H
