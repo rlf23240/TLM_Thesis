@@ -4,6 +4,7 @@
 
 #include "EntireNetwork.h"
 
+int seed = 0;
 
 EntireNetwork::EntireNetwork(string data) {
     data_str = data;
@@ -16,6 +17,9 @@ EntireNetwork::EntireNetwork(string data) {
     create_networks(data);
     find_all_paths();
 
+    candidate_designed_flight_routes = air_network.find_all_routes();
+    candidate_designed_ship_routes = sea_network.find_all_routes();
+
     for(int i = 0; i < num_nodes; i++){
         for(int j = 0; j < num_nodes; j++) {
             cout << paths_categories[i][j].size() << "\t";
@@ -23,19 +27,14 @@ EntireNetwork::EntireNetwork(string data) {
         cout << endl;
     }
 
-//
-//    cout << sum << " " << all_paths.size() << endl;
-//    for(auto path : all_paths){
-//        cout << *path ;
-//    }
 }
 
 EntireNetwork::EntireNetwork() = default;
 
+
+
 void EntireNetwork::rebuild_networks() {
 
-//    air_network.generate_designed_flight();
-//    sea_network.generate_designed_ship();
     cout << air_network.getFlights()[0].routes[0];
     cout << sea_network.getShips()[0].route;
 
@@ -50,8 +49,24 @@ void EntireNetwork::rebuild_networks() {
     }
 }
 
-void EntireNetwork::create_networks(string data) {
+void EntireNetwork::generate_new_routes() {
+//    random_device rd;
+//    unsigned seed = static_cast<unsigned int>(chrono::system_clock::now().time_since_epoch().count());
+    mt19937 gen =  mt19937(seed++);
+    uniform_int_distribution<int> dis(0, INT_MAX);
 
+    int sea_route_idx = dis(gen) % candidate_designed_ship_routes.size();
+    int air_route_idx = dis(gen) % candidate_designed_flight_routes.size();
+
+    set_sea_air_route(*candidate_designed_ship_routes[sea_route_idx], *candidate_designed_flight_routes[air_route_idx]);
+}
+
+void EntireNetwork::set_sea_air_route(Route sea_route, Route air_route) {
+    sea_network.set_designed_ship(sea_route);
+    air_network.set_designed_flight(air_route);
+}
+
+void EntireNetwork::create_networks(string data) {
     add_designed_ships(); //layer 0
     add_designed_flights(); //layer 1
     add_current_ships(); //layer 3

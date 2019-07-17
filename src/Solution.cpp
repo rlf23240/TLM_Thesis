@@ -31,7 +31,7 @@ struct Solution{
         return os;
     }
 
-    void to_file(string name){
+    void to_file(string name, double run_time){
         fstream file;
         file.open("../results/" + name + ".txt", ios::out);
         if(!file.is_open()){
@@ -45,6 +45,7 @@ struct Solution{
                 file << "Cargo :"<< k << ",\tz :" << z_value[k][p] <<",\t" << *target_path[k][p] ;
             }
         }
+        file << "Run time : " << run_time / 1000 << "sec. " << endl;
         file.close();
     }
 

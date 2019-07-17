@@ -21,23 +21,29 @@ GurobiModel::GurobiModel(string data) {
         cout << *route ;
     }
 
-    double best = -INT_MAX;
+    Solution* best = nullptr;
     int count = 0;
-    for(const auto& ship_route : candidate_designed_ship_routes){
+    for(const auto& sea_route : candidate_designed_ship_routes){
         for(const auto& air_route : candidate_designed_flight_routes){
-            sea_network.set_designed_ship(*ship_route);
-            cargo_route.getNetworks().setSea_network(sea_network);
-            air_network.set_designed_flight(*air_route);
-            cargo_route.getNetworks().setAir_network(air_network);
+            cargo_route.getNetworks().set_sea_air_route(*sea_route, *air_route);
             cargo_route.rebuild_entire_network();
 
-            double result = cargo_route.Run_full_model() -ship_route->cost -air_route->cost * air_network.getFlights()[0].freq * 4;
-            if(result > best)
+            Solution* result = cargo_route.Run_full_model();
+            if(!best || result->P > best->P)
                 best = result;
             cout << count++ << endl;
-            cout << "Best : " << best << endl;
+            cout << "Best : " << best->P << endl;
         }
     }
-    cout << "Solution : " << best << endl;
+    best_sol = best;
+    cout << *best_sol;
+}
 
+void GurobiModel::output_result(string name, double run_time) {
+    if(best_sol == nullptr){
+        cout << "Fail to output results" << endl;
+        exit(1);
+    }
+
+    best_sol->to_file(name, run_time);
 }

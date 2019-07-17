@@ -101,14 +101,15 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
 
 
 
-        cout << " R\tShadow Price : " << endl;
+//        cout << " R\tShadow Price : " << endl;
         vector<double> pi = vector<double>();
         for (int i = 0; i < m; i++) {
             pi.push_back(model.getConstr(i).get(GRB_DoubleAttr_Pi));
             bool isPrinted = (accumulate(R[i].begin(), R[i].end(), 0) != 0);
             for(int j = 0 ; j < n ; j++) {
-                if(isPrinted)
-                    cout << R[i][j] << "\t" ;
+                if(isPrinted) {
+//                    cout << R[i][j] << "\t" ;
+                }
             }
             if(isPrinted) cout << pi.back() << endl;
         }
@@ -150,7 +151,6 @@ void Dantzig_wolfe::Final_result() {
 
         auto * lambda = new GRBVar[n];
         auto * v = new GRBVar[m];
-        GRBVar w = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS, "w");
 
         for (int i = 0; i < n; i++) {
             lambda[i] = model.addVar(0.0, 1.0, 0.0, GRB_INTEGER, "lambda");
@@ -161,7 +161,7 @@ void Dantzig_wolfe::Final_result() {
 
         GRBLinExpr obj = GRBLinExpr();
         for (int i = 0; i < m; i++) {
-            obj += (v[i] + w);
+            obj += (v[i]);
         }
         obj *= (-bigM);
         for (int i = 0; i < n; i++) {
@@ -182,7 +182,7 @@ void Dantzig_wolfe::Final_result() {
         for (int i = 0; i < n; i++) {
             cons += lambda[i];
         }
-        model.addConstr(cons + w == 1, "c" + to_string(m));
+        model.addConstr(cons == 1, "c" + to_string(m));
         model.optimize();
 
         cout << "========================FINAL RESULT========================" << endl;
@@ -197,7 +197,7 @@ void Dantzig_wolfe::Final_result() {
         cout << endl;
 
         for(int i = 0; i < P.size(); i++){
-            if(lambda[i].get(GRB_DoubleAttr_X) > 0){
+            if(lambda[i].get(GRB_DoubleAttr_X) == 1){
                 cout << *solutions[i];
                 best_sol = solutions[i];
             }
@@ -242,9 +242,7 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
         }
     }
 
-//    sea_network.run_algo();
-    sea_network.generate_designed_ship();
-    this->cargoRoute.getNetworks().setSea_network(sea_network);
+
 
     AirNetwork air_network = networks.getAir_network();
     for(unsigned long long int i = 0; i <  air_arc_pair.size(); i++){
@@ -283,9 +281,14 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
             }
         }
     }
+
 //    air_network.run_algo();
-    air_network.generate_designed_flight();
-    this->cargoRoute.getNetworks().setAir_network(air_network);
+//    sea_network.run_algo();
+//    air_network.generate_designed_flight();
+//    this->cargoRoute.getNetworks().setAir_network(air_network);
+//    sea_network.generate_designed_ship();
+//    this->cargoRoute.getNetworks().setSea_network(sea_network);
+    this->cargoRoute.getNetworks().generate_new_routes();
     this->cargoRoute.rebuild_entire_network();
 }
 
@@ -309,12 +312,12 @@ bool Dantzig_wolfe::end_condition(vector<double> pi) {
     return val < 0;
 }
 
-void Dantzig_wolfe::output_result(string name) {
+void Dantzig_wolfe::output_result(string name, double run_time) {
     if(best_sol == nullptr){
         cout << "Fail to output results" << endl;
         exit(1);
     }
-    best_sol->to_file(name);
+    best_sol->to_file(name, run_time);
 }
 
 

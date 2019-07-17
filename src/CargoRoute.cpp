@@ -365,9 +365,9 @@ void CargoRoute::Constr_init(GRBModel &model) {
 void CargoRoute::set_constrs(GRBModel &model) {
     set_constr1(model);
     set_constr2(model);
-//    cal_e();
-//    set_constr3(model);
-//    set_constr4(model);
+    cal_e();
+    set_constr3(model);
+    set_constr4(model);
     set_constr5(model);
     set_constr6(model);
     set_constr7(model);
@@ -565,8 +565,8 @@ void CargoRoute::set_complicate_constr1(GRBModel &model) {
     GRBLinExpr lhs;
     double rhs;
     for (auto &sea_arc_pair : sea_arc_pairs) {
-        lhs= complicate_constr_lhs(sea_arc_pair.first, sea_arc_pair.second);
-        rhs= complicate_sea_rhs(sea_arc_pair.first, sea_arc_pair.second, networks.getSea_network().getShips()[0].volume_ub);
+        lhs = complicate_constr_lhs(sea_arc_pair.first, sea_arc_pair.second);
+        rhs = complicate_sea_rhs(sea_arc_pair.first, sea_arc_pair.second, networks.getSea_network().getShips()[0].volume_ub);
 
         model.addConstr(lhs <= rhs);
     }
@@ -690,7 +690,7 @@ void CargoRoute::cal_path_reduced_cost(Path* path, int k){
     }
 
     reduced_cost -= cons1[k].get(GRB_DoubleAttr_Pi);
-    reduced_cost = MAX(reduced_cost, 0);
+
 
     for(int p = 0; p < target_path[k].size(); p++){
         reduced_cost -= cons2[k][p].get(GRB_DoubleAttr_Pi);
@@ -699,6 +699,7 @@ void CargoRoute::cal_path_reduced_cost(Path* path, int k){
             reduced_cost += (e_[k][n] * cons4[k][p].get(GRB_DoubleAttr_Pi));
         }
     }
+    reduced_cost = MAX(reduced_cost, 0);
     path->reduced_cost = reduced_cost;
 }
 
@@ -1010,7 +1011,7 @@ void CargoRoute::reset_bp() {
     cons6.clear();
 }
 
-double CargoRoute::Run_full_model() {
+Solution* CargoRoute::Run_full_model() {
     path_categories = networks.getPaths_categories();
     get_available_path(path_categories, all_paths);
     arcs = networks.getArcs();
@@ -1050,7 +1051,15 @@ double CargoRoute::Run_full_model() {
         set_constrs(model);
         model.optimize();
 
-        return model.get(GRB_DoubleAttr_ObjVal);
+        objVal = model.get(GRB_DoubleAttr_ObjVal);
+        z_value = new vector<double>[cargos.size()];
+        for(int k = 0; k < cargos.size(); k++){
+            for(int p = 0; p < target_path[k].size(); p++){
+                z_value[k].push_back(z[k][p].get(GRB_DoubleAttr_X));
+            }
+        }
+        Solution* sol = new Solution(cargos.size(), target_path, z_value, get_P_value(), get_r_column());
+        return sol;
 
     } catch(GRBException e) {
         cout << "Error code = " << e.getErrorCode() << endl;

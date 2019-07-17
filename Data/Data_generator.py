@@ -6,7 +6,6 @@ sea_time_cost = None
 air_time_cost = None
 
 def data_generator(name = "A", n = 10, num_ships = 20, num_flights = 20, num_cargos = 100, total_time_slot = 84):
-    random.seed(10)
     sea_data_generator(name, n, 1)
     air_data_generator(name, n, 1)
     virtual_data_generator(name, n)
@@ -64,7 +63,7 @@ def sea_data_generator(name, n, num_ships):
             node = chr(65 + random.randint(0,n-1))
             starting_time = random.randint(0,15)
             freq = 1
-            cycle_time = round(numpy.random.normal(50,5))
+            cycle_time = round(numpy.random.randint(40,50))
             volume_ub = random.randint(10,20) * 100 #weight upper bound
             param_file.write(node + '\t' + str(starting_time) + '\t' + str(freq) + '\t' + str(cycle_time) + '\t' + str(volume_ub)+ '\n')
         param_file.close()
@@ -180,14 +179,17 @@ def cargo_data_generator(name, n,num_cargos):
 
 def param(name, n, num_ships, num_flights, total_time_slot) :
     param_file = open("%s_param.txt"% name, 'w')
-    param_file.write("%s\t%s\t%s\t%s" %(n,num_ships, num_flights, total_time_slot))
+    param_file.write("%s\t%s\t%s\t%s" %(n, num_ships, num_flights, total_time_slot))
     param_file.close()
 
 
 if __name__ == "__main__" :
     data_generator(name = "A", n = 4, num_flights= 4, num_ships=4, num_cargos=40)
-    data_generator(name = "A1", n = 4, num_flights= 1, num_ships=1, num_cargos=10)
-    data_generator(name = "B", n = 6, num_flights= 6, num_ships=6, num_cargos=60)
-    data_generator(name = "C", n = 8, num_flights= 8, num_ships=8, num_cargos=80)
-    data_generator(name = "D", n = 10, num_flights= 10, num_ships=10, num_cargos=100)
-    data_generator(name = "E", n = 12, num_flights= 12, num_ships=12, num_cargos=120)
+    data_generator(name = "A1", n = 4, num_flights= 1, num_ships=1, num_cargos=30)
+    data_generator(name = "A2", n = 4, num_flights= 1, num_ships=1, num_cargos=40)
+    # data_generator(name = "A3", n = 4, num_flights= 1, num_ships=1, num_cargos=40)
+    # data_generator(name = "B", n = 6, num_flights= 6, num_ships=6, num_cargos=6。0)
+   # data_generator(name = "B2", n = 6, num_flights= 2, num_ships=2, num_cargos=30)
+    # data_generator(name = "C", n = 8, num_flights= 8, num_ships=8, num_cargos=80)
+    # data_generator(name = "D", n = 10, num_flights= 10, num_ships=10, num_cargos=100)
+    # data_generator(name = "E", n = 12, num_flights= 12, num_ships=12, num_cargos=120)

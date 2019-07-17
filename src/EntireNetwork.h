@@ -18,6 +18,8 @@ class EntireNetwork {
 public:
     explicit EntireNetwork(string data);
     EntireNetwork();
+    void generate_new_routes();
+    void set_sea_air_route(Route sea_route, Route air_route);
     void rebuild_networks();
     vector<Path *> **getPaths_categories() const;
     unsigned int getNumNodes() const;
@@ -60,6 +62,8 @@ private :
     int num_cur_ships;
     unsigned int num_nodes;
     int num_layers = 7;
+    vector<Route*> candidate_designed_flight_routes;
+    vector<Route*> candidate_designed_ship_routes;
     vector<vector<Node*>>* nodes = new vector<vector<Node*>>[num_layers]; //total 7 time space network
 };
 

@@ -11,7 +11,7 @@
 class Dantzig_wolfe {
 public:
     explicit Dantzig_wolfe(const CargoRoute &cargoRoute);
-    void output_result(string name);
+    void output_result(string name, double run_time);
 private:
     CargoRoute cargoRoute;
     vector<double> P;

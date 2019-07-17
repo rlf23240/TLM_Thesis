@@ -11,9 +11,11 @@
 class GurobiModel {
 public:
     explicit GurobiModel(string data);
+    void output_result(string name, double run_time);
 
 private:
     EntireNetwork network;
+    Solution* best_sol;
     vector<Route*> all_ship_routes;
     vector<Route*> all_flight_routes;
 

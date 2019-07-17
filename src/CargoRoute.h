@@ -26,7 +26,7 @@ public:
     const vector<pair<int, int>> &getAir_arc_pairs() const;
     EntireNetwork &getNetworks();
 
-    double Run_full_model();
+    Solution* Run_full_model();
 
 private:
     unsigned int num_nodes;

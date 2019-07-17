@@ -4,7 +4,7 @@
 
 ***flights_param***
 1. size of design flight
-2. starting_node cycle_time frequency gap weight_ub volume_ub
+2. starting_node cycle_time frequency gap volume_ub weight_ub
 
 ***stop_cost***
 1. stop cost of each node
@@ -19,3 +19,6 @@
 
 ***virtual***
 1. cost of stay cost at virtual node
+
+***param***
+n, num_ships, num_flights, total_time_slot
