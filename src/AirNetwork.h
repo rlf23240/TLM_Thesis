@@ -31,7 +31,7 @@ private:
     void read_flights_param(std::string flights_data);
     void read_data(std::string data_path) override;
     void print_flights(const vector<Flight>& flights, const string& prefix);
-    void generate_flights(vector<Flight> &flight, int n, int seed);
+    void read_air_routes(string data_path, vector<Flight> &flights);
     vector<Route*> find_routes_from_single_node(char start_node, int start_time, char end_node, int end_time);
     void forward_append(vector<Route*>** dp, int node, int time);
 

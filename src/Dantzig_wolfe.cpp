@@ -295,7 +295,7 @@ bool Dantzig_wolfe::end_condition(vector<double> pi) {
         cout << "Fail" <<endl;
         exit(1);
     }
-    if(P.size() > 30) return true;
+    if(P.size() > MAX_DW_ITER) return true;
 
     double val = 0;
 
