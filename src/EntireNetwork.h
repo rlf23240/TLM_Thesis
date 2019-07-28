@@ -39,6 +39,7 @@ public:
 private :
     void create_networks(string data);
     void read_param_data(string data);
+    void read_unload_cost_data(string data);
     void add_designed_ships();
     void add_designed_flights();
     void add_virtual_network(string data);
@@ -58,6 +59,7 @@ private :
     SeaNetwork sea_network;
     vector<Path*> all_paths;
     vector<Path*>** paths_categories;
+    vector<int> unload_cost;
     int num_cur_flights;
     int num_cur_ships;
     unsigned int num_nodes;

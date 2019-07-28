@@ -172,7 +172,7 @@ void CargoRoute::cal_path_cost(Path *path) {
 }
 
 Solution* CargoRoute::branch_and_price() {
-    try {
+    try{
         GRBEnv env = GRBEnv();
         GRBModel model = GRBModel(env);
         model.set(GRB_IntParam_OutputFlag, false);
@@ -180,8 +180,8 @@ Solution* CargoRoute::branch_and_price() {
         z = new vector<GRBVar>[cargos.size()];
         z_ = new vector<GRBVar>[cargos.size()];
         u = new vector<GRBVar>[cargos.size()];
-        target_path = new vector<Path*>[cargos.size()];
-        rival_path = new vector<Path*>[cargos.size()];
+        target_path = new vector<Path *>[cargos.size()];
+        rival_path = new vector<Path *>[cargos.size()];
         chosen_paths = new unordered_set<int>[cargos.size()];
 
 
@@ -190,7 +190,7 @@ Solution* CargoRoute::branch_and_price() {
         BB_node::cargo_size = cargos.size();
         bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal), target_path, rival_path, chosen_paths, integer_set));
         int iter = 0;
-        while(!bb_pool.empty()) {
+        while (!bb_pool.empty()) {
             if (bb_pool.top().getObj() < incumbent) {
                 bb_pool.pop();
                 continue;
@@ -212,14 +212,16 @@ Solution* CargoRoute::branch_and_price() {
             integer_set[kp_pair.first][kp_pair.second] = false;
             LP_relaxation(model);
             bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal), target_path, rival_path, chosen_paths, integer_set));
-            if (is_integral() && incumbent < model.get(GRB_DoubleAttr_ObjVal)) incumbent = model.get(GRB_DoubleAttr_ObjVal);
+            if (is_integral() && incumbent < model.get(GRB_DoubleAttr_ObjVal))
+                incumbent = model.get(GRB_DoubleAttr_ObjVal);
 
             integer_set[kp_pair.first][kp_pair.second] = true;
             LP_relaxation(model);
             bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal), target_path, rival_path, chosen_paths, integer_set));
-            if (is_integral() && incumbent < model.get(GRB_DoubleAttr_ObjVal)) incumbent = model.get(GRB_DoubleAttr_ObjVal);
+            if (is_integral() && incumbent < model.get(GRB_DoubleAttr_ObjVal))
+                incumbent = model.get(GRB_DoubleAttr_ObjVal);
 
-            if(iter > MAX_BP_ITER){
+            if (iter > MAX_BP_ITER) {
                 set_all_u_integer(model, u);
                 LP_relaxation(model);
                 break;
@@ -233,12 +235,12 @@ Solution* CargoRoute::branch_and_price() {
 //            }
 //        }
         z_value = new vector<double>[cargos.size()];
-        for(int k = 0; k < cargos.size(); k++){
-            for(int p = 0; p < target_path[k].size(); p++){
+        for (int k = 0; k < cargos.size(); k++) {
+            for (int p = 0; p < target_path[k].size(); p++) {
                 z_value[k].push_back(z[k][p].get(GRB_DoubleAttr_X));
             }
         }
-        Solution* sol = new Solution(cargos.size(), target_path, z_value, get_P_value(), get_r_column());
+        Solution *sol = new Solution(cargos.size(), target_path, z_value, get_P_value(), get_r_column());
         return sol;
     } catch(GRBException e) {
         cout << "Error code = " << e.getErrorCode() << endl;
@@ -482,26 +484,30 @@ void CargoRoute::set_constr4(GRBModel &model) {
 
 void CargoRoute::set_constr5(GRBModel &model) {
     vector<Ship> ships = networks.get_cur_ships();
-    for(const auto &ship : ships){
-        vector<string> nodes = ship.route.nodes;
-        for(int i = 0; i < nodes.size() -1; i++){
-            Point cur_point = Point(3, (int) nodes[i][0] - 65, stoi(nodes[i].substr(1)));
-            Point next_point = Point(3, (int) nodes[i+1][0] - 65, stoi(nodes[i+1].substr(1)));
-            GRBLinExpr lhs = 0;
-            for(int k = 0; k < cargos.size(); k++){
-                for(int p = 0; p < target_path[k].size(); p++){
-                    vector<Point> points = target_path[k][p]->points;
-                    for(int n = 0; n < points.size()-1; n++){
-                        if(points[n] == cur_point && points[n+1] == next_point){
+    for(int w = 0; w < TOTAL_WEEK; w++) {
+        for (const auto &ship : ships) {
+            vector<string> nodes = ship.route.nodes;
+            for (int i = 0; i < nodes.size() - 1; i++) {
+                Point cur_point = Point(3, (int) nodes[i][0] - 65, stoi(nodes[i].substr(1)) + w * 7 * TIME_SLOT_A_DAY);
+                Point next_point = Point(3, (int) nodes[i + 1][0] - 65, stoi(nodes[i + 1].substr(1)) + w * 7 * TIME_SLOT_A_DAY);
+                if(next_point.time >= TOTAL_TIME_SLOT) break;
+                GRBLinExpr lhs = 0;
+                for (int k = 0; k < cargos.size(); k++) {
+                    for (int p = 0; p < target_path[k].size(); p++) {
+                        vector<Point> points = target_path[k][p]->points;
+                        for (int n = 0; n < points.size() - 1; n++) {
+                            if (points[n] == cur_point && points[n + 1] == next_point) {
 //                            cout << k << " " << p << " "<< points[n] << cur_point << " "<<  points[n+1] <<  next_point << endl;
-                            lhs += cargos[k]->volume * z[k][p];
+                                lhs += cargos[k]->volume * z[k][p];
+                            }
                         }
                     }
                 }
+                cons5[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)] = model.addConstr(
+                        lhs <= ship.volume_ub);
             }
-            cons5[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)] = model.addConstr(lhs <= ship.volume_ub);
-        }
 //        cout << endl;
+        }
     }
 }
 
@@ -615,14 +621,18 @@ void CargoRoute::set_all_u_integer(GRBModel &model, vector<GRBVar> *u) {
 
 void CargoRoute::update_arcs() {
     vector<Ship> ships = networks.get_cur_ships();
-    for (const auto &ship : ships) {
-        vector<string> nodes = ship.route.nodes;
-        for (int i = 0; i < nodes.size() - 1; i++) {
-            Point cur_point = Point(3, (int) nodes[i][0] - 65, stoi(nodes[i].substr(1)));
-            Point next_point = Point(3, (int) nodes[i + 1][0] - 65, stoi(nodes[i + 1].substr(1)));
-            double pi5 = cons5[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)].get(GRB_DoubleAttr_Pi);
-            arcs[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)]->minus_fixed_profit(pi5);
+    for(int w = 0; w < TOTAL_WEEK; w++) {
+        for (const auto &ship : ships) {
+            vector<string> nodes = ship.route.nodes;
+            for (int i = 0; i < nodes.size() - 1; i++) {
+                Point cur_point = Point(3, (int) nodes[i][0] - 65, stoi(nodes[i].substr(1)) + w * 7 * TIME_SLOT_A_DAY);
+                Point next_point = Point(3, (int) nodes[i + 1][0] - 65, stoi(nodes[i + 1].substr(1)) + w * 7 * TIME_SLOT_A_DAY);
+                if(next_point.time >= TOTAL_TIME_SLOT) break;
+                double pi5 = cons5[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)].get(
+                        GRB_DoubleAttr_Pi);
+                arcs[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)]->minus_fixed_profit(pi5);
 //            cout << 5 << networks.get_node_idx(cur_point) << " " << networks.get_node_idx(next_point) << endl;
+            }
         }
     }
 
@@ -874,14 +884,16 @@ GRBLinExpr CargoRoute::complicate_constr_lhs(int start_idx, int end_idx){
 double CargoRoute::complicate_sea_rhs(int start_idx, int end_idx, int ub) {
     double val = 0;
     Route route = networks.getSea_network().getShips()[0].route;
-    for(int i = 0; i < route.nodes.size()-1; i++){
-        Point out_point = Point(0, (int) route.nodes[i][0] - 65 , stoi(route.nodes[i].substr(1)));
-        Point in_point = Point(0, (int) route.nodes[i+1][0] - 65 , stoi(route.nodes[i+1].substr(1)));
-        int out_point_idx = networks.get_node_idx(out_point);
-        int in_point_idx = networks.get_node_idx(in_point);
-        if(out_point_idx == start_idx && in_point_idx == end_idx){
-            val += ub;
-            return val;
+    for(int w = 0; w < TOTAL_WEEK ; w++) {
+        for (int i = 0; i < route.nodes.size() - 1; i++) {
+            Point out_point = Point(0, (int) route.nodes[i][0] - 65, stoi(route.nodes[i].substr(1)) + w * 7 * TIME_SLOT_A_DAY);
+            Point in_point = Point(0, (int) route.nodes[i + 1][0] - 65, stoi(route.nodes[i + 1].substr(1))+ w * 7 * TIME_SLOT_A_DAY);
+            int out_point_idx = networks.get_node_idx(out_point);
+            int in_point_idx = networks.get_node_idx(in_point);
+            if (out_point_idx == start_idx && in_point_idx == end_idx) {
+                val += ub;
+                return val;
+            }
         }
     }
 

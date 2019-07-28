@@ -103,19 +103,21 @@ void AirNetwork::read_air_routes(string data_path, vector<Flight> &flights){
         start_node = token;
         cur_node = start_node;
         nodes.push_back(cur_node);
-        int freq = 1;
+        total_cost += stop_cost[(int) cur_node[0] - 65];
         while(getline(iss, token, ',')){
             if(token == ""){
                 Route route = Route(nodes, total_cost);
                 routes.push_back(route);
                 nodes.clear();
-                total_cost = 0;
-
+                total_cost = stop_cost[(int) cur_node[0] - 65];
             }else{
                 nodes.push_back(token);
                 next_node = token;
-                if(cur_node[0] != next_node[0])
-                    total_cost += arc_cost[(int) cur_node[0] -65][(int) next_node[0] -65];
+                if(cur_node[0] != next_node[0]) {
+                    total_cost += arc_cost[(int) cur_node[0] - 65][(int) next_node[0] - 65];
+                    total_cost += stop_cost[(int) next_node[0] - 65];
+                }
+
             }
             cur_node = next_node;
         }
