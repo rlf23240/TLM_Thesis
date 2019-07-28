@@ -53,7 +53,6 @@ double Arc::get_reduced_cost() {
     return MAX(0,cost + fixed_cost);
 }
 
-
 Node::Node(const std::string &name, int cost) : cost(cost), name(name) {}
 
 const std::string &Node::getName() const {

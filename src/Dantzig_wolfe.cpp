@@ -23,6 +23,7 @@ Dantzig_wolfe::Dantzig_wolfe(const CargoRoute &cargoRoute) : cargoRoute(cargoRou
             break;
         }
         P.push_back(this->cargoRoute.get_P_value());
+        stop_iter++;
         append_R_column(this->cargoRoute.get_r_column());
         shadow_price = Run_Dantzig_wolfe();
         update_arc_by_pi(shadow_price);
@@ -124,7 +125,13 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
         for (double i : P) {
             cout << i << " " ;
         }
-        cout << endl;
+        cout << endl << "iter : " << stop_iter << endl;
+
+        if(!model_result.empty() && (model.get(GRB_DoubleAttr_ObjVal) - model_result.back()) / model_result.back() > DW_STOP_THRESHOLD){
+            stop_iter = 0;
+        }
+        model_result.push_back(model.get(GRB_DoubleAttr_ObjVal));
+
 
         return pi;
 
@@ -295,7 +302,7 @@ bool Dantzig_wolfe::end_condition(vector<double> pi) {
         cout << "Fail" <<endl;
         exit(1);
     }
-    if(P.size() > MAX_DW_ITER) return true;
+    if(stop_iter > MAX_DW_ITER) return true;
 
     double val = 0;
 

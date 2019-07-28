@@ -19,6 +19,8 @@ private:
     double sigma;
     vector<Solution*> solutions;
     Solution* best_sol = nullptr;
+    vector<double> model_result;
+    int stop_iter = 1;
     void append_R_column(vector<double> r_column);
     vector<double> Run_Dantzig_wolfe();
     void Final_result();

@@ -33,8 +33,11 @@ static const unsigned int TOTAL_TIME_SLOT = TIME_PERIOD * TIME_SLOT_A_DAY;
 static const int SHIP_STOP_DAY = 1;
 static const int FIX_COST_OF_VIRTUAL_ARC = 100;
 
+static const double MU_THRESHOLD = 0.5;
+static const double DW_STOP_THRESHOLD = 0.1;
+
 static const int NUM_INIT_PATHS = 1;
 static const int MAX_BP_ITER = 30; // if the number is very big -> useless
-static const int MAX_DW_ITER = 30; // if the number is very big -> useless
+static const int MAX_DW_ITER = 10; // if the number is very big -> useless
 
 #endif //TLM_THESIS_PARAM_H

@@ -613,8 +613,11 @@ void CargoRoute::set_integer(GRBModel &model) {
 void CargoRoute::set_all_u_integer(GRBModel &model, vector<GRBVar> *u) {
     for(int k = 0; k < cargos.size(); k++){
         for(int p = 0; p < target_path[k].size(); p++){
-            if(u[k][p].get(GRB_DoubleAttr_X) > 0 )
+            if(u[k][p].get(GRB_DoubleAttr_X) > MU_THRESHOLD){
                 model.addConstr(u[k][p] == 1);
+            }else{
+                model.addConstr(u[k][p] == 0);
+            }
         }
     }
 }

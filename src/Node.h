@@ -12,6 +12,8 @@
 #include "random"
 #include "iostream"
 
+using namespace std;
+
 class Node;
 
 struct Arc{
@@ -35,6 +37,7 @@ struct Arc{
     double unit_cost;
     double fixed_profit = 0;
     double fixed_cost = 0;
+
 };
 
 class Node {

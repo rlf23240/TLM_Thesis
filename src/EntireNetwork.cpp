@@ -94,7 +94,6 @@ void EntireNetwork::read_param_data(string data) {
 
 }
 
-
 void EntireNetwork::read_unload_cost_data(string data) {
     fstream file;
     file.open("../Data/" + data + "_unload_cost.txt");
@@ -105,6 +104,53 @@ void EntireNetwork::read_unload_cost_data(string data) {
 
     while(getline(file, line)){
         unload_cost.push_back(stoi(line));
+    }
+}
+
+void EntireNetwork::read_unit_profit_data(string data) {
+    fstream air_file,sea_file;
+    vector<vector<double>> air_profit{num_nodes};
+    air_file.open("../Data/" + data + "_air_profit.txt");
+
+    if(air_file.is_open()) {
+        string line;
+        getline(air_file,line);
+
+        //read time cost
+        for (int i = 0; getline(air_file, line); i++) { //row counter
+            istringstream iss(line);
+            string token;
+
+            for (int j = 0 ;getline(iss, token, '\t'); j++) { //col counter
+//                cout << token;
+                air_profit[i].push_back(stod(token));
+            }
+        }
+    }
+    else {
+        cout << "Can't read node file !!!" << endl;
+    }
+
+    vector<vector<double>> sea_profit{num_nodes};
+    sea_file.open("../Data/" + data + "_sea_profit.txt");
+
+    if(sea_file.is_open()) {
+        string line;
+        getline(sea_file,line);
+
+        //read time cost
+        for (int i = 0; getline(sea_file, line); i++) { //row counter
+            istringstream iss(line);
+            string token;
+
+            for (int j = 0 ;getline(iss, token, '\t'); j++) { //col counter
+//                cout << token;
+                sea_profit[i].push_back(stod(token));
+            }
+        }
+    }
+    else {
+        cout << "Can't read node file !!!" << endl;
     }
 }
 
@@ -559,6 +605,7 @@ void EntireNetwork::setAir_network(const AirNetwork &air_network) {
 void EntireNetwork::setSea_network(const SeaNetwork &sea_network) {
     EntireNetwork::sea_network = sea_network;
 }
+
 
 
 

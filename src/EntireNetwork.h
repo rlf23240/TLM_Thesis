@@ -40,6 +40,7 @@ private :
     void create_networks(string data);
     void read_param_data(string data);
     void read_unload_cost_data(string data);
+    void read_unit_profit_data(string data);
     void add_designed_ships();
     void add_designed_flights();
     void add_virtual_network(string data);
