@@ -45,6 +45,7 @@ public:
     const vector<Flight> &getCur_flights() const;
     const vector<Flight> &getRival_flights() const;
     void set_designed_flight(Route route);
+    const vector<Flight> &getDesignedFlights() const;
 };
 
 #endif //TLM_THESIS_AIRNETWORK_H

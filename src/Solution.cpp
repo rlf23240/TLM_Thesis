@@ -5,10 +5,12 @@
 // Created by Ashee on 2019/7/16.
 //
 #include "param.h"
+#include "Network.h"
 
 struct Solution{
-    Solution(int cargo_size, vector<Path *> *target_path, vector<double> *z_value, double P, vector<double> r)
-            : P(P), r(std::move(r)) {
+    Solution(int cargo_size, vector<Path *> *target_path, vector<double> *z_value, double P, vector<double> r,
+             vector<Route> seaAirRoutes)
+            : P(P), r(std::move(r)), sea_air_routes(seaAirRoutes) {
         // copy solution
         this->cargo_size = cargo_size;
         this->target_path = new vector<Path*>[cargo_size];
@@ -27,6 +29,9 @@ struct Solution{
                 os << "Cargo :"<< k << ",\tz :" << solution.z_value[k][p] <<",\t" << *solution.target_path[k][p] ;
             }
         }
+//        for(const auto& route : solution.sea_air_routes){
+//            os << route;
+//        }
         os << "-----------------------------------------------------------------------------------" << endl;
         return os;
     }
@@ -45,13 +50,18 @@ struct Solution{
                 file << "Cargo :"<< k << ",\tz :" << z_value[k][p] <<",\t" << *target_path[k][p] ;
             }
         }
-        file << "Run time : " << run_time / 1000 << "sec. " << endl;
+        file << "\n";
+        for(const auto route : sea_air_routes){
+            file << route;
+        }
+        file << "Run time : " << run_time / 1000 << " sec. " << endl;
         file.close();
     }
 
 
     vector<Path*>* target_path{};
     vector<double>* z_value{};
+    vector<Route> sea_air_routes{};
     int cargo_size;
     double P{};
     vector<double> r;

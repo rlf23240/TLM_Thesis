@@ -289,11 +289,11 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
 
 //    air_network.run_algo();
 //    sea_network.run_algo();
-    air_network.generate_designed_flight();
-    this->cargoRoute.getNetworks().setAir_network(air_network);
-    sea_network.generate_designed_ship();
-    this->cargoRoute.getNetworks().setSea_network(sea_network);
-//    this->cargoRoute.getNetworks().generate_new_routes();
+//    air_network.generate_designed_flight();
+//    this->cargoRoute.getNetworks().setAir_network(air_network);
+//    sea_network.generate_designed_ship();
+//    this->cargoRoute.getNetworks().setSea_network(sea_network);
+    this->cargoRoute.getNetworks().generate_new_routes();
     this->cargoRoute.rebuild_entire_network();
 }
 

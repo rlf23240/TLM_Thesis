@@ -240,7 +240,8 @@ Solution* CargoRoute::branch_and_price() {
                 z_value[k].push_back(z[k][p].get(GRB_DoubleAttr_X));
             }
         }
-        Solution *sol = new Solution(cargos.size(), target_path, z_value, get_P_value(), get_r_column());
+
+        Solution *sol = new Solution(cargos.size(), target_path, z_value, get_P_value(), get_r_column(), networks.getSea_Air_Route());
         return sol;
     } catch(GRBException e) {
         cout << "Error code = " << e.getErrorCode() << endl;
@@ -1073,7 +1074,8 @@ Solution* CargoRoute::Run_full_model() {
                 z_value[k].push_back(z[k][p].get(GRB_DoubleAttr_X));
             }
         }
-        Solution* sol = new Solution(cargos.size(), target_path, z_value, get_P_value(), get_r_column());
+        Solution* sol = new Solution(cargos.size(), target_path, z_value, get_P_value(), get_r_column(),
+                                     vector<Route>());
         return sol;
 
     } catch(GRBException e) {

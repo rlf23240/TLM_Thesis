@@ -152,7 +152,7 @@ void Network::add_nodes() {
 }
 
 bool Network::add_edge(Node* start, Node* end, int cost) {
-    Arc* new_arc = new Arc(start, end, cost);
+    Arc* new_arc = new Arc(start, end, cost, 0);
     start->out_arcs.push_back(new_arc);
     end->in_arcs.push_back(new_arc);
 

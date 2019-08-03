@@ -17,11 +17,11 @@ using namespace std;
 class Node;
 
 struct Arc{
-    Arc(Node *start_node, Node *end_node, int cost);
+    Arc(Node *start_node, Node *end_node, int cost, double unit_profit);
 
-    Arc(Node *start_node, Node *end_node, int cost, int volume_ub);
+    Arc(Node *start_node, Node *end_node, int cost, int volume_ub, double unit_profit);
 
-    Arc(Node *start_node, Node *end_node, int cost, int volume_ub, int weight_ub);
+    Arc(Node *start_node, Node *end_node, int cost, int volume_ub, int weight_ub, double unit_profit);
 
     void set_unit_profit(Node *start_node, Node *end_node);
     double get_reduced_cost();

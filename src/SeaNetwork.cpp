@@ -298,6 +298,10 @@ void SeaNetwork::set_designed_ship(Route route) {
     designed_ships[0].route = route;
 }
 
+const vector<Ship> &SeaNetwork::getDesignedShips() const {
+    return designed_ships;
+}
+
 
 
 

@@ -10,6 +10,7 @@ EntireNetwork::EntireNetwork(string data) {
     data_str = data;
     read_param_data(data);
     read_unload_cost_data(data);
+    read_unit_profit_data(data);
     cout << "===========AIR===========" << endl;
     air_network = AirNetwork("../Data/" + data + "_air", num_cur_flights, num_cur_ships);
     cout << "===========SEA===========" << endl;
@@ -21,12 +22,17 @@ EntireNetwork::EntireNetwork(string data) {
     candidate_designed_flight_routes = air_network.find_all_routes();
     candidate_designed_ship_routes = sea_network.find_all_routes();
 
-    for(int i = 0; i < num_nodes; i++){
-        for(int j = 0; j < num_nodes; j++) {
-            cout << paths_categories[i][j].size() << "\t";
-        }
-        cout << endl;
-    }
+//    for(auto &route : candidate_designed_flight_routes){
+//        cout << *route << endl;
+//    }
+    cout << candidate_designed_flight_routes.size() << " " << candidate_designed_ship_routes.size() << endl;
+
+//    for(int i = 0; i < num_nodes; i++){
+//        for(int j = 0; j < num_nodes; j++) {
+//            cout << paths_categories[i][j].size() << "\t";
+//        }
+//        cout << endl;
+//    }
 
 }
 
@@ -76,7 +82,6 @@ void EntireNetwork::create_networks(string data) {
 }
 
 void EntireNetwork::read_param_data(string data) {
-
     fstream file;
     file.open("../Data/" + data + "_param.txt");
     string line;
@@ -108,50 +113,58 @@ void EntireNetwork::read_unload_cost_data(string data) {
 }
 
 void EntireNetwork::read_unit_profit_data(string data) {
+    air_profit =  vector<vector<double>>{num_nodes};
+    sea_profit =  vector<vector<double>>{num_nodes};
+
     fstream air_file,sea_file;
-    vector<vector<double>> air_profit{num_nodes};
     air_file.open("../Data/" + data + "_air_profit.txt");
 
     if(air_file.is_open()) {
         string line;
-        getline(air_file,line);
 
         //read time cost
-        for (int i = 0; getline(air_file, line); i++) { //row counter
+        for (int i = 0;i < num_nodes ; i++) { //row counter
+            getline(air_file, line);
             istringstream iss(line);
             string token;
 
-            for (int j = 0 ;getline(iss, token, '\t'); j++) { //col counter
-//                cout << token;
+            for (int j = 0 ; j < num_nodes; j++) { //col counter
+                getline(iss, token, '\t');
                 air_profit[i].push_back(stod(token));
             }
         }
     }
     else {
-        cout << "Can't read node file !!!" << endl;
+        cout << "Can't read unit profit file !!!" << endl;
     }
 
-    vector<vector<double>> sea_profit{num_nodes};
     sea_file.open("../Data/" + data + "_sea_profit.txt");
 
     if(sea_file.is_open()) {
         string line;
-        getline(sea_file,line);
 
         //read time cost
-        for (int i = 0; getline(sea_file, line); i++) { //row counter
+        for (int i = 0; i < num_nodes; i++) { //row counter
+            getline(sea_file,line);
             istringstream iss(line);
             string token;
 
-            for (int j = 0 ;getline(iss, token, '\t'); j++) { //col counter
-//                cout << token;
+            for (int j = 0; j < num_nodes; j++) { //col counter
+                getline(iss, token, '\t');
                 sea_profit[i].push_back(stod(token));
             }
         }
     }
     else {
-        cout << "Can't read node file !!!" << endl;
+        cout << "Can't read unit profit file file !!!" << endl;
     }
+
+//    for(int i = 0; i < num_nodes; i++){
+//        for(int j = 0; j < num_nodes; j++){
+//            cout << air_profit[i][j] << " ";
+//        }
+//        cout << endl;
+//    }
 }
 
 void EntireNetwork::add_designed_ships() {
@@ -183,7 +196,7 @@ void EntireNetwork::add_designed_ships() {
                 Node *end_node = nodes[0][(int) end_node_char - 65][end_node_time];
 
                 Arc *arc = new Arc(start_node, end_node, arc_cost[(int) start_node_char - 65][(int) end_node_char - 65],
-                                   ship.volume_ub);
+                                   ship.volume_ub, sea_profit[(int) start_node_char - 65][(int) end_node_char - 65]);
                 add_arc(start_node, end_node, arc);
             }
         }
@@ -219,7 +232,7 @@ void EntireNetwork::add_designed_flights() {
 
                     Arc *arc = new Arc(start_node, end_node,
                                        arc_cost[(int) start_node_char - 65][(int) end_node_char - 65], flight.volume_ub,
-                                       flight.weight_ub);
+                                       flight.weight_ub, air_profit[(int) start_node_char - 65][(int) end_node_char - 65]);
 
                     add_arc(start_node, end_node, arc);
                 }
@@ -278,7 +291,7 @@ void EntireNetwork::add_current_ships() {
                 Node *end_node = nodes[layer][(int) end_node_char - 65][end_node_time];
 
                 Arc *arc = new Arc(start_node, end_node, arc_cost[(int) start_node_char - 65][(int) end_node_char - 65],
-                                   ship.volume_ub);
+                                   ship.volume_ub, sea_profit[(int) start_node_char - 65][(int) end_node_char - 65]);
                 add_arc(start_node, end_node, arc);
             }
         }
@@ -301,7 +314,7 @@ void EntireNetwork::add_virtual_network(string data) {
     //add horizontal arcs
     for(int i = 0; i < num_nodes; i++){
         for(int t = 0; t < TOTAL_TIME_SLOT - 1; t++){
-            Arc *arc = new Arc(nodes[layer][i][t], nodes[layer][i][t+1], FIX_COST_OF_VIRTUAL_ARC);
+            Arc *arc = new Arc(nodes[layer][i][t], nodes[layer][i][t+1], FIX_COST_OF_VIRTUAL_ARC, 0);
             add_arc(nodes[layer][i][t], nodes[layer][i][t+1], arc);
         }
     }
@@ -312,48 +325,48 @@ void EntireNetwork::add_virtual_network(string data) {
             //from design ship to virtual
             if (!nodes[0][i][t]->out_arcs.empty()) {
                 //in arc
-                arc = new Arc(nodes[layer][i][t], nodes[0][i][t], 0);
-                add_arc(nodes[layer][i][t], nodes[0][i][t], arc);
+                arc = new Arc(nodes[layer][i][t], nodes[0][i][t+1], 0, 0);
+                add_arc(nodes[layer][i][t], nodes[0][i][t+1], arc);
                 //out arc
-                arc = new Arc(nodes[0][i][t], nodes[layer][i][t + 1], 0);
+                arc = new Arc(nodes[0][i][t], nodes[layer][i][t + 1], 0, 0);
                 add_arc(nodes[0][i][t], nodes[layer][i][t + 1], arc);
             }
             //from virtual to design flight
             if (!nodes[1][i][t]->out_arcs.empty()) {
                 //in arc
-                arc = new Arc(nodes[layer][i][t], nodes[1][i][t], 0);
+                arc = new Arc(nodes[layer][i][t], nodes[1][i][t], 0, 0);
                 add_arc(nodes[layer][i][t], nodes[1][i][t], arc);
             }
 
             //from current ship to virtual
             if (!nodes[3][i][t]->out_arcs.empty()) {
                 //in arc
-                arc = new Arc(nodes[layer][i][t], nodes[3][i][t], 0);
-                add_arc(nodes[layer][i][t], nodes[3][i][t], arc);
+                arc = new Arc(nodes[layer][i][t], nodes[3][i][t+1], 0, 0);
+                add_arc(nodes[layer][i][t], nodes[3][i][t+1], arc);
                 //out arc
-                arc = new Arc(nodes[3][i][t], nodes[layer][i][t+1], 0);
+                arc = new Arc(nodes[3][i][t], nodes[layer][i][t+1], 0, 0);
                 add_arc(nodes[3][i][t], nodes[layer][i][t+1], arc);
             }
             //from current flight to virtual
             if (!nodes[4][i][t]->out_arcs.empty()) {
                 //in arc
-                arc = new Arc(nodes[layer][i][t], nodes[4][i][t], 0);
+                arc = new Arc(nodes[layer][i][t], nodes[4][i][t], 0, 0);
                 add_arc(nodes[layer][i][t], nodes[4][i][t], arc);
             }
             //from rival ship to virtual
 
             if (!nodes[5][i][t]->out_arcs.empty()) {
                 //in arc
-                arc = new Arc(nodes[layer][i][t], nodes[5][i][t], 0);
-                add_arc(nodes[layer][i][t], nodes[5][i][t], arc);
+                arc = new Arc(nodes[layer][i][t], nodes[5][i][t+1], 0, 0);
+                add_arc(nodes[layer][i][t], nodes[5][i][t+1], arc);
                 //out arc
-                arc = new Arc(nodes[5][i][t], nodes[layer][i][t+1], 0);
+                arc = new Arc(nodes[5][i][t], nodes[layer][i][t+1], 0, 0);
                 add_arc(nodes[5][i][t], nodes[layer][i][t+1], arc);
             }
             //from rival flight to virtual
             if (!nodes[6][i][t]->out_arcs.empty()) {
                 //in arc
-                arc = new Arc(nodes[layer][i][t], nodes[6][i][t], 0);
+                arc = new Arc(nodes[layer][i][t], nodes[6][i][t], 0, 0);
                 add_arc(nodes[layer][i][t], nodes[6][i][t], arc);
             }
         }
@@ -404,7 +417,7 @@ void EntireNetwork::add_current_flights() {
 
                     Arc *arc = new Arc(start_node, end_node,
                                        arc_cost[(int) start_node_char - 65][(int) end_node_char - 65], flight.volume_ub,
-                                       flight.weight_ub);
+                                       flight.weight_ub, air_profit[(int) start_node_char - 65][(int) end_node_char - 65]);
 
                     add_arc(start_node, end_node, arc);
                 }
@@ -441,7 +454,7 @@ void EntireNetwork::add_rival_ships() {
                 Node *end_node = nodes[layer][(int) end_node_char - 65][end_node_time];
 
                 Arc *arc = new Arc(start_node, end_node, arc_cost[(int) start_node_char - 65][(int) end_node_char - 65],
-                                   ship.volume_ub);
+                                   ship.volume_ub, sea_profit[(int) start_node_char - 65][(int) end_node_char - 65]);
 
                 add_arc(start_node, end_node, arc);
             }
@@ -480,7 +493,7 @@ void EntireNetwork::add_rival_flights() {
 
                     Arc *arc = new Arc(start_node, end_node,
                                        arc_cost[(int) start_node_char - 65][(int) end_node_char - 65], flight.volume_ub,
-                                       flight.weight_ub);
+                                       flight.weight_ub, air_profit[(int) start_node_char - 65][(int) end_node_char - 65]);
 
                     add_arc(start_node, end_node, arc);
                 }
@@ -530,8 +543,45 @@ void EntireNetwork::add_path(Path *path) {
 
 //    cout << front.node << back.node << endl;
 
-    all_paths.push_back(path);
-    paths_categories[front.node][back.node].push_back(path);
+    if(check_path_feasibility(path)) {
+        all_paths.push_back(path);
+        paths_categories[front.node][back.node].push_back(path);
+    }
+}
+
+bool EntireNetwork::check_path_feasibility(Path *path) {
+    Point front = path->points.front();
+    Point back = path->points.back();
+    if(front.node == back.node || back.layer == 2)
+        return false;
+
+    unordered_set<int> visited_nodes;
+
+    int previous_node = -1;
+    int previous_virtual_node = -1;
+    int previous_layer = -1;
+    for(const auto& point : path->points){
+        // check if this node is visited
+        if(visited_nodes.find(point.node) == visited_nodes.end()) {
+            visited_nodes.insert(point.node);
+        }else if(previous_node != point.node){
+            return false;
+        }
+
+        //check if the cargo is moved to another node
+        if(point.layer == 2){
+            if(previous_virtual_node == point.node && previous_layer != 2){
+                return false;
+            }else{
+                previous_virtual_node = point.node;
+            }
+        }
+
+        previous_node = point.node;
+        previous_layer = point.layer;
+    }
+
+    return true;
 }
 
 int ***EntireNetwork::create_3d_array(int x, int y, int z) {
@@ -557,10 +607,6 @@ vector<Path *> **EntireNetwork::getPaths_categories() const {
 
 unsigned int EntireNetwork::getNumNodes() const {
     return num_nodes;
-}
-
-Node *EntireNetwork::getNode(int layer, int node, int time) {
-    return nodes[layer][node][time];
 }
 
 int EntireNetwork::get_node_idx(int layer, int node, int time) {
@@ -598,13 +644,14 @@ SeaNetwork &EntireNetwork::getSea_network(){
     return sea_network;
 }
 
-void EntireNetwork::setAir_network(const AirNetwork &air_network) {
-    EntireNetwork::air_network = air_network;
+vector<Route> EntireNetwork::getSea_Air_Route() {
+    vector<Route> sea_air_routes;
+    sea_air_routes.push_back(sea_network.getDesignedShips()[0].route);
+    sea_air_routes.insert(sea_air_routes.end(), air_network.getDesignedFlights()[0].routes.begin(), air_network.getDesignedFlights()[0].routes.end());
+
+    return sea_air_routes;
 }
 
-void EntireNetwork::setSea_network(const SeaNetwork &sea_network) {
-    EntireNetwork::sea_network = sea_network;
-}
 
 
 

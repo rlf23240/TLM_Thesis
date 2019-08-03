@@ -3,22 +3,22 @@
 //
 #include "Node.h"
 
-Arc::Arc(Node *start_node, Node *end_node, int cost) : start_node(start_node), end_node(end_node), cost(cost) {
+Arc::Arc(Node *start_node, Node *end_node, int cost, double unitProfit)
+        : start_node(start_node), end_node(end_node), cost(cost), unit_profit(unitProfit) {
     weight_ub = INT_MAX;
     volume_ub = INT_MAX;
-    set_unit_profit(start_node, end_node);
 }
 
-Arc::Arc(Node *start_node, Node *end_node, int cost, int volume_ub) : start_node(start_node), end_node(end_node),
-                                                                      cost(cost), volume_ub(volume_ub) {
+Arc::Arc(Node *start_node, Node *end_node, int cost, int volume_ub, double unitProfit)
+        : start_node(start_node), end_node(end_node),
+          cost(cost), volume_ub(volume_ub), unit_profit(unitProfit) {
     volume_ub = INT_MAX;
-    set_unit_profit(start_node, end_node);
 }
 
-Arc::Arc(Node *start_node, Node *end_node, int cost, int volume_ub, int weight_ub) : start_node(start_node),
-                                                                                     end_node(end_node), cost(cost),
-                                                                                     volume_ub(volume_ub), weight_ub(weight_ub) {
-    set_unit_profit(start_node, end_node);
+Arc::Arc(Node *start_node, Node *end_node, int cost, int volume_ub, int weight_ub, double unitProfit)
+        : start_node(start_node),
+          end_node(end_node), cost(cost),
+          volume_ub(volume_ub), weight_ub(weight_ub), unit_profit(unitProfit) {
 }
 
 void Arc::set_unit_profit(Node *start_node, Node *end_node) {

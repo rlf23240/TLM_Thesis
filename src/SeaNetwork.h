@@ -47,6 +47,7 @@ public:
     const vector<Ship> &getRival_ships() const;
     vector<Route*> find_all_routes();
     void set_designed_ship(Route route);
+    const vector<Ship> &getDesignedShips() const;
 
 };
 

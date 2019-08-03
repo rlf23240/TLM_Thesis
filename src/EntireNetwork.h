@@ -23,7 +23,6 @@ public:
     void rebuild_networks();
     vector<Path *> **getPaths_categories() const;
     unsigned int getNumNodes() const;
-    Node* getNode(int layer, int node, int time);
     int get_node_idx(int layer, int node, int time);
     int get_node_idx(Point point);
     Point idx_to_point(int idx);
@@ -32,8 +31,7 @@ public:
     vector<Ship> get_cur_ships();
     AirNetwork &getAir_network();
     SeaNetwork &getSea_network();
-    void setAir_network(const AirNetwork &air_network);
-    void setSea_network(const SeaNetwork &sea_network);
+    vector<Route> getSea_Air_Route();
     unordered_map<int, unordered_map<int, Arc*>> arcs;
 
 private :
@@ -53,14 +51,19 @@ private :
     void find_all_paths();
     void find_paths_from_single_node(Path path, Point point, int*** color);
     void add_path(Path* path);
+    bool check_path_feasibility(Path* path);
     int*** create_3d_array(int x, int y, int z);
 
     string data_str;
     AirNetwork air_network;
     SeaNetwork sea_network;
+
     vector<Path*> all_paths;
     vector<Path*>** paths_categories;
     vector<int> unload_cost;
+
+    vector<vector<double>> air_profit;
+    vector<vector<double>> sea_profit;
     int num_cur_flights;
     int num_cur_ships;
     unsigned int num_nodes;

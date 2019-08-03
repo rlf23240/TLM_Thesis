@@ -314,6 +314,10 @@ void AirNetwork::set_designed_flight(Route route) {
     designed_flights[0].routes.assign(routes.begin(), routes.end());
 }
 
+const vector<Flight> &AirNetwork::getDesignedFlights() const {
+    return designed_flights;
+}
+
 
 
 
