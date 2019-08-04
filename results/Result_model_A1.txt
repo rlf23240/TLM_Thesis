@@ -36,4 +36,4 @@ Cargo :2,	z :0.119344,	Path :2C23->4C23->4B24-><
 Route : B6->A16->A17->C21->C22->B28->B29->A39->A40->C44->C45->B51->B52-><		cost : 2820
 Route : C0->A2->B4->C5-><		cost : 960
 Route : C7->A9->B11->C12-><		cost : 960
-Run time : 88.415 sec. 
+Run time : 56.783 sec. 

@@ -5,12 +5,12 @@ from math import floor
 sea_time_cost = None
 air_time_cost = None
 ship_stop_day = 1
-air_weight_lb = 5
-air_weight_ub = 10 # * 100
-air_volume_lb = 5
-air_volume_ub = 10
-sea_volume_lb = 20
-sea_volume_ub = 30
+air_weight_lb = 15
+air_weight_ub = 20 # * 100
+air_volume_lb = 15
+air_volume_ub = 20
+sea_volume_lb = 30
+sea_volume_ub = 50
 
 
 def data_generator(name = "A", n = 10, num_ships = 20, num_flights = 20, num_cargos = 100, total_time_slot = 84):
@@ -353,13 +353,13 @@ def unit_profit(name, n) :
 
 
 if __name__ == "__main__" :
-    # data_generator(name = "A", n = 4, num_flights= 4, num_ships=4, num_cargos=40)
-    # data_generator(name = "B", n = 6, num_flights= 6, num_ships=6, num_cargos=60)
-    # data_generator(name = "C", n = 8, num_flights= 8, num_ships=8, num_cargos=80)
-    # data_generator(name = "D", n = 10, num_flights= 10, num_ships=10, num_cargos=100)
-    # data_generator(name = "E", n = 12, num_flights= 12, num_ships=12, num_cargos=120)
+    data_generator(name = "A", n = 4, num_flights= 4, num_ships=4, num_cargos=40)
+    data_generator(name = "B", n = 6, num_flights= 6, num_ships=6, num_cargos=60)
+    data_generator(name = "C", n = 8, num_flights= 8, num_ships=8, num_cargos=80)
+    data_generator(name = "D", n = 10, num_flights= 10, num_ships=10, num_cargos=100)
+    data_generator(name = "E", n = 12, num_flights= 12, num_ships=12, num_cargos=120)
     # data_generator(name = "B2", n = 6, num_flights= 2, num_ships=2, num_cargos=30)
-    data_generator(name = "A1", n = 4, num_flights= 1, num_ships=1, num_cargos=5)
+    # data_generator(name = "A1", n = 4, num_flights= 1, num_ships=1, num_cargos=5)
     # data_generator(name = "A2", n = 4, num_flights= 1, num_ships=1, num_cargos=10)
     # data_generator(name = "A3", n = 4, num_flights= 1, num_ships=1, num_cargos=15)
     # data_generator(name = "A4", n = 4, num_flights= 1, num_ships=1, num_cargos=20)

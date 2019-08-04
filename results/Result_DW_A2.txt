@@ -13,4 +13,4 @@ Cargo :9,	z :0.159529,	Path :2D20->5D21->5B34->5B35->2B36->2B37->4B37->4C38-><
 Route : B6->C12->C13->A17->A18->B28->B29->A39->A40->B50->B51-><		cost : 2520
 Route : C1->A3->B5->C6-><		cost : 960
 Route : C8->A10->B12->C13-><		cost : 960
-Run time : 15.843 sec. 
+Run time : 5.619 sec. 

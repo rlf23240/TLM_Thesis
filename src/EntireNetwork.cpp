@@ -4,9 +4,10 @@
 
 #include "EntireNetwork.h"
 
-int seed = 0;
+int seed;
 
 EntireNetwork::EntireNetwork(string data) {
+    seed = 0;
     data_str = data;
     read_param_data(data);
     read_unload_cost_data(data);
@@ -284,6 +285,7 @@ void EntireNetwork::add_designed_flights() {
                     int start_node_time = week * 7 * TIME_SLOT_A_DAY + stoi(route.nodes[i].substr(1));
                     char end_node_char = route.nodes[i + 1][0];
                     int end_node_time = week * 7 * TIME_SLOT_A_DAY + stoi(route.nodes[i + 1].substr(1));
+                    if(end_node_time >= TOTAL_TIME_SLOT) continue;
 
                     Node *start_node = nodes[layer][(int) start_node_char - 65][start_node_time];
                     Node *end_node = nodes[layer][(int) end_node_char - 65][end_node_time];

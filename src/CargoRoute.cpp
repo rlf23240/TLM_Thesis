@@ -286,11 +286,11 @@ void CargoRoute::select_init_path() {
 //                    path_count += 1;
 //                    chosen_paths[k].insert(path->index);
 //                }
-                if(path->only_rival){
-                    rival_path[k].emplace_back(path);
-                    path_count_ += 1;
-                    chosen_paths[k].insert(path->index);
-                }
+//                if(path->only_rival){
+//                    rival_path[k].emplace_back(path);
+//                    path_count_ += 1;
+//                    chosen_paths[k].insert(path->index);
+//                }
             }
         }
     }
@@ -374,9 +374,9 @@ void CargoRoute::set_constrs(GRBModel &model) {
     set_constr5(model);
     set_constr6(model);
     set_constr7(model);
-    set_complicate_constr1(model);
-    set_complicate_constr2(model);
-    set_complicate_constr3(model);
+//    set_complicate_constr1(model);
+//    set_complicate_constr2(model);
+//    set_complicate_constr3(model);
 }
 
 void CargoRoute::set_constr1(GRBModel &model){
