@@ -303,7 +303,7 @@ bool Dantzig_wolfe::end_condition(vector<double> pi) {
         exit(1);
     }
     if(stop_iter > MAX_DW_ITER) return true;
-
+    return false;
     double val = 0;
 
     double P_val = cargoRoute.get_P_value();

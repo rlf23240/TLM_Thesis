@@ -32,6 +32,8 @@ public:
     AirNetwork &getAir_network();
     SeaNetwork &getSea_network();
     vector<Route> getSea_Air_Route();
+    void setAir_network(const AirNetwork &air_network);
+    void setSea_network(const SeaNetwork &sea_network);
     unordered_map<int, unordered_map<int, Arc*>> arcs;
 
 private :
@@ -39,6 +41,7 @@ private :
     void read_param_data(string data);
     void read_unload_cost_data(string data);
     void read_unit_profit_data(string data);
+    void read_unit_cost_data(string data);
     void add_designed_ships();
     void add_designed_flights();
     void add_virtual_network(string data);
@@ -64,6 +67,8 @@ private :
 
     vector<vector<double>> air_profit;
     vector<vector<double>> sea_profit;
+    vector<vector<double>> air_cost;
+    vector<vector<double>> sea_cost;
     int num_cur_flights;
     int num_cur_ships;
     unsigned int num_nodes;

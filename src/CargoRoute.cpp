@@ -163,7 +163,7 @@ void CargoRoute::cal_path_cost(Path *path) {
         current = &path->points[p];
         next = &path->points[p+1];
         double arc_cost = arcs[networks.get_node_idx(current->layer, current->node, current->time)]
-                              [networks.get_node_idx(next->layer, next->node, next->time)]->get_reduced_cost();
+                              [networks.get_node_idx(next->layer, next->node, next->time)]->getUnitCost();
 
         cost += arc_cost;
     }
@@ -286,11 +286,11 @@ void CargoRoute::select_init_path() {
 //                    path_count += 1;
 //                    chosen_paths[k].insert(path->index);
 //                }
-//                if(path->path_profit == 0 && path_count_ < 10){
-//                    rival_path[k].emplace_back(path);
-//                    path_count_ += 1;
-//                    chosen_paths[k].insert(path->index);
-//                }
+                if(path->only_rival){
+                    rival_path[k].emplace_back(path);
+                    path_count_ += 1;
+                    chosen_paths[k].insert(path->index);
+                }
             }
         }
     }
@@ -705,7 +705,6 @@ void CargoRoute::cal_path_reduced_cost(Path* path, int k){
 
     reduced_cost -= cons1[k].get(GRB_DoubleAttr_Pi);
 
-
     for(int p = 0; p < target_path[k].size(); p++){
         reduced_cost -= cons2[k][p].get(GRB_DoubleAttr_Pi);
         for(int n = 0; n < rival_path[k].size(); n++){
@@ -950,7 +949,7 @@ double CargoRoute::get_P_value(){
 
     //second subproblem
     vector<Route> routes = networks.getAir_network().getFlights()[0].routes;
-    P_val -= routes[0].cost * routes.size() * 4;
+    P_val -= routes[0].cost * routes.size() * TOTAL_WEEK;
 
     P_val += objVal;
     return P_val;
@@ -1040,6 +1039,8 @@ Solution* CargoRoute::Run_full_model() {
     target_path = new vector<Path*>[cargos.size()];
     rival_path = new vector<Path*>[cargos.size()];
 
+
+
     for (int k = 0 ; k < cargos.size(); k++) {
         int departure = cargos[k]->departure - 65;
         int destination = cargos[k]->destination - 65 ;
@@ -1058,14 +1059,21 @@ Solution* CargoRoute::Run_full_model() {
     }
 
 
+
     try {
         GRBEnv env = GRBEnv();
         GRBModel model = GRBModel(env);
 
         Var_init(model);
+        for(int k = 0; k < cargos.size(); k++){
+            for(int p = 0; p < target_path[k].size(); p++){
+                u[k][p].set(GRB_CharAttr_VType, GRB_INTEGER);
+            }
+        }
         Obj_init(model);
         set_constrs(model);
         model.optimize();
+
 
         objVal = model.get(GRB_DoubleAttr_ObjVal);
         z_value = new vector<double>[cargos.size()];
@@ -1075,7 +1083,7 @@ Solution* CargoRoute::Run_full_model() {
             }
         }
         Solution* sol = new Solution(cargos.size(), target_path, z_value, get_P_value(), get_r_column(),
-                                     vector<Route>());
+                                     networks.getSea_Air_Route());
         return sol;
 
     } catch(GRBException e) {

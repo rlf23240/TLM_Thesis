@@ -152,7 +152,7 @@ void Network::add_nodes() {
 }
 
 bool Network::add_edge(Node* start, Node* end, int cost) {
-    Arc* new_arc = new Arc(start, end, cost, 0);
+    Arc* new_arc = new Arc(start, end, cost);
     start->out_arcs.push_back(new_arc);
     end->in_arcs.push_back(new_arc);
 
@@ -212,7 +212,8 @@ void Network::forward_update(Route** dp, int node, int time) {
         //Calculate cost if append end node to current route
         Route cur_route = dp[node][time];
         Route end_route = dp[end_node_idx][end_time];
-        double new_cost = cur_route.cost + arc->get_reduced_cost()+ end_node->getCost();
+        double new_cost = cur_route.cost + arc->cost + arc->fixed_cost + end_node->getCost();
+        new_cost = MAX(0, new_cost);
 
         // if yes, replace old route.
         if (new_cost < end_route.cost){

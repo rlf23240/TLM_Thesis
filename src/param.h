@@ -33,7 +33,7 @@ static const unsigned int TOTAL_TIME_SLOT = TIME_PERIOD * TIME_SLOT_A_DAY;
 static const int SHIP_STOP_DAY = 1;
 static const int FIX_COST_OF_VIRTUAL_ARC = 100;
 
-static double MU_THRESHOLD = 0.5;
+static double MU_THRESHOLD = 0;
 static double DW_STOP_THRESHOLD = 0.1;
 
 static const int NUM_INIT_PATHS = 1;

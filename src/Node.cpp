@@ -3,41 +3,30 @@
 //
 #include "Node.h"
 
-Arc::Arc(Node *start_node, Node *end_node, int cost, double unitProfit)
-        : start_node(start_node), end_node(end_node), cost(cost), unit_profit(unitProfit) {
+Arc::Arc(Node *start_node, Node *end_node, int cost)
+        : start_node(start_node), end_node(end_node), cost(cost){
+    unit_profit = 0;
+    unit_cost = 0;
     weight_ub = INT_MAX;
     volume_ub = INT_MAX;
 }
 
-Arc::Arc(Node *start_node, Node *end_node, int cost, int volume_ub, double unitProfit)
-        : start_node(start_node), end_node(end_node),
-          cost(cost), volume_ub(volume_ub), unit_profit(unitProfit) {
+Arc::Arc(Node *start_node, Node *end_node, int cost, double unitProfit, double unitCost)
+        : start_node(start_node), end_node(end_node), cost(cost), unit_profit(unitProfit), unit_cost(unitCost) {
+    weight_ub = INT_MAX;
     volume_ub = INT_MAX;
 }
 
-Arc::Arc(Node *start_node, Node *end_node, int cost, int volume_ub, int weight_ub, double unitProfit)
-        : start_node(start_node),
-          end_node(end_node), cost(cost),
-          volume_ub(volume_ub), weight_ub(weight_ub), unit_profit(unitProfit) {
+Arc::Arc(Node *start_node, Node *end_node, int cost, int volume_ub, double unitProfit, double unitCost)
+        : start_node(start_node), end_node(end_node),
+          cost(cost), volume_ub(volume_ub), unit_profit(unitProfit), unit_cost(unitCost)  {
+    volume_ub = INT_MAX;
 }
 
-void Arc::set_unit_profit(Node *start_node, Node *end_node) {
-    int seed = start_node->getLayer() ^ end_node->getLayer() ^ start_node->getNode() ^ end_node->getNode();
-    std::mt19937 generator(seed);
-    std::uniform_real_distribution<float> ship_prof_dis(0.0, 1);
-    std::uniform_real_distribution<float> flight_prof_dis(0.0, 1);
-
-    if((start_node->getLayer() == 0 && end_node->getLayer() == 0) || (start_node->getLayer() == 3 && end_node->getLayer() == 3)){
-        unit_profit = ship_prof_dis(generator);
-    }else if((start_node->getLayer() == 1 && end_node->getLayer() == 1) || (start_node->getLayer() == 4 && end_node->getLayer() == 4)) {
-        unit_profit = flight_prof_dis(generator);
-    }else if(start_node->getLayer() == 5 && end_node->getLayer() == 5){
-        unit_profit = ship_prof_dis(generator) / 2;
-    }else if(start_node->getLayer() == 6 && end_node->getLayer() == 6){
-        unit_profit = flight_prof_dis(generator) / 2;
-    }else{
-        unit_profit = 0;
-    }
+Arc::Arc(Node *start_node, Node *end_node, int cost, int volume_ub, int weight_ub, double unitProfit, double unitCost)
+        : start_node(start_node),
+          end_node(end_node), cost(cost),
+          volume_ub(volume_ub), weight_ub(weight_ub), unit_profit(unitProfit), unit_cost(unitCost)  {
 }
 
 
@@ -50,7 +39,11 @@ void Arc::minus_fixed_cost(double pi) {
 }
 
 double Arc::get_reduced_cost() {
-    return MAX(0,cost + fixed_cost);
+    return MAX(0, unit_cost + fixed_cost);
+}
+
+double Arc::getUnitCost() const {
+    return unit_cost;
 }
 
 Node::Node(const std::string &name, int cost) : cost(cost), name(name) {}
