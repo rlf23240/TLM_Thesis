@@ -294,7 +294,7 @@ void AirNetwork::forward_append(vector<Route*>** dp, int node, int time) {
         vector<Route*> cur_routes = dp[node][time];
         vector<Route*> end_routes = dp[end_node_idx][end_time];
         for(const auto& route : cur_routes) {
-            double new_cost = route->cost + arc->get_reduced_cost() + end_node->getCost();
+            double new_cost = route->cost + arc->cost + end_node->getCost();
             vector<string> new_nodes;
             new_nodes.assign(route->nodes.begin(), route->nodes.end());
             new_nodes.push_back(end_node_char + to_string(end_time));

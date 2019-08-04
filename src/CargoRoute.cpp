@@ -195,7 +195,7 @@ Solution* CargoRoute::branch_and_price() {
                 bb_pool.pop();
                 continue;
             }
-            iter++;
+
             target_path = bb_pool.top().getTargetPath();
             rival_path = bb_pool.top().getRivalPath();
             chosen_paths = bb_pool.top().getChosenPaths();
@@ -221,6 +221,8 @@ Solution* CargoRoute::branch_and_price() {
             if (is_integral() && incumbent < model.get(GRB_DoubleAttr_ObjVal))
                 incumbent = model.get(GRB_DoubleAttr_ObjVal);
 
+            iter++;
+            cout << "BP_iter : " << iter << endl;
             if (iter > MAX_BP_ITER) {
                 set_all_u_integer(model, u);
                 LP_relaxation(model);
