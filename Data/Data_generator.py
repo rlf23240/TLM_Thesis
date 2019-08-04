@@ -186,11 +186,11 @@ def air_data_generator(name, n, num_flights):
 
         for i in range(1):
             node = chr(65 + random.randint(0,n-1))
-            cycle_time = random.randint(4,6)
+            cycle_time = random.randint(5,7)
             gap = cycle_time + 1 if random.random() < 0.8 else cycle_time + 2
             weight_ub = random.randint(air_weight_lb, air_volume_ub)*100
             volume_ub = random.randint(air_volume_lb, air_volume_ub)*100
-            freq = floor(20 / gap)
+            freq = floor(18 / gap)
             param_file.write(node + '\t' + str(gap) + '\t' + str(freq) + '\t' + str(cycle_time)+ '\t' + str(volume_ub)+ '\t' + str(weight_ub) + '\n')
         param_file.close()
     def air_route_generator(num_flights, file_prefix, unlimit_ub):
