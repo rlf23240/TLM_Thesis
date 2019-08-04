@@ -376,9 +376,9 @@ void CargoRoute::set_constrs(GRBModel &model) {
     set_constr5(model);
     set_constr6(model);
     set_constr7(model);
-//    set_complicate_constr1(model);
-//    set_complicate_constr2(model);
-//    set_complicate_constr3(model);
+    set_complicate_constr1(model);
+    set_complicate_constr2(model);
+    set_complicate_constr3(model);
 }
 
 void CargoRoute::set_constr1(GRBModel &model){
