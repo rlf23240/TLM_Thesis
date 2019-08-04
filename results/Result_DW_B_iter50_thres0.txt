@@ -49,4 +49,4 @@ Route : B1->A2->C3->A4->B5-><		cost : 1120
 Route : B6->A7->C8->A9->B10-><		cost : 1120
 Route : B11->A12->C13->A14->B15-><		cost : 1120
 Route : B16->A17->C18->A19->B20-><		cost : 1120
-Run time : 200.692 sec. 
+Run time : 199.332 sec. 
