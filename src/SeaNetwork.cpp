@@ -284,7 +284,7 @@ void SeaNetwork::forward_append(vector<Route *> **dp, int node, int time, int fi
          vector<Route*> cur_routes = dp[node][time];
          vector<Route*> end_routes = dp[end_node_idx][end_time];
         for(const auto& route : cur_routes) {
-            double new_cost = route->cost + arc->get_reduced_cost() + end_node->getCost() * (1 + additional_stay_days);
+            double new_cost = route->cost + arc->cost + end_node->getCost() * (1 + additional_stay_days);
             vector<string> new_nodes;
             new_nodes.assign(route->nodes.begin(), route->nodes.end());
             if (additional_stay_days != 0)
