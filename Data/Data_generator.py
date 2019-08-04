@@ -182,9 +182,9 @@ def air_data_generator(name, n, num_flights):
         stop_file.close()
     def air_flights_param(num_flights) :
         param_file = open("%s_air_flights_param.txt" % name,'w')
-        param_file.write(str(num_flights) + '\n')
+        param_file.write(str(1) + '\n')
 
-        for i in range(num_flights):
+        for i in range(1):
             node = chr(65 + random.randint(0,n-1))
             cycle_time = random.randint(4,6)
             gap = cycle_time + 1 if random.random() < 0.8 else cycle_time + 2
