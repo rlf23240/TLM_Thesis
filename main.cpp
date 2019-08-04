@@ -24,7 +24,7 @@ int main() {
                 Dantzig_wolfe dantzig_wolfe = Dantzig_wolfe(CargoRoute(data_set));
                 dantzig_wolfe.output_result("Result_DW_" + data_set
                 + "_iter" + to_string(iter) + "_thres"
-                + oss.str(), double(clock() - start));
+                + oss.str(), double(clock() - start)/ 1000);
             }
         }
     }

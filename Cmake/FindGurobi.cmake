@@ -44,6 +44,7 @@ if (NOT GUROBI_FOUND)
     set(SEARCH_PATHS_FOR_HEADERS
             "$ENV{GUROBI_HOME}/include"
             "/Library/gurobi810/mac64/include"
+            "/Library/gurobi811/mac64/include"
             "C:\\gurobi810\\win64\\include"
             "C:\\gurobi811\\win64\\include"
             )
@@ -51,6 +52,7 @@ if (NOT GUROBI_FOUND)
     set(SEARCH_PATHS_FOR_LIBRARIES
             "$ENV{GUROBI_HOME}/lib"
             "/Library/gurobi810/mac64/lib"
+            "/Library/gurobi811/mac64/lib"
             "C:\\gurobi810\\win64\\lib"
             "C:\\gurobi811\\win64\\lib"
             )
