@@ -10,9 +10,7 @@ int main() {
     vector<string> data_sets{"A1", "A2"};
 
     for(const string &data_set : data_sets) {
-        clock_t start = clock();
         GurobiModel model = GurobiModel(data_set);
-        model.output_result("Result_model_" + data_set, double(clock() - start));
     }
     return 0;
 }

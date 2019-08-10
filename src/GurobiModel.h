@@ -11,6 +11,8 @@
 class GurobiModel {
 public:
     explicit GurobiModel(string data);
+    void Run_GurobiModel(string data);
+    void all_paths_for_GurobiModel(string data);
     void output_result(string name, double run_time);
 
 private:

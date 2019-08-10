@@ -1097,4 +1097,9 @@ Solution* CargoRoute::Run_full_model() {
     return 0;
 }
 
+vector<Path *> CargoRoute::find_all_paths() {
+    path_categories = networks.getPaths_categories();
+    get_available_path(path_categories, all_paths);
+    return all_paths;
+}
 

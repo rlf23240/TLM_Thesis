@@ -25,6 +25,7 @@ public:
     const vector<pair<int, int>> &getSea_arc_pairs() const;
     const vector<pair<int, int>> &getAir_arc_pairs() const;
     EntireNetwork &getNetworks();
+    vector<Path *> find_all_paths();
 
     Solution* Run_full_model();
 
