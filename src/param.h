@@ -20,7 +20,12 @@
 #include "Path.cpp"
 
 static const int TIME_SLOT_A_DAY = 3;
+<<<<<<< Updated upstream
 static const int TIME_PERIOD = 28;  //days
+=======
+static const int TOTAL_WEEK = 4;
+static const int TIME_PERIOD = TOTAL_WEEK * 7;  //days
+>>>>>>> Stashed changes
 static const unsigned int TOTAL_TIME_SLOT = TIME_PERIOD * TIME_SLOT_A_DAY;
 
 static const int SHIP_STOP_DAY = 1;

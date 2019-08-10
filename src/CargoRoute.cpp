@@ -211,4 +211,10 @@ void CargoRoute::Obj_init(GRBModel &model, vector<GRBVar> z) {
 
 
 
+vector<Path *> CargoRoute::find_all_paths() {
+    path_categories = networks.getPaths_categories();
+    get_available_path(path_categories, all_paths);
+    return all_paths;
+}
+
 

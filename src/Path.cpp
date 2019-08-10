@@ -9,7 +9,7 @@
 
 
 struct Path{
-    Path(Path& path) {
+    Path(const Path& path) {
         this->points.assign(path.points.begin(), path.points.end());
         this->stay_at_virtual = path.stay_at_virtual;
         this->virtual_entry_time = path.virtual_entry_time;
@@ -21,6 +21,9 @@ struct Path{
 
     Path() = default;
 
+    bool operator==(const Path &rhs) const {
+        return points == rhs.points;
+    }
 
     void setIndex(int index) {
         Path::index = index;

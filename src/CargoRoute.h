@@ -13,6 +13,20 @@
 class CargoRoute {
 public:
     explicit CargoRoute(string data);
+<<<<<<< Updated upstream
+=======
+    double getObjVal() const;
+    double get_P_value();
+    vector<double> get_r_column();
+    Solution* run_bp();
+    void rebuild_entire_network();
+    const vector<pair<int, int>> &getSea_arc_pairs() const;
+    const vector<pair<int, int>> &getAir_arc_pairs() const;
+    EntireNetwork &getNetworks();
+
+    Solution* Run_full_model();
+    vector<Path*> find_all_paths();
+>>>>>>> Stashed changes
 
 private:
     unsigned int num_nodes;
