@@ -37,7 +37,7 @@ static double MU_THRESHOLD = 0;
 static double DW_STOP_THRESHOLD = 0.1;
 
 static const int NUM_INIT_PATHS = 1;
-static int MAX_BP_ITER = 0; // if the number is very big -> useless
+static int MAX_BP_ITER = 30; // if the number is very big -> useless
 static int MAX_DW_ITER = 30; // if the number is very big -> useless
 
 #endif //TLM_THESIS_PARAM_H
