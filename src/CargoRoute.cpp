@@ -276,23 +276,23 @@ void CargoRoute::select_init_path() {
 
 //        Path *best_path = nullptr;
         int path_count = 0 ;
-        int path_count_ = 0 ;
 
         for (const auto &path : path_categories[departure][destination]) {
 //            cout << path->path_profit << " " << *path ;
             if(cargos[k]->start_time <= path->get_start_time()
             && cargos[k]->arrive_time >= path->get_end_time()
-            && path_count < NUM_INIT_PATHS) {
+            && path_count < NUM_INIT_PATHS
+            ){
 //                if(!path->only_rival) {
 //                    target_path[k].emplace_back(path);
 //                    path_count += 1;
 //                    chosen_paths[k].insert(path->index);
 //                }
-//                if(path->only_rival){
-//                    rival_path[k].emplace_back(path);
-//                    path_count_ += 1;
-//                    chosen_paths[k].insert(path->index);
-//                }
+                if(path->only_rival){
+                    rival_path[k].emplace_back(path);
+                    path_count += 1;
+                    chosen_paths[k].insert(path->index);
+                }
             }
         }
     }
