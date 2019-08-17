@@ -92,6 +92,7 @@ private:
 
     void find_sea_arcs();
     void find_air_arcs();
+    void arcs_to_file();
     double* cal_constr1_val();
     double* cal_constr2_val();
     double* cal_constr3_val();

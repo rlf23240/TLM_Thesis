@@ -26,6 +26,7 @@ CargoRoute::CargoRoute(string data)  {
     arcs = networks.getArcs();
     find_sea_arcs();
     find_air_arcs();
+    arcs_to_file();
 }
 
 void CargoRoute::read_cargo_file(string data) {
@@ -777,6 +778,36 @@ void CargoRoute::find_air_arcs() {
             }
         }
     }
+}
+
+void CargoRoute::arcs_to_file() {
+	ofstream sea_file;
+	sea_file.open("A1_sea_arcs.csv");
+	for(const auto arc : sea_arc_pairs){
+
+		Point first = networks.idx_to_point(arc.first);
+		Point second = networks.idx_to_point(arc.second);
+		sea_file << to_string(first.layer) + (char) (first.node +65) + to_string(first.time) << ",";
+		sea_file << to_string(second.layer) + (char) (second.node +65) + to_string(second.time);
+		cout << to_string(first.layer) + (char) (first.node +65) + to_string(first.time) << " " << to_string(second.layer) + (char) (second.node +65) + to_string(second.time) << endl;
+
+		sea_file << "\n";
+	}
+	sea_file.close();
+
+	ofstream air_file;
+	air_file.open("A1_air_arcs.csv");
+	for(const auto arc : air_arc_pairs){
+
+		Point first = networks.idx_to_point(arc.first);
+		Point second = networks.idx_to_point(arc.second);
+		air_file << to_string(first.layer) + (char) (first.node +65) + to_string(first.time) << ",";
+		air_file << to_string(second.layer) + (char) (second.node +65) + to_string(second.time) ;
+		cout << to_string(first.layer) + (char) (first.node +65) + to_string(first.time) << " " << to_string(second.layer) + (char) (second.node +65) + to_string(second.time) << endl;
+
+		air_file << "\n";
+	}
+	air_file.close();
 }
 
 double* CargoRoute::cal_constr1_val() {
