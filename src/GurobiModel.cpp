@@ -22,8 +22,8 @@ public:
 };
 
 GurobiModel::GurobiModel(string data){
-    all_paths_for_GurobiModel(data);
-//    Run_GurobiModel(data);
+//    all_paths_for_GurobiModel(data);
+    Run_GurobiModel(data);
 }
 
 void GurobiModel::Run_GurobiModel(string data) {

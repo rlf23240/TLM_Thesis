@@ -280,8 +280,7 @@ void CargoRoute::select_init_path() {
 
         for (const auto &path : path_categories[departure][destination]) {
 //            cout << path->path_profit << " " << *path ;
-            if(cargos[k]->start_time <= path->get_start_time()
-            && cargos[k]->arrive_time >= path->get_end_time()
+            if(is_path_feasible_for_cargo(path, cargos[k])
             && path_count < NUM_INIT_PATHS
             ){
 //                if(!path->only_rival) {
@@ -297,6 +296,20 @@ void CargoRoute::select_init_path() {
             }
         }
     }
+}
+
+bool CargoRoute::is_path_feasible_for_cargo(Path* path, Cargo* cargo) {
+    if(cargo->start_time <= path->get_start_time() && cargo->arrive_time >= path->get_end_time()){
+        if(path->type == onlySea && (cargo->type == only_sea || cargo->type == sea_both)){
+            return true;
+        }else if(path->type == onlyAir && (cargo->type == only_air || cargo->type == air_both)){
+            return true;
+        }else if(path->type == seaAir && (cargo->type == air_both || cargo->type == sea_both)){
+            return true;
+        }
+        return false;
+    }
+    return false;
 }
 
 void CargoRoute::LP_relaxation(GRBModel &model) {
@@ -672,8 +685,7 @@ pair<Path*, int> CargoRoute::select_most_profit_path() {
 //        cout << departure << " " << destination << " " << path_categories[departure][destination].size() << endl;
         for (const auto &path : path_categories[departure][destination]) {
             cal_path_reduced_cost(path, k);
-            if(cargos[k]->start_time <= path->get_start_time() &&
-            cargos[k]->arrive_time >= path->get_end_time() &&
+            if(is_path_feasible_for_cargo(path, cargos[k]) &&
             chosen_paths[k].find(path->index) == chosen_paths[k].end()) {
                 if (!best_path || (best_path->reduced_cost < path->reduced_cost)) {
                     best_path = path;
@@ -1079,8 +1091,7 @@ Solution* CargoRoute::Run_full_model() {
         int destination = cargos[k]->destination - 65 ;
 
         for (const auto &path : path_categories[departure][destination]) {
-            if(cargos[k]->start_time <= path->get_start_time()
-               && cargos[k]->arrive_time >= path->get_end_time()) {
+            if(is_path_feasible_for_cargo(path, cargos[k])) {
                 if(!path->only_rival) {
                     target_path[k].emplace_back(path);
                 }

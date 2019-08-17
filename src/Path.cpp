@@ -7,6 +7,7 @@
 #include "Point.cpp"
 #include "vector"
 
+enum path_type{onlySea, onlyAir, seaAir};
 
 struct Path{
     Path(const Path& path) {
@@ -110,4 +111,5 @@ struct Path{
     double pi;
     double reduced_cost;
     bool only_rival;
+    path_type type;
 };

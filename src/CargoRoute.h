@@ -64,6 +64,7 @@ private:
     Solution* branch_and_price();
     void bp_init(GRBModel &model);
     void select_init_path();
+    bool is_path_feasible_for_cargo(Path* path, Cargo* cargo);
     void LP_relaxation(GRBModel &model);
     void column_generation(GRBModel &model);
     void Var_init(GRBModel &model);

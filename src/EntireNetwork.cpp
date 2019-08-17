@@ -624,7 +624,18 @@ bool EntireNetwork::check_path_feasibility(Path *path) {
     if(path->points.back().node == (path->points.end()-2)->node)
         return false;
 
-    for(const auto& point : path->points){
+    if((path->points[1].layer == 0 || path->points[1].layer == 3 || path->points[1].layer == 5) && (path->points.back().layer == 0 || path->points.back().layer == 3 || path->points.back().layer == 5)){
+        path->type = onlySea;
+    }
+    else if((path->points[1].layer == 1 || path->points[1].layer == 4 || path->points[1].layer == 6) && (path->points.back().layer == 1 || path->points.back().layer == 4 || path->points.back().layer == 6)) {
+        path->type = onlyAir;
+    }
+    else{
+        path->type = seaAir;
+    }
+
+
+        for(const auto& point : path->points){
         // check if this node is visited
         if(visited_nodes.find(point.node) == visited_nodes.end()) {
             visited_nodes.insert(point.node);
