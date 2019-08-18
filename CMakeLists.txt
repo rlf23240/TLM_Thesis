@@ -29,6 +29,7 @@ add_executable(Gurobi GurobiMain.cpp src/GurobiModel.cpp src/GurobiModel.h
         src/BB_node.h
         src/Solution.cpp
         )
+add_executable(Gurobi_king src/Gurobi_try.cpp)
 #add_executable(Test Test/testMain.cpp Test/NodeTest.cpp src/Node.h src/Node.cpp src/Network.cpp src/Network.h Test/networkTest.cpp src/AirNetwork.cpp src/AirNetwork.h src/SeaNetwork.cpp src/SeaNetwork.h)
 
 #target_link_libraries(Test gtest gtest_main)
@@ -50,4 +51,9 @@ if (GUROBI_FOUND)
 
     target_include_directories(Gurobi PRIVATE ${GUROBI_INCLUDE_DIRS})
     target_link_libraries(Gurobi ${GUROBI_LIBRARIES})
+
+    target_compile_definitions(Gurobi_king PUBLIC HAS_GUROBI)
+
+    target_include_directories(Gurobi_king PRIVATE ${GUROBI_INCLUDE_DIRS})
+    target_link_libraries(Gurobi_king ${GUROBI_LIBRARIES})
 endif()
