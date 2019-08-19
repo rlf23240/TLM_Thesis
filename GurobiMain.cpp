@@ -7,7 +7,7 @@
 
 int main() {
 
-    vector<string> data_sets{"A1"};
+    vector<string> data_sets{"A2"};
 
     for(const string &data_set : data_sets) {
         GurobiModel model = GurobiModel(data_set);

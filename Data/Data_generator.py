@@ -14,7 +14,7 @@ sea_volume_ub = 50
 cargo_type_prob = [0.25, 0.25, 0.25, 0.25] #HH, HL, LH, LL
 design_route_cycle_time = 21
 
-random.seed(5)
+random.seed(0)
 def data_generator(name = "A", n = 10, num_ships = 20, num_flights = 20, num_cargos = 100, total_time_slot = 63):
     sea_data_generator(name, n, num_ships)
     air_data_generator(name, n, num_flights)
@@ -370,11 +370,11 @@ if __name__ == "__main__" :
     # data_generator(name = "D", n = 10, num_flights= 10, num_ships=10, num_cargos=100)
     # data_generator(name = "E", n = 12, num_flights= 12, num_ships=12, num_cargos=120)
     # data_generator(name = "B2", n = 6, num_flights= 2, num_ships=2, num_cargos=30)
-    data_generator(name = "A1", n = 4, num_flights= 1, num_ships=1, num_cargos=5)
+    # data_generator(name = "A1", n = 4, num_flights= 1, num_ships=1, num_cargos=5)
     data_generator(name = "A2", n = 4, num_flights= 1, num_ships=1, num_cargos=20)
-    data_generator(name = "A3", n = 4, num_flights= 2, num_ships=2, num_cargos=20)
-    data_generator(name = "A4", n = 8, num_flights= 2, num_ships=2, num_cargos=20)
-    data_generator(name = "A5", n = 8, num_flights= 2, num_ships=2, num_cargos=40)
+    # data_generator(name = "A3", n = 4, num_flights= 2, num_ships=2, num_cargos=20)
+    # data_generator(name = "A4", n = 8, num_flights= 2, num_ships=2, num_cargos=20)
+    # data_generator(name = "A5", n = 8, num_flights= 2, num_ships=2, num_cargos=40)
     # data_generator(name = "A3", n = 4, num_flights= 1, num_ships=1, num_cargos=15)
     # data_generator(name = "A4", n = 4, num_flights= 1, num_ships=1, num_cargos=20)
     # data_generator(name = "G", n = 20, num_flights= 10, num_ships=10, num_cargos=200)
