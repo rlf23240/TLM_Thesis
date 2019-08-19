@@ -792,9 +792,9 @@ void CargoRoute::find_air_arcs() {
     }
 }
 
-void CargoRoute::arcs_to_file() {
+void CargoRoute::arcs_to_file(string data) {
 	ofstream sea_file;
-	sea_file.open("A1_sea_arcs.csv");
+	sea_file.open(data + "_sea_arcs.csv");
 	for(const auto arc : sea_arc_pairs){
 
 		Point first = networks.idx_to_point(arc.first);
@@ -808,7 +808,7 @@ void CargoRoute::arcs_to_file() {
 	sea_file.close();
 
 	ofstream air_file;
-	air_file.open("A1_air_arcs.csv");
+	air_file.open(data+"_air_arcs.csv");
 	for(const auto arc : air_arc_pairs){
 
 		Point first = networks.idx_to_point(arc.first);

@@ -7,10 +7,11 @@
 
 int main() {
 
-    vector<string> data_sets{"A4"};
+    vector<string> data_sets{"A1"};
 
     for(const string &data_set : data_sets) {
         GurobiModel model = GurobiModel(data_set);
+        model.Run_GurobiModel(data_set);
     }
     return 0;
 }

@@ -26,6 +26,7 @@ public:
     const vector<pair<int, int>> &getAir_arc_pairs() const;
     EntireNetwork &getNetworks();
     vector<Path *> find_all_paths();
+    void arcs_to_file(string data);
 
     Solution* Run_full_model();
 
@@ -93,7 +94,6 @@ private:
 
     void find_sea_arcs();
     void find_air_arcs();
-    void arcs_to_file();
     double* cal_constr1_val();
     double* cal_constr2_val();
     double* cal_constr3_val();
