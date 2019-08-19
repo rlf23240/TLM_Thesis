@@ -11,11 +11,11 @@ air_volume_lb = 15
 air_volume_ub = 20
 sea_volume_lb = 30
 sea_volume_ub = 50
-cargo_type_prob = [0.5, 0.1, 0.15, 0.25] #HH, HL, LH, LL
+cargo_type_prob = [0.25, 0.25, 0.25, 0.25] #HH, HL, LH, LL
+design_route_cycle_time = 21
 
-
-def data_generator(name = "A", n = 10, num_ships = 20, num_flights = 20, num_cargos = 100, total_time_slot = 315):
-    random.seed(5)
+random.seed(5)
+def data_generator(name = "A", n = 10, num_ships = 20, num_flights = 20, num_cargos = 100, total_time_slot = 63):
     sea_data_generator(name, n, num_ships)
     air_data_generator(name, n, num_flights)
     virtual_data_generator(name, n)
@@ -42,7 +42,7 @@ def sea_data_generator(name, n, num_ships):
 
         for i in range(n):
             for j in range(i+1,n):
-                cost = random.randint(3,20)
+                cost = random.randint(3,10)
                 sea_arc_cost[i][j] = cost * 10
                 sea_arc_cost[j][i] = cost * 10
                 sea_time_cost[i][j] = cost
@@ -74,7 +74,8 @@ def sea_data_generator(name, n, num_ships):
         node = chr(65 + random.randint(0,n-1))
         starting_time = random.randint(0,10)
         freq = 1
-        cycle_time = round(numpy.random.randint(40,50))
+        # cycle_time = round(numpy.random.randint(40,50))
+        cycle_time = design_route_cycle_time +1
         volume_ub = (sea_volume_lb + random.randint(0,sea_volume_ub - sea_volume_lb)) * 100 #weight upper bound
         param_file.write(node + '\t' + str(starting_time) + '\t' + str(freq) + '\t' + str(cycle_time) + '\t' + str(volume_ub)+ '\n')
 
@@ -91,7 +92,7 @@ def sea_data_generator(name, n, num_ships):
             node_list = []
             node_list.append(chr(start_node+65)+str(start_time))
 
-            while cur_time - start_time < 30 :
+            while cur_time - start_time < design_route_cycle_time :
                 while True :
                     next_node = random.randint(0, n-1)
                     if cur_node != next_node :
@@ -291,11 +292,11 @@ def cargo_data_generator(name, n,num_cargos, total_time_slot):
         starting_time = random.randint(1,total_time_slot // 1.3)
         end_time = random.randint(starting_time + 6, min(starting_time + 63, total_time_slot-1))
 
-        weight = random.randint(20,99) * 10
-        volume = random.randint(20,99) * 10
+        weight = random.randint(20,99) * 100
+        volume = random.randint(20,99) * 1
 
-        time_sensitivity = 'H' if end_time - starting_time <=  20 else 'L'
-        product_value = 'H' if  volume <= 500 else 'L'
+        # time_sensitivity = 'H' if end_time - starting_time <=  20 else 'L'
+        # product_value = 'H' if  volume <= 500 else 'L'
 
         # time_sensitivity = 'H' if random.random() > 0.3 else 'L'
 
@@ -324,7 +325,7 @@ def cargo_data_generator(name, n,num_cargos, total_time_slot):
 
 
         cargo_file.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" %
-                         (departure, destination,str(starting_time), str(end_time), str(weight), str(weight), time_sensitivity, product_value, str(alpha), str(beta))) #weight = volume
+                         (departure, destination,str(starting_time), str(end_time), str(weight), str(volume), time_sensitivity, product_value, str(alpha), str(beta))) #weight = volume
     cargo_file.close()
 
 def param(name, n, num_ships, num_flights, total_time_slot) :
@@ -369,8 +370,11 @@ if __name__ == "__main__" :
     # data_generator(name = "D", n = 10, num_flights= 10, num_ships=10, num_cargos=100)
     # data_generator(name = "E", n = 12, num_flights= 12, num_ships=12, num_cargos=120)
     # data_generator(name = "B2", n = 6, num_flights= 2, num_ships=2, num_cargos=30)
-    # data_generator(name = "A1", n = 4, num_flights= 1, num_ships=1, num_cargos=5)
-    # data_generator(name = "A2", n = 4, num_flights= 1, num_ships=1, num_cargos=10)
+    data_generator(name = "A1", n = 4, num_flights= 1, num_ships=1, num_cargos=5)
+    data_generator(name = "A2", n = 4, num_flights= 1, num_ships=1, num_cargos=20)
+    data_generator(name = "A3", n = 4, num_flights= 2, num_ships=2, num_cargos=20)
+    data_generator(name = "A4", n = 8, num_flights= 2, num_ships=2, num_cargos=20)
+    data_generator(name = "A5", n = 8, num_flights= 2, num_ships=2, num_cargos=40)
     # data_generator(name = "A3", n = 4, num_flights= 1, num_ships=1, num_cargos=15)
     # data_generator(name = "A4", n = 4, num_flights= 1, num_ships=1, num_cargos=20)
-    data_generator(name = "G", n = 20, num_flights= 10, num_ships=10, num_cargos=200)
+    # data_generator(name = "G", n = 20, num_flights= 10, num_ships=10, num_cargos=200)

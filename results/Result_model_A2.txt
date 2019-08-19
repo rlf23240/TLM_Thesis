@@ -1,10 +1,38 @@
-P : -9468.9
-Cargo :2,	z :1,	Path :2C21->0C22->0B28-><
-Cargo :6,	z :0.694444,	Path :2B23->1B23->1A25-><
-Cargo :6,	z :0,	Path :2B30->1B30->1A32-><
-Cargo :8,	z :0.581395,	Path :2C21->0C22->0B28->0B29->2B30->1B30->1A32-><
+P : -10207.3
+Cargo :0,	z :0.177083,	Path :2C15->3C16->3D22->3D23->2D24->2D25->4D25->4B26-><
+Cargo :0,	z :0.822917,	Path :2C15->3C16->3D22->2D23->1D23->1B24-><
+Cargo :4,	z :1,	Path :2B41->0B42->0C52-><
+Cargo :8,	z :0,	Path :2D22->3D23->3C29->3C30->2C31->6C31->6A32-><
+Cargo :8,	z :0,	Path :2D25->1D25->1A27-><
+Cargo :8,	z :0,	Path :2D25->4D25->4B26->4A27-><
+Cargo :8,	z :0,	Path :2D30->4D30->4B31->4A32-><
+Cargo :8,	z :0,	Path :2D33->1D33->1A35-><
+Cargo :8,	z :0,	Path :2D33->5D34->5C40->5C41->5B50->5B51->2B52->4B52->4A53-><
+Cargo :8,	z :0,	Path :2D35->4D35->4B36->4A37-><
+Cargo :8,	z :0,	Path :2D43->3D44->3C50->3C51->2C52->6C52->6A53-><
+Cargo :8,	z :0,	Path :2D46->1D46->1A48-><
+Cargo :8,	z :0,	Path :2D46->4D46->4B47->4A48-><
+Cargo :8,	z :0,	Path :2D51->4D51->4B52->4A53-><
+Cargo :9,	z :0.2125,	Path :2C36->3C37->3D43->3D44->2D45->2D46->4D46->4B47-><
+Cargo :9,	z :0.7875,	Path :2C36->3C37->3D43->2D44->1D44->1B45-><
+Cargo :10,	z :0.303571,	Path :2A12->4A12->4B13->4D14-><
+Cargo :10,	z :0.0892857,	Path :2A21->1A21->1D23-><
+Cargo :10,	z :0.303571,	Path :2A23->4A23->4B24->4D25-><
+Cargo :10,	z :0.303571,	Path :2A28->4A28->4B29->4D30-><
+Cargo :10,	z :0,	Path :2A29->1A29->1D31-><
+Cargo :12,	z :0.314873,	Path :2B3->1B3->1D4->1A6-><
+Cargo :12,	z :0,	Path :2B5->4B5->4A6-><
+Cargo :12,	z :0,	Path :2B10->4B10->4A11-><
+Cargo :12,	z :0.305509,	Path :2B11->1B11->1D12->1A14-><
+Cargo :12,	z :0,	Path :2B15->4B15->4A16-><
+Cargo :14,	z :1,	Path :2D43->3D44->3C50-><
+Cargo :17,	z :0.22973,	Path :2D35->4D35->4B36-><
+Cargo :17,	z :0.77027,	Path :2D44->1D44->1B45-><
+Cargo :19,	z :0.22176,	Path :2A49->4A49->4B50-><
+Cargo :19,	z :0.55648,	Path :2A50->1A50->1D52->1B53-><
+Cargo :19,	z :0.22176,	Path :2A54->4A54->4B55-><
 
-Route : B6->A16->A17->C21->C22->B28->B29->A39->A40->B50->B51-><		cost : 2920
-Route : C1->B2->A4->C6-><		cost : 1360
-Route : C8->B9->A11->C13-><		cost : 1360
-Run time : 29.298 sec. 
+Route : C10->B20->B21->C31->C32-><		cost : 1320
+Route : A0->D2->B3->D4->A6-><		cost : 1580
+Route : A8->D10->B11->D12->A14-><		cost : 1580
+Run time : 90268.5 sec. 

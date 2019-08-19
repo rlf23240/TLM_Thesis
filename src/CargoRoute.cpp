@@ -26,7 +26,7 @@ CargoRoute::CargoRoute(string data)  {
     arcs = networks.getArcs();
     find_sea_arcs();
     find_air_arcs();
-    arcs_to_file();
+//    arcs_to_file();
 }
 
 void CargoRoute::read_cargo_file(string data) {
@@ -335,7 +335,7 @@ void CargoRoute::column_generation(GRBModel &model) {
         update_arcs();
         pair<Path*, int> path_pair = select_most_profit_path();
         best_path = path_pair.first;
-        if (path_pair.first->reduced_cost <= 0) {
+        if (!path_pair.first || path_pair.first->reduced_cost <= 0) {
             break;
         }else{
             append_column(path_pair.first, path_pair.second);
@@ -994,7 +994,7 @@ double CargoRoute::get_P_value(){
 
     //second subproblem
     vector<Route> routes = networks.getAir_network().getFlights()[0].routes;
-    P_val -= routes[0].cost * routes.size() * TOTAL_WEEK;
+    P_val -= routes[0].cost * networks.getAir_network().getFlights()[0].freq * TOTAL_WEEK;
 
     P_val += objVal;
     return P_val;

@@ -633,9 +633,12 @@ bool EntireNetwork::check_path_feasibility(Path *path) {
     else{
         path->type = seaAir;
     }
+    
+    if(path->points[1].layer != path->points.back().layer && (path->points.back().layer == 0 || path->points.back().layer == 3 || path->points.back().layer == 5))
+        return false;
 
 
-        for(const auto& point : path->points){
+    for(const auto& point : path->points){
         // check if this node is visited
         if(visited_nodes.find(point.node) == visited_nodes.end()) {
             visited_nodes.insert(point.node);

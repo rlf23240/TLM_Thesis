@@ -21,7 +21,7 @@ Layer:
 #include "fstream"
 #include <vector>
 #include <iomanip>
-#include <string.h>
+#include <cstring>
 
 using namespace std;
 
@@ -174,7 +174,7 @@ main(int   argc,
 					{
 						string tmp = str_buf.c_str();
 						char tmp1[2];
-						strcpy_s(tmp1, tmp.c_str());
+						strcpy(tmp1, tmp.c_str());
 						info_A[a - 1].startnode = (int) tmp1[0]-65;
 					}
 					if (i == 1)
@@ -278,14 +278,14 @@ main(int   argc,
 					{
 						string tmp = str_buf.c_str();
 						char tmp1[2];
-						strcpy_s(tmp1, tmp.c_str());
+						strcpy(tmp1, tmp.c_str());
 						cargo[i - 1].O = (int)tmp1[0] - 65;
 					}
 					if (j == 1)
 					{
 						string tmp = str_buf.c_str();
 						char tmp1[2];
-						strcpy_s(tmp1, tmp.c_str());
+						strcpy(tmp1, tmp.c_str());
 						cargo[i - 1].D = (int)tmp1[0] - 65;
 					}
 					if (j == 2)
@@ -300,14 +300,14 @@ main(int   argc,
 					{
 						string tmp = str_buf.c_str();
 						char tmp1[2];
-						strcpy_s(tmp1, tmp.c_str());
+						strcpy(tmp1, tmp.c_str());
 						cargo[i - 1].TS = tmp1[0];
 					}
 					if (j == 7)
 					{
 						string tmp = str_buf.c_str();
 						char tmp1[2];
-						strcpy_s(tmp1, tmp.c_str());
+						strcpy(tmp1, tmp.c_str());
 						cargo[i - 1].CV = tmp1[0];
 					}
 					getline(stream, str_buf, '\t');
@@ -394,7 +394,7 @@ main(int   argc,
 					{
 						string tmp = str_buf.c_str();
 						char tmp1[2];
-						strcpy_s(tmp1, tmp.c_str());
+						strcpy(tmp1, tmp.c_str());
 						info_S[a - 1].startnode = (int)tmp1[0] - 65;
 					}
 					if (i == 1)
@@ -504,7 +504,7 @@ main(int   argc,
 						int port, time;
 						string tmp = str_buf.c_str();
 						char tmp1[4];
-						strcpy_s(tmp1, tmp.c_str());
+						strcpy(tmp1, tmp.c_str());
 						port = (int)tmp1[0] - 65;
 						if (tmp1[2] == NULL)
 							time = tmp1[1] - '0';
@@ -544,7 +544,7 @@ main(int   argc,
 						int port, time;
 						string tmp = str_buf.c_str();
 						char tmp1[4];
-						strcpy_s(tmp1, tmp.c_str());
+						strcpy(tmp1, tmp.c_str());
 						port = (int)tmp1[0] - 65;
 						if (tmp1[2] == NULL)
 							time = tmp1[1] - '0';
@@ -585,7 +585,7 @@ main(int   argc,
 						int port, time;
 						string tmp = str_buf.c_str();
 						char tmp1[4];
-						strcpy_s(tmp1, tmp.c_str());
+						strcpy(tmp1, tmp.c_str());
 						port = (int)tmp1[0] - 65;
 						if (tmp1[2] == NULL)
 							time = tmp1[1] - '0';
@@ -635,7 +635,7 @@ main(int   argc,
 						int port, time;
 						string tmp = str_buf.c_str();
 						char tmp1[4];
-						strcpy_s(tmp1, tmp.c_str());
+						strcpy(tmp1, tmp.c_str());
 						port = (int)tmp1[0] - 65;
 						if (tmp1[2] == NULL)
 							time = tmp1[1] - '0';
@@ -766,7 +766,7 @@ main(int   argc,
 				int port, time;
 				string tmp = str_buf.c_str();
 				char tmp1[5];
-				strcpy_s(tmp1, tmp.c_str());
+				strcpy(tmp1, tmp.c_str());
 				port = (int)tmp1[1] - 65;
 				if (tmp1[3] == NULL)
 					time = tmp1[2] - '0';
@@ -836,7 +836,7 @@ main(int   argc,
 				int port, time;
 				string tmp = str_buf.c_str();
 				char tmp1[5];
-				strcpy_s(tmp1, tmp.c_str());
+				strcpy(tmp1, tmp.c_str());
 				port = (int)tmp1[1] - 65;
 				if (tmp1[3] == NULL)
 					time = tmp1[2] - '0';
@@ -897,7 +897,7 @@ main(int   argc,
 				int port, time;
 				string tmp = str_buf.c_str();
 				char tmp1[5];
-				strcpy_s(tmp1, tmp.c_str());
+				strcpy(tmp1, tmp.c_str());
 				port = (int)tmp1[1] - 65;
 				if (tmp1[3] == NULL)
 					time = tmp1[2] - '0';
