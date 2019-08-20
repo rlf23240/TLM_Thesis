@@ -37,6 +37,7 @@ static double MU_THRESHOLD = 0;
 static double DW_STOP_THRESHOLD = 0.1;
 
 static const bool is_desinged_route_added = false;
+static const int time_limit_for_gurobi = 3600000; //millisecond
 
 static const int NUM_INIT_PATHS = 999;
 //static int MAX_BP_ITER = 0; // if the number is very big -> useless
