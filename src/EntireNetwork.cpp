@@ -74,8 +74,10 @@ void EntireNetwork::set_sea_air_route(Route sea_route, Route air_route) {
 }
 
 void EntireNetwork::create_networks(string data) {
-    add_designed_ships(); //layer 0
-    add_designed_flights(); //layer 1
+    if(is_desinged_route_added) {
+        add_designed_ships(); //layer 0
+        add_designed_flights(); //layer 1
+    }
     add_current_ships(); //layer 3
     add_current_flights(); //layer layer4
     add_rival_ships(); //layer 5
@@ -383,19 +385,21 @@ void EntireNetwork::add_virtual_network(string data) {
     for(int i = 0; i < num_nodes; i++){
         for(int t = 0; t < TOTAL_TIME_SLOT-1; t++) {
             //from design ship to virtual
-            if (!nodes[0][i][t]->out_arcs.empty()) {
-                //in arc
-                arc = new Arc(nodes[layer][i][t], nodes[0][i][t+1],0);
-                add_arc(nodes[layer][i][t], nodes[0][i][t+1], arc);
-                //out arc
-                arc = new Arc(nodes[0][i][t], nodes[layer][i][t + 1],0);
-                add_arc(nodes[0][i][t], nodes[layer][i][t + 1], arc);
-            }
-            //from virtual to design flight
-            if (!nodes[1][i][t]->out_arcs.empty()) {
-                //in arc
-                arc = new Arc(nodes[layer][i][t], nodes[1][i][t],0);
-                add_arc(nodes[layer][i][t], nodes[1][i][t], arc);
+            if(is_desinged_route_added) {
+                if (!nodes[0][i][t]->out_arcs.empty()) {
+                    //in arc
+                    arc = new Arc(nodes[layer][i][t], nodes[0][i][t + 1], 0);
+                    add_arc(nodes[layer][i][t], nodes[0][i][t + 1], arc);
+                    //out arc
+                    arc = new Arc(nodes[0][i][t], nodes[layer][i][t + 1], 0);
+                    add_arc(nodes[0][i][t], nodes[layer][i][t + 1], arc);
+                }
+                //from virtual to design flight
+                if (!nodes[1][i][t]->out_arcs.empty()) {
+                    //in arc
+                    arc = new Arc(nodes[layer][i][t], nodes[1][i][t], 0);
+                    add_arc(nodes[layer][i][t], nodes[1][i][t], arc);
+                }
             }
 
             //from current ship to virtual

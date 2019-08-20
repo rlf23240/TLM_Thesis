@@ -7,17 +7,18 @@
 
 using namespace std;
 int main() {
-    vector<string> data_sets{"A2"};
+    vector<string> data_sets{"A","B","C","D","E"};
     vector<double> times{};
     clock_t start;
     for(const string &data_set : data_sets) {
 //        CargoRoute cr = CargoRoute(data_set);
         start = clock();
-        ostringstream oss;
-        oss << MU_THRESHOLD;
 
         Dantzig_wolfe dantzig_wolfe = Dantzig_wolfe(CargoRoute(data_set));
-        dantzig_wolfe.output_result("Result_DW_" + data_set
+        string file_prefix = "Result_DW_";
+        if(!is_desinged_route_added)
+            file_prefix += "noDesign_";
+        dantzig_wolfe.output_result(file_prefix + data_set
         , double(clock() - start));
     }
     return 0;
