@@ -49,7 +49,7 @@ void GurobiModel::Run_GurobiModel(string data) {
     int count = 0;
     for(const auto& sea_route : candidate_designed_ship_routes){
         for(const auto& air_route : candidate_designed_flight_routes) {
-            if (double(clock() - start) > time_limit_for_gurobi)
+            if (double(clock() - start) / CLOCKS_PER_SEC > time_limit_for_gurobi)
               break;
             cargo_route.getNetworks().set_sea_air_route(*sea_route, *air_route);
             cargo_route.rebuild_entire_network();
@@ -64,7 +64,7 @@ void GurobiModel::Run_GurobiModel(string data) {
     }
     best_sol = best;
     cout << *best_sol;
-    this->output_result("Result_model_" + data, MIN(time_limit_for_gurobi, double(clock() - start)));
+//    this->output_result("Result_model_" + data, MIN(time_limit_for_gurobi, double(clock() - start) / CLOCKS_PER_SEC));
 
 }
 

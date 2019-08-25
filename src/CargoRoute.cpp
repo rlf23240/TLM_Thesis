@@ -224,7 +224,7 @@ Solution* CargoRoute::branch_and_price() {
 
             iter++;
             cout << "BP_iter : " << iter << endl;
-            if (iter > 0) {
+            if (iter > MAX_BP_ITER) {
                 set_all_u_integer(model, u);
                 LP_relaxation(model);
                 break;
@@ -363,7 +363,7 @@ void CargoRoute::Obj_init(GRBModel &model) {
     GRBLinExpr obj = 0;
     for(int k = 0; k < cargos.size(); k++) {
         for (int p = 0; p < target_path[k].size(); p++) {
-            obj += z[k][p] * cargos[k]->volume * target_path[k][p]->path_profit * 5;
+            obj += z[k][p] * cargos[k]->volume * target_path[k][p]->path_profit;
         }
     }
     model.setObjective(obj, GRB_MAXIMIZE);
