@@ -31,8 +31,8 @@ protected:
 public:
     virtual void add_nodes();
     virtual void run_algo() = 0;
-    virtual void read_data(std::string data_path);
-    virtual void read_node(std::string node_data_path);
+    virtual void read_data(std::string data_path, int multiplier);
+    virtual void read_arc_cost(std::string node_data_path, int multiplier);
     virtual void forward_update(Route** dp, int node, int time);
     void add_edges();
     bool add_edge(Node* start, Node* end, int cost);

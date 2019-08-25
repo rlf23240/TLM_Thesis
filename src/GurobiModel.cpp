@@ -59,7 +59,7 @@ void GurobiModel::Run_GurobiModel(string data) {
               best = result;
             cout << count++ << endl;
             cout << "Best : " << best->P << endl;
-            cout << "RunTime : " << double(clock() - start) << endl;
+            cout << "RunTime : " << double(clock() - start)/CLOCKS_PER_SEC << endl;
       }
     }
     best_sol = best;

@@ -45,44 +45,29 @@ Route::Route(Route route, int gap) {
 }
 
 /*-----------------------Network class------------------------*/
-void Network::read_data(std::string data_path) {
-    read_node(data_path + "_arccost.txt");
-    read_stop_cost(data_path + "_stopcost.txt");
+void Network::read_data(std::string data_path, int multiplier) {
     read_time_cost(data_path + "_timecost.txt");
+    read_arc_cost(data_path + "_arccost.txt", multiplier);
+    read_stop_cost(data_path + "_stopcost.txt");
     add_nodes();
     add_edges();
 }
 
-void Network::read_node(std::string node_data_path) {
-
-    fstream file;
-    file.open(node_data_path);
-
-    if(file.is_open()) {
-        string line;
-        getline(file,line);
-        num_nodes = stoi(line);
-        arc_cost = new int*[num_nodes];
-        for(int i = 0 ; i < num_nodes ; i++)
-            arc_cost[i] = new int[num_nodes];
-        //read arc cost
-        for (int i = 0; getline(file, line); i++) { //row counter
-
-            istringstream iss(line);
-            string token;
-            for (int j = 0 ;getline(iss, token, '\t') ; j++) { //col counter
-                if( token[0] != 'M') {
-                    arc_cost[i][j] = stoi(token);
-                }
-                else{
-                    arc_cost[i][j] = INT_MAX;
-                }
+void Network::read_arc_cost(std::string node_data_path, int multiplier) {
+    arc_cost = new int*[num_nodes];
+    for(int i = 0 ; i < num_nodes ; i++)
+        arc_cost[i] = new int[num_nodes];
+    for (int i = 0; i < num_nodes; i++) { //row counter
+        for (int j = 0 ; j < num_nodes; j++) { //col counter
+            if(time_cost[i][j] < INT_MAX) {
+                arc_cost[i][j] = time_cost[i][j] * multiplier;
+            }
+            else{
+                arc_cost[i][j] = time_cost[i][j] * multiplier * 3;
             }
         }
     }
-    else {
-        cout << "Can't read node file !!!" << endl;
-    }
+
 }
 
 void Network::read_stop_cost(std::string cost_data_path) {
@@ -111,6 +96,7 @@ void Network::read_time_cost(std::string time_data_path) {
     if(file.is_open()) {
         string line;
         getline(file,line);
+        num_nodes = stoi(line);
         time_cost = new int*[num_nodes];
         for(int i = 0 ; i < num_nodes ; i++)
             time_cost[i] = new int[num_nodes];

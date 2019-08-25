@@ -15,7 +15,7 @@ Ship::Ship(char start_node, int start_time, int frequency, int cycle_time, int v
 SeaNetwork::SeaNetwork() {}
 
 SeaNetwork::SeaNetwork(string data_path, int num_cur_ships, int num_rival_ships) {
-    read_data(data_path);
+    read_data(data_path, SEA_ARC_COST_MULTIPLIER);
     run_algo();
 
     print_ships(designed_ships,"Designed");
@@ -23,10 +23,10 @@ SeaNetwork::SeaNetwork(string data_path, int num_cur_ships, int num_rival_ships)
     print_ships(rival_ships,"Rival");
 }
 
-void SeaNetwork::read_data(std::string data_path) {
-    Network::read_node(data_path + "_arccost.txt");
-    Network::read_stop_cost(data_path + "_stopcost.txt");
+void SeaNetwork::read_data(std::string data_path, int multiplier) {
     Network::read_time_cost(data_path + "_timecost.txt");
+    Network::read_arc_cost(data_path + "_arccost.txt", multiplier);
+    Network::read_stop_cost(data_path + "_stopcost.txt");
     Network::add_nodes();
     Network::add_edges();
     read_ship_param(data_path+"_ships_param.txt");

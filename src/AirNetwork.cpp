@@ -20,7 +20,7 @@ Flight::Flight(char start_node, int gap, int freq, int cycle_time, int volume_ub
 AirNetwork::AirNetwork() {}
 
 AirNetwork::AirNetwork(const string data_path, int num_cur_flights, int num_rival_flights) {
-    read_data(data_path);
+    read_data(data_path, AIR_ARC_COST_MULTIPLIER);
     run_algo();
 
     print_flights(designed_flights, "Designed");
@@ -28,8 +28,8 @@ AirNetwork::AirNetwork(const string data_path, int num_cur_flights, int num_riva
     print_flights(rival_flights, "Rival");
 }
 
-void AirNetwork::read_data(std::string data_path) {
-    Network::read_data(data_path);
+void AirNetwork::read_data(std::string data_path, int multiplier) {
+    Network::read_data(data_path, multiplier);
     read_flights_param(data_path+"_flights_param.txt");
     read_air_routes(data_path + "_target_routes.csv", cur_flights);
     read_air_routes(data_path + "_rival_routes.csv", rival_flights);

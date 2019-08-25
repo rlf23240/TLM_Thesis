@@ -29,7 +29,7 @@ private:
     vector<Flight> cur_flights;
     vector<Flight> rival_flights;
     void read_flights_param(std::string flights_data);
-    void read_data(std::string data_path) override;
+    void read_data(std::string data_path, int multiplier) override;
     void print_flights(const vector<Flight>& flights, const string& prefix);
     void read_air_routes(string data_path, vector<Flight> &flights);
     vector<Route*> find_routes_from_single_node(char start_node, int start_time, char end_node, int end_time);
