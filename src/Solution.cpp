@@ -54,7 +54,7 @@ struct Solution{
         for(const auto route : sea_air_routes){
             file << route;
         }
-        file << "Run time : " << run_time / 1000 << " sec. " << endl;
+        file << "Run time : " << run_time << " sec. " << endl;
         file.close();
     }
 

@@ -31,4 +31,4 @@ Cargo :95,	z :0.100956,	Path :2B244->3B245->3B249->3D261->3D264->2D265->6D265->6
 Route : F9->B90->B91->G180->G181->F219-><		cost : 9990
 Route : B0->G2->A4->D5->B6-><		cost : 1052
 Route : B7->G9->A11->D12->B13-><		cost : 1052
-Run time : 74131 sec. 
+Run time : 76215 sec. 

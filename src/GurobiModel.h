@@ -14,10 +14,11 @@ public:
     void Run_GurobiModel(string data);
     void all_paths_for_GurobiModel(string data);
     void output_result(string name, double run_time);
-
-private:
     EntireNetwork network;
     Solution* best_sol;
+    Solution *getBestSol() const;
+
+private:
     vector<Route*> all_ship_routes;
     vector<Route*> all_flight_routes;
 

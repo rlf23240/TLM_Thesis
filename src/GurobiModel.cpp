@@ -122,3 +122,7 @@ void GurobiModel::all_paths_for_GurobiModel(string data) {
     file.close();
     cout << all_path.size();
 }
+
+Solution *GurobiModel::getBestSol() const {
+    return best_sol;
+}

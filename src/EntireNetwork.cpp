@@ -21,13 +21,13 @@ EntireNetwork::EntireNetwork(string data) {
     create_networks(data);
     find_all_paths();
 
-//    candidate_designed_flight_routes = air_network.find_all_routes();
-//    candidate_designed_ship_routes = sea_network.find_all_routes();
+    candidate_designed_flight_routes = air_network.find_all_routes();
+    candidate_designed_ship_routes = sea_network.find_all_routes();
 
 //    for(auto &route : candidate_designed_flight_routes){
 //        cout << *route << endl;
 //    }
-    cout << candidate_designed_flight_routes.size() << " " << candidate_designed_ship_routes.size() << endl;
+//    cout << candidate_designed_flight_routes.size() << " " << candidate_designed_ship_routes.size() << endl;
 
 //    for(int i = 0; i < num_nodes; i++){
 //        for(int j = 0; j < num_nodes; j++) {

@@ -12,6 +12,7 @@ class Dantzig_wolfe {
 public:
     explicit Dantzig_wolfe(const CargoRoute &cargoRoute);
     void output_result(string name, double run_time);
+    Solution *getBestSol() const;
 private:
     CargoRoute cargoRoute;
     vector<double> P;

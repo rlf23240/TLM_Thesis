@@ -36,4 +36,4 @@ Cargo :19,	z :0.142857,	Path :2A34->1A34->1F36-><
 Route : G7->H17->H18->G28->G29-><		cost : 1530
 Route : F0->B1->C3->A5->F7-><		cost : 1550
 Route : F8->B9->C11->A13->F15-><		cost : 1550
-Run time : 3600 sec. 
+Run time : 3.6e+06 sec. 
