@@ -121,7 +121,7 @@ void EntireNetwork::read_unit_profit_data(string data) {
     sea_profit =  vector<vector<double>>{num_nodes};
 
     fstream air_file,sea_file;
-    air_file.open("../Data/" + data + "_air_timecost.txt");
+    air_file.open("../Data/" + data + "_air_profit.txt");
 
     if(air_file.is_open()) {
         string line;
@@ -134,10 +134,7 @@ void EntireNetwork::read_unit_profit_data(string data) {
 
             for (int j = 0 ; j < num_nodes; j++) { //col counter
                 getline(iss, token, '\t');
-                if(token != "M")
-                    air_profit[i].push_back(stod(token) * AIR_PROFIT_MULTIPLIER);
-                else
-                    air_profit[i].push_back(0);
+                air_profit[i].push_back(stod(token));
             }
         }
     }
@@ -145,7 +142,7 @@ void EntireNetwork::read_unit_profit_data(string data) {
         cout << "Can't read unit profit file !!!" << endl;
     }
 
-    sea_file.open("../Data/" + data + "_sea_timecost.txt");
+    sea_file.open("../Data/" + data + "_sea_profit.txt");
 
     if(sea_file.is_open()) {
         string line;
@@ -158,10 +155,7 @@ void EntireNetwork::read_unit_profit_data(string data) {
 
             for (int j = 0; j < num_nodes; j++) { //col counter
                 getline(iss, token, '\t');
-                if(token != "M")
-                    sea_profit[i].push_back(stod(token) * SEA_PROFIT_MULTIPLIER);
-                else
-                    sea_profit[i].push_back(0);
+                sea_profit[i].push_back(stod(token));
             }
         }
     }
@@ -182,7 +176,7 @@ void EntireNetwork::read_unit_cost_data(string data) {
     sea_cost =  vector<vector<double>>{num_nodes};
 
     fstream air_file,sea_file;
-    air_file.open("../Data/" + data + "_air_timecost.txt");
+    air_file.open("../Data/" + data + "_air_trans_cost.txt");
 
     if(air_file.is_open()) {
         string line;
@@ -195,10 +189,7 @@ void EntireNetwork::read_unit_cost_data(string data) {
 
             for (int j = 0 ; j < num_nodes; j++) { //col counter
                 getline(iss, token, '\t');
-                if(token != "M")
-                    air_cost[i].push_back(stod(token) * AIR_TRANS_COST_MULTIPLIER);
-                else
-                    air_cost[i].push_back(0);
+                air_cost[i].push_back(stod(token));
             }
         }
     }
@@ -207,7 +198,7 @@ void EntireNetwork::read_unit_cost_data(string data) {
         exit(1);
     }
 
-    sea_file.open("../Data/" + data + "_sea_timecost.txt");
+    sea_file.open("../Data/" + data + "_sea_trans_cost.txt");
 
     if(sea_file.is_open()) {
         string line;
@@ -220,10 +211,7 @@ void EntireNetwork::read_unit_cost_data(string data) {
 
             for (int j = 0; j < num_nodes; j++) { //col counter
                 getline(iss, token, '\t');
-                if(token != "M")
-                    sea_cost[i].push_back(stod(token) * SEA_TRANS_COST_MULTIPLIER);
-                else
-                    sea_cost[i].push_back(0);
+                sea_cost[i].push_back(stod(token));
             }
         }
     }

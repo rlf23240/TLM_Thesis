@@ -29,7 +29,7 @@ private:
     vector<Ship> cur_ships;
     vector<Ship> rival_ships;
     void read_ship_param(string ships_data);
-    void read_data(string data_path, int multiplier) override;
+    void read_data(string data_path) override;
     void forward_update(Route **dp, int node, int time) override;
     void read_sea_routes(string data_path, vector<Ship>& ships);
     void print_ships(vector<Ship> ships, string prefix);

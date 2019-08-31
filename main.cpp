@@ -79,11 +79,11 @@ unordered_map<string, pair<double, double>> run_gurobi_model(const vector<string
 
 
 int main() {
-    vector<string> data_sets{"A1", "A2", "A3", "A4", "A5"};
+    vector<string> data_sets{"A1", "A2", "A3"};
 //    run_gurobi_model(data_sets);
-    run_danzig_wolfe(data_sets);
+//    run_danzig_wolfe(data_sets);
 
-//    compare_grb_algo(data_sets);
+    compare_grb_algo(data_sets);
 //    compare_designed_route_added(data_sets);
     return 0;
 }
