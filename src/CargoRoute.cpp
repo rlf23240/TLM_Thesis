@@ -224,7 +224,7 @@ Solution* CargoRoute::branch_and_price() {
 
             iter++;
             cout << "BP_iter : " << iter << endl;
-            if (iter > MAX_BP_ITER) {
+            if (iter >= MAX_BP_ITER) {
                 set_all_u_integer(model, u);
                 LP_relaxation(model);
                 break;
@@ -335,7 +335,8 @@ void CargoRoute::column_generation(GRBModel &model) {
         update_arcs();
         pair<Path*, int> path_pair = select_most_profit_path();
         best_path = path_pair.first;
-        if (!path_pair.first || path_pair.first->reduced_cost <= 0) {
+        int thres = (iter_added == true) ? -2-1 : 0;
+        if (!path_pair.first || path_pair.first->reduced_cost <= thres) {
             break;
         }else{
             append_column(path_pair.first, path_pair.second);
@@ -989,13 +990,15 @@ double CargoRoute::getObjVal() const {
 
 double CargoRoute::get_P_value(){
     double P_val = 0;
-    // first subproblem
-    P_val -= networks.getSea_network().getShips()[0].route.cost;
-
-    //second subproblem
-    vector<Route> routes = networks.getAir_network().getFlights()[0].routes;
-    P_val -= routes[0].cost * networks.getAir_network().getFlights()[0].freq * TOTAL_WEEK;
-
+//     first subproblem
+    if(is_designed_route_added == true) {
+        P_val -= networks.getSea_network().getShips()[0].route.cost;
+//
+//    //second subproblem
+        vector<Route> routes = networks.getAir_network().getFlights()[0].routes;
+        P_val -= routes[0].cost * networks.getAir_network().getFlights()[0].freq * TOTAL_WEEK;
+    }
+    P_val += 30000 + 487.0 * cargos.size() / 2 * num_nodes;
     P_val += objVal;
     return P_val;
 }

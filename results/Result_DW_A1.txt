@@ -1,4 +1,4 @@
-P : -14247.9
+P : 20714.3
 Cargo :0,	z :0.5,	Path :2A42->3A43->3B48->3B49->3D56-><
 Cargo :0,	z :0,	Path :2A33->0A34->0D39-><
 Cargo :0,	z :0,	Path :2A54->0A55->0D60-><
@@ -9,4 +9,4 @@ Route : B6->A12->A13->D18->D19->B27->B28-><		cost : 2010
 Route : C0->B2->A3->C5-><		cost : 1370
 Route : C6->B8->A9->C11-><		cost : 1370
 Route : C12->B14->A15->C17-><		cost : 1370
-Run time : 0.599101 sec. 
+Run time : 0.717944 sec. 

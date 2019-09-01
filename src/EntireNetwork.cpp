@@ -74,7 +74,7 @@ void EntireNetwork::set_sea_air_route(Route sea_route, Route air_route) {
 }
 
 void EntireNetwork::create_networks(string data) {
-    if(is_desinged_route_added) {
+    if(is_designed_route_added) {
         add_designed_ships(); //layer 0
         add_designed_flights(); //layer 1
     }
@@ -123,6 +123,7 @@ void EntireNetwork::read_unit_profit_data(string data) {
     fstream air_file,sea_file;
     air_file.open("../Data/" + data + "_air_profit.txt");
 
+    int profit_multiplier = 2;
     if(air_file.is_open()) {
         string line;
 
@@ -134,7 +135,7 @@ void EntireNetwork::read_unit_profit_data(string data) {
 
             for (int j = 0 ; j < num_nodes; j++) { //col counter
                 getline(iss, token, '\t');
-                air_profit[i].push_back(stod(token));
+                air_profit[i].push_back(stod(token) * profit_multiplier);
             }
         }
     }
@@ -155,7 +156,7 @@ void EntireNetwork::read_unit_profit_data(string data) {
 
             for (int j = 0; j < num_nodes; j++) { //col counter
                 getline(iss, token, '\t');
-                sea_profit[i].push_back(stod(token));
+                sea_profit[i].push_back(stod(token)*profit_multiplier);
             }
         }
     }
@@ -385,7 +386,7 @@ void EntireNetwork::add_virtual_network(string data) {
     for(int i = 0; i < num_nodes; i++){
         for(int t = 0; t < TOTAL_TIME_SLOT-1; t++) {
             //from design ship to virtual
-            if(is_desinged_route_added) {
+            if(is_designed_route_added) {
                 if (!nodes[0][i][t]->out_arcs.empty()) {
                     //in arc
                     arc = new Arc(nodes[layer][i][t], nodes[0][i][t + 1], 0);
