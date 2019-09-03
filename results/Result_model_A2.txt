@@ -1,4 +1,4 @@
-P : 37207.2
+P : 71157.2
 Cargo :1,	z :0,	Path :2B9->1B9->1A10->1D12-><
 Cargo :1,	z :0,	Path :2B15->1B15->1A16->1D18-><
 Cargo :1,	z :0,	Path :2B23->4B23->4C25->4A27->4D29-><
@@ -53,4 +53,4 @@ Route : D0->B6->B7->C16->C17->D21->D22-><		cost : 1530
 Route : D1->B3->A4->D6-><		cost : 1380
 Route : D7->B9->A10->D12-><		cost : 1380
 Route : D13->B15->A16->D18-><		cost : 1380
-Run time : 8.4863 sec. 
+Run time : 7.26146 sec. 

@@ -100,6 +100,7 @@ void EntireNetwork::read_param_data(string data) {
     getline(iss, token, '\t');
     num_cur_flights = stoi(token);
     getline(iss, token, '\t');
+//    int TOTAL_TIME_SLOT = stoi(token);
 
 }
 
