@@ -1,0 +1,10 @@
+P : 40381
+Cargo :2,	z :0,	Path :2C37->3C38->3B45-><
+Cargo :2,	z :1,	Path :2C39->0C40->0A45->0A46->0B50-><
+Cargo :4,	z :0.332787,	Path :2B24->3B25->3A28->3A29->3C33-><
+
+Route : B8->A12->A13->C18->C19->A24->A25->B29->B30-><		cost : 2840
+Route : A0->D2->C3->A5-><		cost : 1300
+Route : A6->D8->C9->A11-><		cost : 1300
+Route : A12->D14->C15->A17-><		cost : 1300
+Run time : 0.542527 sec. 

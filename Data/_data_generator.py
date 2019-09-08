@@ -14,7 +14,7 @@ sea_volume_ub = 50
 cargo_type_prob = [0.25, 0.25, 0.25, 0.25] #HH, HL, LH, LL
 design_route_cycle_time = 21
 
-random.seed(0)
+
 def data_generator(name = "A", n = 10, num_ships = 20, num_flights = 20, num_cargos = 100, total_time_slot = 84):
     sea_data_generator(name, n, num_ships)
     air_data_generator(name, n, num_flights)
@@ -23,6 +23,7 @@ def data_generator(name = "A", n = 10, num_ships = 20, num_flights = 20, num_car
     param(name, n, num_ships, num_flights, total_time_slot)
     unload_cost(name, n)
     unit_profit(name, n)
+    print("Data " + name + " was generated")
 
 
 
@@ -364,18 +365,33 @@ def unit_profit(name, n) :
 
 
 if __name__ == "__main__" :
-    random.seed(2)
+    # random.seed(114)
     # data_generator(name = "A", n = 4, num_flights= 4, num_ships=4, num_cargos=40, total_time_slot=84)
     # data_generator(name = "B", n = 6, num_flights= 6, num_ships=6, num_cargos=60, total_time_slot=84)
     # data_generator(name = "C", n = 8, num_flights= 8, num_ships=8, num_cargos=80, total_time_slot=84)
     # data_generator(name = "D", n = 10, num_flights= 10, num_ships=10, num_cargos=100, total_time_slot=84)
     # data_generator(name = "E", n = 12, num_flights= 12, num_ships=12, num_cargos=120, total_time_slot=84)
     # data_generator(name = "A1", n = 4, num_flights= 1, num_ships=1, num_cargos=5, total_time_slot=63)
-    # data_generator(name = "A2", n = 4, num_flights= 1, num_ships=1, num_cargos=20, total_time_slot=63)
-    data_generator(name = "A3", n = 4, num_flights= 2, num_ships=2, num_cargos=20, total_time_slot=63)
+
+    # data_generator(name = "A1_10", n = 4, num_flights= 1, num_ships=1, num_cargos=5, total_time_slot=63)
+    #
+    # data_generator(name = "A2_5", n = 4, num_flights= 1, num_ships=1, num_cargos=20, total_time_slot=63)
+    # data_generator(name = "A2_6", n = 4, num_flights= 1, num_ships=1, num_cargos=20, total_time_slot=63)
+    # data_generator(name = "A2_7", n = 4, num_flights= 1, num_ships=1, num_cargos=20, total_time_slot=63)
+    # data_generator(name = "A2_8", n = 4, num_flights= 1, num_ships=1, num_cargos=20, total_time_slot=63)
+    # data_generator(name = "A2_9", n = 4, num_flights= 1, num_ships=1, num_cargos=20, total_time_slot=63)
+    data_generator(name = "A3_3", n = 4, num_flights= 2, num_ships=2, num_cargos=20, total_time_slot=63)
+
+    # data_generator(name = "A3", n = 4, num_flights= 2, num_ships=2, num_cargos=20, total_time_slot=63)
     # data_generator(name = "A4", n = 8, num_flights= 2, num_ships=2, num_cargos=20, total_time_slot=63)
     # data_generator(name = "A5", n = 8, num_flights= 2, num_ships=2, num_cargos=40, total_time_slot=63)
     # data_generator(name = "G", n = 20, num_flights= 10, num_ships=10, num_cargos=200, total_time_slot=84)
     # data_generator(name = "H", n = 40, num_flights= 20, num_ships=20, num_cargos=400, total_time_slot=84)
     # data_generator(name = "I", n = 50, num_flights= 30, num_ships=30, num_cargos=600, total_time_slot=84)
+
+    # for i in range(4,6) :
+    #     data_generator(name = "A1_" + str(i), n = 4, num_flights= 1, num_ships=1, num_cargos=5, total_time_slot=63)
+    #     data_generator(name = "A2_"+str(i), n = 4, num_flights= 1, num_ships=1, num_cargos=20, total_time_slot=63)
+    #     data_generator(name = "A3_" + str(i), n = 4, num_flights= 2, num_ships=2, num_cargos=20, total_time_slot=63)
+
 

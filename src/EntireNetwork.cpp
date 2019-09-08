@@ -124,7 +124,7 @@ void EntireNetwork::read_unit_profit_data(string data) {
     fstream air_file,sea_file;
     air_file.open("../Data/" + data + "_air_profit.txt");
 
-    int profit_multiplier = 2;
+    double profit_multiplier = 1;
     if(air_file.is_open()) {
         string line;
 

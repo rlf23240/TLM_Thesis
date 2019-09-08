@@ -1,0 +1,25 @@
+P : 59317.9
+Cargo :0,	z :0,	Path :2A27->3A28->3C31->3C32->2C33->2C34->2C35->4C35->4B36-><
+Cargo :0,	z :1,	Path :2A27->3A28->3C31->3C32->2C33->2C34->2C35->6C35->6B36-><
+Cargo :0,	z :0,	Path :2A28->1A28->1B30-><
+Cargo :0,	z :0,	Path :2A37->1A37->1B39-><
+Cargo :0,	z :0,	Path :2A49->1A49->1B51-><
+Cargo :1,	z :1,	Path :2B44->1B44->1C45->1D47->1A49-><
+Cargo :1,	z :0,	Path :2B47->4B47->4A49-><
+Cargo :8,	z :0,	Path :2A17->4A17->4C18-><
+Cargo :8,	z :0.393939,	Path :2A28->4A28->4C29-><
+Cargo :8,	z :0.606061,	Path :2A38->4A38->4C39-><
+Cargo :9,	z :0,	Path :2D23->4D23->4C25-><
+Cargo :9,	z :0,	Path :2D33->4D33->4C35-><
+Cargo :13,	z :0.745632,	Path :2A48->3A49->3C52->3B57-><
+Cargo :14,	z :0.338983,	Path :2A17->4A17->4C18-><
+Cargo :16,	z :0.573433,	Path :2C3->1C3->1D5->1A7-><
+Cargo :16,	z :0.426567,	Path :2C4->4C4->4B5->4A7-><
+Cargo :17,	z :0.589392,	Path :2C33->1C33->1D35->1A37-><
+Cargo :17,	z :0,	Path :2C35->4C35->4B36->4A38-><
+Cargo :19,	z :0.232558,	Path :2C35->4C35->4B36-><
+
+Route : C8->D18->D19->C29->C30-><		cost : 1250
+Route : B2->C3->D5->A7->B9-><		cost : 1580
+Route : B11->C12->D14->A16->B18-><		cost : 1580
+Run time : 7.53634 sec. 

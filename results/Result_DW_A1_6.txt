@@ -1,0 +1,10 @@
+P : 42618
+Cargo :2,	z :0.196573,	Path :2D26->1D26->1B27->1C29-><
+Cargo :2,	z :0.196573,	Path :2D32->1D32->1B33->1C35-><
+Cargo :4,	z :1,	Path :2C12->3C13->3B16-><
+
+Route : A3->C13->C14->A24->A25-><		cost : 1630
+Route : C3->D5->B6->C8-><		cost : 1190
+Route : C9->D11->B12->C14-><		cost : 1190
+Route : C15->D17->B18->C20-><		cost : 1190
+Run time : 0.666745 sec. 
