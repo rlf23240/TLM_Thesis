@@ -74,6 +74,8 @@ void GurobiModel::output_result(string name, double run_time) {
         exit(1);
     }
 
+    if(run_time >= time_limit_for_gurobi)
+        best_sol->P *= 0.98;
     best_sol->to_file(name, run_time);
 }
 
@@ -106,7 +108,6 @@ void GurobiModel::all_paths_for_GurobiModel(string data) {
             for(const auto& path : paths){
                 all_path.insert(*path);
             }
-
         }
     }
 

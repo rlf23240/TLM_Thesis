@@ -6,4 +6,4 @@ Route : B8->A12->A13->C18->C19->A24->A25->B29->B30-><		cost : 2840
 Route : A3->C5->D6->A8-><		cost : 1300
 Route : A9->C11->D12->A14-><		cost : 1300
 Route : A15->C17->D18->A20-><		cost : 1300
-Run time : 0.674405 sec. 
+Run time : 0.619788 sec. 
