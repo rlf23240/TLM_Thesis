@@ -68,11 +68,11 @@ void GurobiModel::Run_GurobiModel(string data) {
 
 }
 
-void GurobiModel::output_result(string name, double run_time) {
-    if(best_sol == nullptr){
-        cout << "Fail to output results" << endl;
-        exit(1);
-    }
+    void GurobiModel::output_result(string name, double run_time) {
+        if(best_sol == nullptr){
+            cout << "Fail to output results" << endl;
+            exit(1);
+        }
 
     if(run_time >= time_limit_for_gurobi)
         best_sol->P *= 0.98;

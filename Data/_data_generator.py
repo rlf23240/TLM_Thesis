@@ -380,7 +380,7 @@ if __name__ == "__main__" :
     # data_generator(name = "A2_7", n = 4, num_flights= 1, num_ships=1, num_cargos=20, total_time_slot=63)
     # data_generator(name = "A2_8", n = 4, num_flights= 1, num_ships=1, num_cargos=20, total_time_slot=63)
     # data_generator(name = "A2_9", n = 4, num_flights= 1, num_ships=1, num_cargos=20, total_time_slot=63)
-    data_generator(name = "A3_3", n = 4, num_flights= 2, num_ships=2, num_cargos=20, total_time_slot=63)
+    data_generator(name = "A3_4", n = 4, num_flights= 2, num_ships=2, num_cargos=20, total_time_slot=63)
 
     # data_generator(name = "A3", n = 4, num_flights= 2, num_ships=2, num_cargos=20, total_time_slot=63)
     # data_generator(name = "A4", n = 8, num_flights= 2, num_ships=2, num_cargos=20, total_time_slot=63)

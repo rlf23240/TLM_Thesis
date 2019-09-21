@@ -995,7 +995,7 @@ double CargoRoute::get_P_value(){
         if(networks.get_cur_flights().size() <= 2) {
             //first subproblem
             P_val -= networks.getSea_network().getShips()[0].route.cost;
-//    //second subproblem
+            //    //second subproblem
             vector<Route> routes = networks.getAir_network().getFlights()[0].routes;
             P_val -= routes[0].cost * networks.getAir_network().getFlights()[0].freq * TOTAL_WEEK;
         }
@@ -1005,7 +1005,6 @@ double CargoRoute::get_P_value(){
         P_val += 50000 + 487.0 * cargos.size() / 2 * num_nodes;
     else
         P_val = (P_val + 10000) * 9.2;
-    P_val += objVal;
     return P_val;
 }
 

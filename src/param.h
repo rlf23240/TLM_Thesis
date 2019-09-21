@@ -36,7 +36,7 @@ static const int  AIR_ARC_COST_MULTIPLIER = 45;
 
 static const int  SEA_ARC_COST_MULTIPLIER = 112;
 static const int TIME_SLOT_A_DAY = 3;
-static const int TOTAL_WEEK = 4;
+static const int TOTAL_WEEK = 3;
 static const int TIME_PERIOD = TOTAL_WEEK * 7;  //days
 static const unsigned int TOTAL_TIME_SLOT = TIME_PERIOD * TIME_SLOT_A_DAY;
 

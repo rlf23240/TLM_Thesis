@@ -30,4 +30,4 @@ Cargo :19,	z :0.5,	Path :2B32->1B32->1D34-><
 Route : C9->A19->A20->C30->C31-><		cost : 1310
 Route : D0->A2->B4->D6-><		cost : 1280
 Route : D7->A9->B11->D13-><		cost : 1280
-Run time : 222.617 sec. 
+Run time : 106.364 sec. 
