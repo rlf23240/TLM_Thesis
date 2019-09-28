@@ -1,14 +1,14 @@
-P : 38013.9
+P : 41876.6
 Cargo :0,	z :0.653846,	Path :2A13->4A13->4B15->4C16->4D18-><
-Cargo :0,	z :0.346154,	Path :2A21->1A21->1D23-><
-Cargo :1,	z :0.170789,	Path :2C12->1C12->1B13->1A15-><
-Cargo :1,	z :0.170789,	Path :2C25->1C25->1B26->1A28-><
-Cargo :1,	z :0.170789,	Path :2C33->1C33->1B34->1A36-><
-Cargo :1,	z :0.170789,	Path :2C46->1C46->1B47->1A49-><
-Cargo :3,	z :0,	Path :2C27->4C27->4D29-><
+Cargo :1,	z :0.166667,	Path :2C13->1C13->1D15->1A17-><
+Cargo :1,	z :0.166667,	Path :2C26->1C26->1D28->1A30-><
+Cargo :1,	z :0.166667,	Path :2C34->1C34->1D36->1A38-><
+Cargo :3,	z :0.177154,	Path :2C13->1C13->1D15-><
+Cargo :3,	z :0.184414,	Path :2C26->1C26->1D28-><
+Cargo :3,	z :0.189739,	Path :2C27->4C27->4D29-><
 Cargo :3,	z :0,	Path :2C16->4C16->4D18-><
 
 Route : B5->A15->A16->B26->B27-><		cost : 1490
-Route : A0->D2->C4->B5->A7-><		cost : 1930
-Route : A8->D10->C12->B13->A15-><		cost : 1930
-Run time : 0.988853 sec. 
+Route : A2->B4->C5->D7->A9-><		cost : 1930
+Route : A10->B12->C13->D15->A17-><		cost : 1930
+Run time : 3.241 sec. 

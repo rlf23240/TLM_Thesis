@@ -174,11 +174,13 @@ int main() {
     vector<string> data_sets3{"A", "B", "C", "D", "E"};
 //    run_gurobi_model(data_sets3);
 //    run_danzig_wolfe(data_sets3);
-    vector<string> A1_sets{"A1_1","A1_2","A1_3","A1_4","A1_5","A1_6","A1_7","A1_8","A1_9","A1_10"};
+    vector<string> A1_sets{"A1_1","A1_2","A1_3","A1_4","A1_5"};
     vector<string> A2_sets{"A2_1","A2_2","A2_3","A2_4","A2_5","A2_6","A2_7","A2_8","A2_9","A2_10"};
     vector<string> A3_sets{"A3_1","A3_2","A3_3","A3_4","A3_5"};
 
-    compare_grb_algo(A3_sets);
+    vector<string> test_sets{"A1_1"};
+
+    compare_grb_algo(A1_sets);
 //    compare_designed_route_added(data_sets3);
 //    compare_iter_added(data_sets3);
 //    compare_col_deletion(data_sets3);

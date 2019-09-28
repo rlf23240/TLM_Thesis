@@ -46,7 +46,17 @@ double Arc::getUnitCost() const {
     return unit_cost;
 }
 
-Node::Node(const std::string &name, int cost) : cost(cost), name(name) {}
+Node::Node(const std::string &name, int cost) : cost(cost), name(name) {
+    //for node which has layer
+    if((int)name[0] - 48 < 7) {
+      layer = (int)name[0] - 48;
+      node = name[1] - 65;
+      time = stoi(name.substr(2));
+    }else{ // otherwise
+      node = name[0] - 65;
+      time = stoi(name.substr(1));
+    }
+}
 
 const std::string &Node::getName() const {
     return name;
@@ -57,15 +67,15 @@ int Node::getCost() const {
 }
 
 int Node::getLayer() const {
-    return (int) name[0] - 48; //ascii 48 = 0
+      return layer; //ascii 48 = 0
 }
 
 int Node::getNode() const {
-    return name[1] - 65; //char to int (A to 0)
+    return node; //char to int (A to 0)
 }
 
 int Node::getTime() const {
-    return stoi(name.substr(2));
+    return time;
 }
 
 

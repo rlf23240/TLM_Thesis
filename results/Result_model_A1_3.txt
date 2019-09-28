@@ -9,4 +9,4 @@ Route : B6->D14->D15->A20->A21->B27->B28-><		cost : 2010
 Route : C0->A2->B3->C5-><		cost : 1370
 Route : C6->A8->B9->C11-><		cost : 1370
 Route : C12->A14->B15->C17-><		cost : 1370
-Run time : 3.04817 sec. 
+Run time : 7.227 sec. 
