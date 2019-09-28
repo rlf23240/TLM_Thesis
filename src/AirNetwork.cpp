@@ -285,10 +285,10 @@ void AirNetwork::forward_append(vector<Route*>** dp, int node, int time) {
 
     for (auto& arc : cur_node->out_arcs){
         Node* end_node = arc->end_node;
-        char end_node_char = end_node->getName()[0];
+        char end_node_char = (char)end_node->getNode() + 65;
 
-        int end_node_idx = (int) end_node_char - 65;
-        int end_time = stoi(end_node->getName().substr(1));
+        int end_node_idx =  end_node->getNode();
+        int end_time = end_node->getTime();
 
         //Calculate cost if append end node to current route
         vector<Route*> cur_routes = dp[node][time];
