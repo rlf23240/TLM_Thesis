@@ -4,6 +4,7 @@
 #include "src/GurobiModel.h"
 #include <ctime>
 #include "numeric"
+#include "algorithm"
 
 using namespace std;
 
