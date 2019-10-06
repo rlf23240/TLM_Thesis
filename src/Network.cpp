@@ -53,6 +53,13 @@ void Network::read_data(std::string data_path) {
     add_edges();
 }
 
+static int excel_alpha_to_num(string str){
+	if(str.size() <= 1)
+		return (int) str[0] - 65;
+	else{
+		return ((int) str[0] - 65) * 26 + ((int) str[1] - 65);
+	}
+}
 void Network::read_node(std::string node_data_path) {
 
     fstream file;

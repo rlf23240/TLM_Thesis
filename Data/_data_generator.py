@@ -14,6 +14,17 @@ sea_volume_ub = 50
 cargo_type_prob = [0.25, 0.25, 0.25, 0.25] #HH, HL, LH, LL
 design_route_cycle_time = 21
 
+def num_to_excel_like_alphabet(num) :
+    if num < 0 :
+        exit(3)
+    elif 0 <= num < 26 :
+        return chr(num + 65)
+    else :
+        first = num // 26 -1
+        second = num % 26
+        return chr(first + 65) + chr(second +65)
+
+
 
 def data_generator(name = "A", n = 10, num_ships = 20, num_flights = 20, num_cargos = 100, total_time_slot = 84):
     sea_data_generator(name, n, num_ships)
@@ -72,7 +83,7 @@ def sea_data_generator(name, n, num_ships):
         param_file = open("%s_sea_ships_param.txt" % name,'w')
         param_file.write(str(1) + '\n')
 
-        node = chr(65 + random.randint(0,n-1))
+        node =  num_to_excel_like_alphabet(random.randint(0,n-1))
         starting_time = random.randint(0,10)
         freq = 1
         # cycle_time = round(numpy.random.randint(40,50))
@@ -91,7 +102,7 @@ def sea_data_generator(name, n, num_ships):
             cur_time = start_time
 
             node_list = []
-            node_list.append(chr(start_node+65)+str(start_time))
+            node_list.append(num_to_excel_like_alphabet(start_node)+str(start_time))
 
             while cur_time - start_time < design_route_cycle_time :
                 while True :
@@ -99,15 +110,15 @@ def sea_data_generator(name, n, num_ships):
                     if cur_node != next_node :
                         break
                 next_time = cur_time + sea_time_cost[cur_node][next_node]
-                node_list.append(chr(65 + next_node) + str(next_time))
-                node_list.append(chr(65 + next_node) + str(next_time+ ship_stop_day))
+                node_list.append(num_to_excel_like_alphabet(next_node) + str(next_time))
+                node_list.append(num_to_excel_like_alphabet(next_node) + str(next_time+ ship_stop_day))
 
                 cur_node = next_node
                 cur_time = next_time
             if cur_node != start_node :
                 next_node = start_node
                 next_time = cur_time + sea_time_cost[cur_node][next_node]
-                node_list.append(chr(65+next_node) + str(next_time))
+                node_list.append(num_to_excel_like_alphabet(next_node) + str(next_time))
 
             if not unlimit_ub :
                 volume_ub = (sea_volume_lb + random.randint(0,sea_volume_ub - sea_volume_lb)) * 100
@@ -208,7 +219,7 @@ def air_data_generator(name, n, num_flights):
             cur_time = start_time
 
             node_list = []
-            node_list.append(chr(65 + cur_node) + str(cur_time))
+            node_list.append(num_to_excel_like_alphabet(cur_node) + str(cur_time))
             while cur_time - start_time < cycle_time -1 :
                 while True :
                     next_node = random.randint(0, n-1)
@@ -217,7 +228,7 @@ def air_data_generator(name, n, num_flights):
 
                 next_time = cur_time + air_time_cost[cur_node][next_node]
 
-                node_list.append(chr(65 + next_node) + str(next_time))
+                node_list.append(num_to_excel_like_alphabet(next_node) + str(next_time))
 
                 cur_node = next_node
                 cur_time = next_time
@@ -226,7 +237,7 @@ def air_data_generator(name, n, num_flights):
                 next_time = cur_time + air_time_cost[cur_node][next_node]
                 cur_node = next_node
                 cur_time = next_time
-                node_list.append(chr(65 + cur_node) + str(cur_time))
+                node_list.append(num_to_excel_like_alphabet(cur_node) + str(cur_time))
 
             cycle_time = cur_time - start_time
             gap = cycle_time  + 1 if random.random() < 0.5 else cycle_time + 2
@@ -242,7 +253,10 @@ def air_data_generator(name, n, num_flights):
             file.write(str(volume_ub) + "," + str(weight_ub) + ",")
             for f in range(freq) :
                 for node in node_list :
-                    node_ = node[0] + str(int(node[1:]) + gap * f)
+                    if len(node) <= 2 :
+                        node_ = node[0] + str(int(node[1:]) + gap * f)
+                    else :
+                        node_ = node[0:2] + str(int(node[2:]) + gap * f)
                     file.write(node_)
                     if node != node_list[-1] or f != freq-1 :
                         file.write(",")
@@ -288,7 +302,7 @@ def cargo_data_generator(name, n,num_cargos, total_time_slot):
     cargo_file.write(str(num_cargos) + '\n')
 
     for _ in range(num_cargos) :
-        departure, destination = random.sample([chr(i) for i in range(65, 65+n)], 2)
+        departure, destination = random.sample([num_to_excel_like_alphabet(i) for i in range(65, 65+n)], 2)
 
         starting_time = random.randint(1,total_time_slot // 1.3)
         end_time = random.randint(starting_time + 6, min(starting_time + 63, total_time_slot-1))
@@ -380,7 +394,7 @@ if __name__ == "__main__" :
     # data_generator(name = "A2_7", n = 4, num_flights= 1, num_ships=1, num_cargos=20, total_time_slot=63)
     # data_generator(name = "A2_8", n = 4, num_flights= 1, num_ships=1, num_cargos=20, total_time_slot=63)
     # data_generator(name = "A2_9", n = 4, num_flights= 1, num_ships=1, num_cargos=20, total_time_slot=63)
-    data_generator(name = "A3_4", n = 4, num_flights= 2, num_ships=2, num_cargos=20, total_time_slot=63)
+    # data_generator(name = "A3_4", n = 4, num_flights= 2, num_ships=2, num_cargos=20, total_time_slot=63)
 
     # data_generator(name = "A3", n = 4, num_flights= 2, num_ships=2, num_cargos=20, total_time_slot=63)
     # data_generator(name = "A4", n = 8, num_flights= 2, num_ships=2, num_cargos=20, total_time_slot=63)
@@ -388,6 +402,7 @@ if __name__ == "__main__" :
     # data_generator(name = "G", n = 20, num_flights= 10, num_ships=10, num_cargos=200, total_time_slot=84)
     # data_generator(name = "H", n = 40, num_flights= 20, num_ships=20, num_cargos=400, total_time_slot=84)
     # data_generator(name = "I", n = 50, num_flights= 30, num_ships=30, num_cargos=600, total_time_slot=84)
+    data_generator(name = "Y", n = 69, num_flights= 50, num_ships=50, num_cargos=600, total_time_slot=315)
 
     # for i in range(4,6) :
     #     data_generator(name = "A1_" + str(i), n = 4, num_flights= 1, num_ships=1, num_cargos=5, total_time_slot=63)
