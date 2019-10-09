@@ -47,13 +47,13 @@ double Arc::getUnitCost() const {
 }
 
 Node::Node(const std::string &name, int cost) : cost(cost), name(name) {
-    //for node which has layer
-    if((int)name[0] - 48 < 7) {
+//    for node which has layer
+    if(name.size() > 2) {
       layer = (int)name[0] - 48;
       node = name[1] - 65;
       time = stoi(name.substr(2));
     }else{ // otherwise
-      node = name[0] - 65;
+      node = (int)name[0] -48;
       time = stoi(name.substr(1));
     }
 }
@@ -78,4 +78,11 @@ int Node::getTime() const {
     return time;
 }
 
+int Node::excel_alpha_to_num(string str){
+  if(str.size() <= 1)
+    return (int) str[0] - 65;
+  else{
+    return ((int) str[0] - 65) * 26 + ((int) str[1] - 65);
+  }
+}
 

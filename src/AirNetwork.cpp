@@ -100,24 +100,23 @@ void AirNetwork::read_air_routes(string data_path, vector<Flight> &flights){
         int total_cost = 0;
         string start_node, cur_node, next_node;
         getline(iss, token, ',');
-        start_node = token;
+        start_node = parse_node(token);
         cur_node = start_node;
         nodes.push_back(cur_node);
-        total_cost += stop_cost[(int) cur_node[0] - 65];
+        total_cost += stop_cost[(int) cur_node[0] - 48];
         while(getline(iss, token, ',')){
             if(token == ""){
                 Route route = Route(nodes, total_cost);
                 routes.push_back(route);
                 nodes.clear();
-                total_cost = stop_cost[(int) cur_node[0] - 65];
+                total_cost = stop_cost[(int) cur_node[0] - 48];
             }else{
-                nodes.push_back(token);
-                next_node = token;
+                next_node = parse_node(token);
+                nodes.push_back(next_node);
                 if(cur_node[0] != next_node[0]) {
-                    total_cost += arc_cost[(int) cur_node[0] - 65][(int) next_node[0] - 65];
-                    total_cost += stop_cost[(int) next_node[0] - 65];
+                    total_cost += arc_cost[(int) cur_node[0] - 48][(int) next_node[0] - 48];
+                    total_cost += stop_cost[(int) next_node[0] - 48];
                 }
-
             }
             cur_node = next_node;
         }
@@ -165,7 +164,7 @@ void AirNetwork::generate_designed_flight() {
 
     vector<Route> routes;
 
-    int start_node = (int) cur_flight.routes[0].nodes[0][0]-65;
+    int start_node = (int) cur_flight.routes[0].nodes[0][0]-48;
     int start_time = dis(gen) % 5;
     int cur_node = start_node;
     int cur_time = start_time;
@@ -175,7 +174,7 @@ void AirNetwork::generate_designed_flight() {
     int freq =  2 ;
 
     vector<string> nodes;
-    nodes.push_back((char) (65 + cur_node) + to_string(cur_time));
+    nodes.push_back((char) (48 + cur_node) + to_string(cur_time));
     total_cost = stop_cost[cur_node];
 
     while (cur_time - start_time < cur_flight.cycle_time -1) {
@@ -187,7 +186,7 @@ void AirNetwork::generate_designed_flight() {
         total_cost += stop_cost[next_node];
         total_cost += arc_cost[cur_node][next_node];
 
-        nodes.push_back((char) (65 + next_node) + to_string(next_time));
+        nodes.push_back((char) (48 + next_node) + to_string(next_time));
 
         cur_node = next_node;
         cur_time = next_time;
@@ -200,7 +199,7 @@ void AirNetwork::generate_designed_flight() {
             cur_time = next_time;
             total_cost += stop_cost[next_node];
             total_cost += arc_cost[cur_node][next_node];
-            nodes.push_back((char) (65 + next_node) + to_string(next_time));
+            nodes.push_back((char) (48 + next_node) + to_string(next_time));
         }
     }
 
@@ -208,7 +207,7 @@ void AirNetwork::generate_designed_flight() {
     Route route = Route(nodes, total_cost);
     int gap = (cur_time - start_time+1);
 
-    Flight new_flight = Flight((char) (65 + start_node), gap, freq, cur_flight.cycle_time, cur_flight.volume_ub , cur_flight.weight_ub);
+    Flight new_flight = Flight((char) (48 + start_node), gap, freq, cur_flight.cycle_time, cur_flight.volume_ub , cur_flight.weight_ub);
     routes.push_back(route);
     for(int f = 1; f < freq; f++){
         Route next_route = Route(route,  gap * f);
@@ -285,7 +284,7 @@ void AirNetwork::forward_append(vector<Route*>** dp, int node, int time) {
 
     for (auto& arc : cur_node->out_arcs){
         Node* end_node = arc->end_node;
-        char end_node_char = (char)end_node->getNode() + 65;
+        char end_node_char = (char)end_node->getNode() + 48;
 
         int end_node_idx =  end_node->getNode();
         int end_time = end_node->getTime();

@@ -27,6 +27,9 @@ protected:
     int* stop_cost;
     int** arc_cost;
     int** time_cost;
+	static int excel_alpha_to_num(string str);
+	static char excel_alpha_to_char(string str);
+	static string parse_node(string token);
 
 public:
     virtual void add_nodes();
