@@ -261,8 +261,8 @@ vector<Route*> AirNetwork::find_routes_from_single_node(char start_node, int sta
         dp[i] = new vector<Route*>[TOTAL_TIME_SLOT];
 
 
-    int start_node_idx = (int) start_node - 'A';
-    int end_node_idx = (int) end_node - 'A';
+    int start_node_idx = (int) start_node - '0';
+    int end_node_idx = (int) end_node - '0';
 
     vector<string> init_node = vector<string>();
     init_node.push_back(start_node + to_string(start_time));
@@ -279,7 +279,7 @@ vector<Route*> AirNetwork::find_routes_from_single_node(char start_node, int sta
 }
 
 void AirNetwork::forward_append(vector<Route*>** dp, int node, int time) {
-    char node_char = (char) ('A' + node) ;
+    char node_char = (char) ('0' + node) ;
     Node* cur_node = nodes[node_char][time];
 
     for (auto& arc : cur_node->out_arcs){
