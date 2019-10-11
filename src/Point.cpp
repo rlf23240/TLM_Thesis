@@ -28,7 +28,7 @@ struct Point{
     }
 
 friend std::ostream &operator<<(std::ostream &os, const Point &point) {
-	os  <<  point.layer << (char) (65 + point.node) <<  point.time;
+	os  <<  point.layer << (char) (48 + point.node) <<  point.time;
 	return os;
 }
 

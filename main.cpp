@@ -10,7 +10,7 @@
 using namespace std;
 
 bool is_designed_route_added = true;
-bool iter_added = true;
+bool iter_added = false;
 bool col_deletion = false;
 
 void generate_paths_arcs(vector<string> data_sets);

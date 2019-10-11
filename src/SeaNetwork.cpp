@@ -92,7 +92,7 @@ void SeaNetwork::read_sea_routes(string data_path, vector<Ship> &ships) {
         getline(iss, token, ',');
         start_node = parse_node(token);
         cur_node = start_node;
-        total_cost += stop_cost[(int) cur_node[0] -65];
+        total_cost += stop_cost[(int) cur_node[0] -45];
         nodes.push_back(cur_node);
         while(getline(iss, token, ',')){
 			next_node = parse_node(token);
