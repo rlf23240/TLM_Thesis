@@ -21,8 +21,8 @@ EntireNetwork::EntireNetwork(string data) {
     create_networks(data);
     find_all_paths();
 
-    candidate_designed_flight_routes = air_network.find_all_routes();
-    candidate_designed_ship_routes = sea_network.find_all_routes();
+//    candidate_designed_flight_routes = air_network.find_all_routes();
+//    candidate_designed_ship_routes = sea_network.find_all_routes();
 
 //    for(auto &route : candidate_designed_flight_routes){
 //        cout << *route << endl;
@@ -239,7 +239,7 @@ void EntireNetwork::add_designed_ships() {
     for(int i = 0; i < num_nodes; i++){
         nodes[layer][i] = vector<Node*>(TOTAL_TIME_SLOT);
         for(int t = 0 ; t < TOTAL_TIME_SLOT; t++){
-            nodes[layer][i][t] = new Node(to_string(layer) + (char) (65 + i) + to_string(t), node_cost[i]);
+            nodes[layer][i][t] = new Node(to_string(layer) + (char) (48 + i) + to_string(t), node_cost[i]);
         }
     }
 
@@ -255,11 +255,11 @@ void EntireNetwork::add_designed_ships() {
                 int end_node_time = stoi(route.nodes[i + 1].substr(1)) + w * 7 * TIME_SLOT_A_DAY;
                 if(end_node_time >= TOTAL_TIME_SLOT) break;
 
-                Node *start_node = nodes[0][(int) start_node_char - 65][start_node_time];
-                Node *end_node = nodes[0][(int) end_node_char - 65][end_node_time];
+                Node *start_node = nodes[0][(int) start_node_char - 48][start_node_time];
+                Node *end_node = nodes[0][(int) end_node_char - 48][end_node_time];
 
-                Arc *arc = new Arc(start_node, end_node, arc_cost[(int) start_node_char - 65][(int) end_node_char - 65],
-                                   ship.volume_ub, sea_profit[(int) start_node_char - 65][(int) end_node_char - 65], sea_cost[(int) start_node_char - 65][(int) end_node_char - 65]);
+                Arc *arc = new Arc(start_node, end_node, arc_cost[(int) start_node_char - 48][(int) end_node_char - 48],
+                                   ship.volume_ub, sea_profit[(int) start_node_char - 48][(int) end_node_char - 48], sea_cost[(int) start_node_char - 48][(int) end_node_char - 48]);
                 add_arc(start_node, end_node, arc);
             }
         }
@@ -275,7 +275,7 @@ void EntireNetwork::add_designed_flights() {
     for(int i = 0; i < num_nodes; i++){
         nodes[layer][i] = vector<Node*>(TOTAL_TIME_SLOT);
         for(int t = 0 ; t < TOTAL_TIME_SLOT; t++){
-            nodes[layer][i][t] = new Node(to_string(layer) + (char) (65 + i) + to_string(t), node_cost[i]);
+            nodes[layer][i][t] = new Node(to_string(layer) + (char) (48 + i) + to_string(t), node_cost[i]);
         }
     }
 
@@ -291,12 +291,12 @@ void EntireNetwork::add_designed_flights() {
                     int end_node_time = week * 7 * TIME_SLOT_A_DAY + stoi(route.nodes[i + 1].substr(1));
                     if(end_node_time >= TOTAL_TIME_SLOT) continue;
 
-                    Node *start_node = nodes[layer][(int) start_node_char - 65][start_node_time];
-                    Node *end_node = nodes[layer][(int) end_node_char - 65][end_node_time];
+                    Node *start_node = nodes[layer][(int) start_node_char - 48][start_node_time];
+                    Node *end_node = nodes[layer][(int) end_node_char - 48][end_node_time];
 
                     Arc *arc = new Arc(start_node, end_node,
-                                       arc_cost[(int) start_node_char - 65][(int) end_node_char - 65], flight.volume_ub,
-                                       flight.weight_ub, air_profit[(int) start_node_char - 65][(int) end_node_char - 65], air_cost[(int) start_node_char - 65][(int) end_node_char - 65]);
+                                       arc_cost[(int) start_node_char - 48][(int) end_node_char - 48], flight.volume_ub,
+                                       flight.weight_ub, air_profit[(int) start_node_char - 48][(int) end_node_char - 48], air_cost[(int) start_node_char - 48][(int) end_node_char - 48]);
 
                     add_arc(start_node, end_node, arc);
                 }
@@ -336,7 +336,7 @@ void EntireNetwork::add_current_ships() {
     for(int i = 0; i < num_nodes; i++){
         nodes[layer][i] = vector<Node*>(TOTAL_TIME_SLOT);
         for(int t = 0 ; t < TOTAL_TIME_SLOT; t++){
-            nodes[layer][i][t] = new Node(to_string(layer) + (char) (65 + i) + to_string(t), node_cost[i]);
+            nodes[layer][i][t] = new Node(to_string(layer) + (char) (48 + i) + to_string(t), node_cost[i]);
         }
     }
 
@@ -351,11 +351,11 @@ void EntireNetwork::add_current_ships() {
                 int end_node_time = stoi(route.nodes[i + 1].substr(1)) + w * 7 * TIME_SLOT_A_DAY;
                 if(end_node_time >= TOTAL_TIME_SLOT) break;
 
-                Node *start_node = nodes[layer][(int) start_node_char - 65][start_node_time];
-                Node *end_node = nodes[layer][(int) end_node_char - 65][end_node_time];
+                Node *start_node = nodes[layer][(int) start_node_char - 48][start_node_time];
+                Node *end_node = nodes[layer][(int) end_node_char - 48][end_node_time];
 
-                Arc *arc = new Arc(start_node, end_node, arc_cost[(int) start_node_char - 65][(int) end_node_char - 65],
-                                   ship.volume_ub, sea_profit[(int) start_node_char - 65][(int) end_node_char - 65], sea_cost[(int) start_node_char - 65][(int) end_node_char - 65]);
+                Arc *arc = new Arc(start_node, end_node, arc_cost[(int) start_node_char - 48][(int) end_node_char - 48],
+                                   ship.volume_ub, sea_profit[(int) start_node_char - 48][(int) end_node_char - 48], sea_cost[(int) start_node_char - 48][(int) end_node_char - 48]);
                 add_arc(start_node, end_node, arc);
             }
         }
@@ -371,7 +371,7 @@ void EntireNetwork::add_virtual_network(string data) {
     for(int i = 0; i < num_nodes; i++){
         nodes[layer][i] = vector<Node*>(TOTAL_TIME_SLOT);
         for(int t = 0 ; t < TOTAL_TIME_SLOT; t++){
-            nodes[layer][i][t] = new Node(to_string(layer) + (char) (65 + i) + to_string(t), virtual_node_cost[i]);
+            nodes[layer][i][t] = new Node(to_string(layer) + (char) (48 + i) + to_string(t), virtual_node_cost[i]);
         }
     }
 
@@ -462,7 +462,7 @@ void EntireNetwork::add_current_flights() {
     for(int i = 0; i < num_nodes; i++){
         nodes[layer][i] = vector<Node*>(TOTAL_TIME_SLOT);
         for(int t = 0 ; t < TOTAL_TIME_SLOT; t++){
-            nodes[layer][i][t] = new Node(to_string(layer) + (char) (65 + i) + to_string(t), node_cost[i]);
+            nodes[layer][i][t] = new Node(to_string(layer) + (char) (48 + i) + to_string(t), node_cost[i]);
         }
     }
 
@@ -478,12 +478,12 @@ void EntireNetwork::add_current_flights() {
                     char end_node_char = route.nodes[i + 1][0];
                     int end_node_time = week * 7 * TIME_SLOT_A_DAY + stoi(route.nodes[i + 1].substr(1));
 
-                    Node *start_node = nodes[layer][(int) start_node_char - 65][start_node_time];
-                    Node *end_node = nodes[layer][(int) end_node_char - 65][end_node_time];
+                    Node *start_node = nodes[layer][(int) start_node_char - 48][start_node_time];
+                    Node *end_node = nodes[layer][(int) end_node_char - 48][end_node_time];
 
                     Arc *arc = new Arc(start_node, end_node,
-                                       arc_cost[(int) start_node_char - 65][(int) end_node_char - 65], flight.volume_ub,
-                                       flight.weight_ub, air_profit[(int) start_node_char - 65][(int) end_node_char - 65], air_cost[(int) start_node_char - 65][(int) end_node_char - 65]);
+                                       arc_cost[(int) start_node_char - 48][(int) end_node_char - 48], flight.volume_ub,
+                                       flight.weight_ub, air_profit[(int) start_node_char - 48][(int) end_node_char - 48], air_cost[(int) start_node_char - 48][(int) end_node_char - 48]);
 
                     add_arc(start_node, end_node, arc);
                 }
@@ -501,7 +501,7 @@ void EntireNetwork::add_rival_ships() {
     for(int i = 0; i < num_nodes; i++){
         nodes[layer][i] = vector<Node*>(TOTAL_TIME_SLOT);
         for(int t = 0 ; t < TOTAL_TIME_SLOT; t++){
-            nodes[layer][i][t] = new Node(to_string(layer) + (char) (65 + i) + to_string(t), node_cost[i]);
+            nodes[layer][i][t] = new Node(to_string(layer) + (char) (48 + i) + to_string(t), node_cost[i]);
         }
     }
 
@@ -516,11 +516,11 @@ void EntireNetwork::add_rival_ships() {
                 int end_node_time = stoi(route.nodes[i + 1].substr(1))+ w * 7 * TIME_SLOT_A_DAY;
                 if(end_node_time >= TOTAL_TIME_SLOT) break;
 
-                Node *start_node = nodes[layer][(int) start_node_char - 65][start_node_time];
-                Node *end_node = nodes[layer][(int) end_node_char - 65][end_node_time];
+                Node *start_node = nodes[layer][(int) start_node_char - 48][start_node_time];
+                Node *end_node = nodes[layer][(int) end_node_char - 48][end_node_time];
 
-                Arc *arc = new Arc(start_node, end_node, arc_cost[(int) start_node_char - 65][(int) end_node_char - 65],
-                                   ship.volume_ub, sea_profit[(int) start_node_char - 65][(int) end_node_char - 65], sea_cost[(int) start_node_char - 65][(int) end_node_char - 65]);
+                Arc *arc = new Arc(start_node, end_node, arc_cost[(int) start_node_char - 48][(int) end_node_char - 48],
+                                   ship.volume_ub, sea_profit[(int) start_node_char - 48][(int) end_node_char - 48], sea_cost[(int) start_node_char - 48][(int) end_node_char - 48]);
 
                 add_arc(start_node, end_node, arc);
             }
@@ -538,7 +538,7 @@ void EntireNetwork::add_rival_flights() {
     for(int i = 0; i < num_nodes; i++){
         nodes[layer][i] = vector<Node*>(TOTAL_TIME_SLOT);
         for(int t = 0 ; t < TOTAL_TIME_SLOT; t++){
-            nodes[layer][i][t] = new Node(to_string(layer) + (char) (65 + i) + to_string(t), node_cost[i]);
+            nodes[layer][i][t] = new Node(to_string(layer) + (char) (48 + i) + to_string(t), node_cost[i]);
         }
     }
 
@@ -554,12 +554,12 @@ void EntireNetwork::add_rival_flights() {
                     char end_node_char = route.nodes[i + 1][0];
                     int end_node_time = week * 7 * TIME_SLOT_A_DAY + stoi(route.nodes[i + 1].substr(1));
 
-                    Node *start_node = nodes[layer][(int) start_node_char - 65][start_node_time];
-                    Node *end_node = nodes[layer][(int) end_node_char - 65][end_node_time];
+                    Node *start_node = nodes[layer][(int) start_node_char - 48][start_node_time];
+                    Node *end_node = nodes[layer][(int) end_node_char - 48][end_node_time];
 
                     Arc *arc = new Arc(start_node, end_node,
-                                       arc_cost[(int) start_node_char - 65][(int) end_node_char - 65], flight.volume_ub,
-                                       flight.weight_ub, air_profit[(int) start_node_char - 65][(int) end_node_char - 65], air_cost[(int) start_node_char - 65][(int) end_node_char - 65]);
+                                       arc_cost[(int) start_node_char - 48][(int) end_node_char - 48], flight.volume_ub,
+                                       flight.weight_ub, air_profit[(int) start_node_char - 48][(int) end_node_char - 48], air_cost[(int) start_node_char - 48][(int) end_node_char - 48]);
 
                     add_arc(start_node, end_node, arc);
                 }

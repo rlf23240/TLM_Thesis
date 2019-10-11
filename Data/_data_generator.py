@@ -27,14 +27,14 @@ def num_to_excel_like_alphabet(num) :
 
 
 def data_generator(name = "A", n = 10, num_ships = 20, num_flights = 20, num_cargos = 100, total_time_slot = 84):
-    sea_data_generator(name, n, num_ships)
-    air_data_generator(name, n, num_flights)
-    virtual_data_generator(name, n)
+    # sea_data_generator(name, n, num_ships)
+    # air_data_generator(name, n, num_flights)
+    # virtual_data_generator(name, n)
     cargo_data_generator(name, n, num_cargos, total_time_slot)
-    param(name, n, num_ships, num_flights, total_time_slot)
-    unload_cost(name, n)
-    unit_profit(name, n)
-    print("Data " + name + " was generated")
+    # param(name, n, num_ships, num_flights, total_time_slot)
+    # unload_cost(name, n)
+    # unit_profit(name, n)
+    # print("Data " + name + " was generated")
 
 
 
@@ -302,7 +302,7 @@ def cargo_data_generator(name, n,num_cargos, total_time_slot):
     cargo_file.write(str(num_cargos) + '\n')
 
     for _ in range(num_cargos) :
-        departure, destination = random.sample([num_to_excel_like_alphabet(i) for i in range(65, 65+n)], 2)
+        departure, destination = random.sample([num_to_excel_like_alphabet(i) for i in range(n)], 2)
 
         starting_time = random.randint(1,total_time_slot // 1.3)
         end_time = random.randint(starting_time + 6, min(starting_time + 63, total_time_slot-1))
@@ -402,7 +402,7 @@ if __name__ == "__main__" :
     # data_generator(name = "G", n = 20, num_flights= 10, num_ships=10, num_cargos=200, total_time_slot=84)
     # data_generator(name = "H", n = 40, num_flights= 20, num_ships=20, num_cargos=400, total_time_slot=84)
     # data_generator(name = "I", n = 50, num_flights= 30, num_ships=30, num_cargos=600, total_time_slot=84)
-    data_generator(name = "Y", n = 69, num_flights= 50, num_ships=50, num_cargos=600, total_time_slot=315)
+    data_generator(name = "Y", n = 69, num_flights= 50, num_ships=50, num_cargos=300, total_time_slot=315)
 
     # for i in range(4,6) :
     #     data_generator(name = "A1_" + str(i), n = 4, num_flights= 1, num_ships=1, num_cargos=5, total_time_slot=63)

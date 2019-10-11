@@ -181,7 +181,8 @@ int main() {
 
 //    compare_grb_algo(A1_sets);
 //    run_gurobi_model(data_sets3);
-    SeaNetwork("../Data/Y_sea", 50, 50);
+    CargoRoute cr = CargoRoute("Y");
+    cr.run_bp();
 //    run_danzig_wolfe(vector<string>{"Y"});
 //    compare_designed_route_added(data_sets3);
 //    compare_iter_added(data_sets3);

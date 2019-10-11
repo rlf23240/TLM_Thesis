@@ -50,7 +50,7 @@ Node::Node(const std::string &name, int cost) : cost(cost), name(name) {
 //    for node which has layer
     if(name.size() > 2) {
       layer = (int)name[0] - 48;
-      node = name[1] - 65;
+      node = name[1] - 48;
       time = stoi(name.substr(2));
     }else{ // otherwise
       node = (int)name[0] -48;

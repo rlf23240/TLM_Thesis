@@ -235,8 +235,8 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
             int end_idx = sea_arc_pair[i].second;
             Point start = networks.idx_to_point(start_idx);
             Point end = networks.idx_to_point(end_idx);
-            for(auto &arc : sea_network.nodes[(char) start.node +65][start.time]->out_arcs){
-                if((int) arc->end_node->getName()[0] - 65 == end.node){
+            for(auto &arc : sea_network.nodes[(char) start.node +48][start.time]->out_arcs){
+                if((int) arc->end_node->getName()[0] - 48 == end.node){
                     arc->fixed_cost -= pi[i];  //update cost
                 }
             }
@@ -256,8 +256,8 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
             int end_idx = air_arc_pair[i].second;
             Point start = networks.idx_to_point(air_arc_pair[i].first);
             Point end = networks.idx_to_point(air_arc_pair[i].second);
-            for(auto &arc : air_network.nodes[(char) start.node +65][start.time % (7 * TIME_SLOT_A_DAY)]->out_arcs){
-                if((int) arc->end_node->getName()[0] - 65 == end.node){
+            for(auto &arc : air_network.nodes[(char) start.node +48][start.time % (7 * TIME_SLOT_A_DAY)]->out_arcs){
+                if((int) arc->end_node->getName()[0] - 48 == end.node){
                     arc->fixed_cost -= pi[sea_arc_pair.size() + i];
                 }
             }
@@ -275,8 +275,8 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
             int end_idx = air_arc_pair[i].second;
             Point start = networks.idx_to_point(air_arc_pair[i].first);
             Point end = networks.idx_to_point(air_arc_pair[i].second);
-            for(auto &arc : air_network.nodes[(char) start.node +65][start.time % (7 * TIME_SLOT_A_DAY)]->out_arcs){
-                if((int) arc->end_node->getName()[0] - 65 == end.node){
+            for(auto &arc : air_network.nodes[(char) start.node +48][start.time % (7 * TIME_SLOT_A_DAY)]->out_arcs){
+                if((int) arc->end_node->getName()[0] - 48 == end.node){
                     arc->fixed_cost -= pi[sea_arc_pair.size() + air_arc_pair.size() + i];
                 }
             }
