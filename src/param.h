@@ -40,7 +40,7 @@ static const int TOTAL_WEEK = 15;
 static const int TIME_PERIOD = TOTAL_WEEK * 7;  //days
 static const unsigned int TOTAL_TIME_SLOT = TIME_PERIOD * TIME_SLOT_A_DAY;
 
-static const int SHIP_STOP_DAY = 1;
+static const int SHIP_STOP_DAY = 3;
 static const int FIX_COST_OF_VIRTUAL_ARC = 100;
 
 static double MU_THRESHOLD = 0;

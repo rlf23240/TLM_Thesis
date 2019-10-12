@@ -21,7 +21,7 @@ ostream &operator<<(ostream &os, const Route &route) {
     if(!route.nodes.empty()) {
         os << "Route : ";
         for (const string &node : route.nodes) {
-            os << node << "->";
+            os << Network::parse_node_backward(node) << "->";
         }
         os << "<\t\tcost : ";
         os << route.cost << endl;
@@ -53,6 +53,19 @@ void Network::read_data(std::string data_path) {
     add_edges();
 }
 
+string Network::num_to_excel_like_alpha(int num){
+  string s;
+  if(num < 26){
+    s.push_back((char) (num + 'A'));
+  }else{
+    int first = (int) num / 26;
+    int second = num % 26;
+    s.push_back((char) (first + 'A'));
+    s.push_back((char) (second + 'A'));
+  }
+  return s;
+}
+
 int Network::excel_alpha_to_num(string str){
     if(str.size() <= 1)
         return (int) str[0] - 'A';
@@ -72,6 +85,10 @@ string Network::parse_node(string token){
       return excel_alpha_to_char(token.substr(0,1)) + token.substr(1);
     }
 }
+string Network::parse_node_backward(string token){
+    return num_to_excel_like_alpha((int) token[0] - 48) + token.substr(1);
+}
+
 void Network::read_node(std::string node_data_path) {
 
     fstream file;

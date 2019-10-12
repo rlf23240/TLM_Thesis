@@ -181,9 +181,7 @@ int main() {
 
 //    compare_grb_algo(A1_sets);
 //    run_gurobi_model(data_sets3);
-    CargoRoute cr = CargoRoute("Y");
-    cr.run_bp();
-//    run_danzig_wolfe(vector<string>{"Y"});
+    run_danzig_wolfe(vector<string>{"Z"});
 //    compare_designed_route_added(data_sets3);
 //    compare_iter_added(data_sets3);
 //    compare_col_deletion(data_sets3);

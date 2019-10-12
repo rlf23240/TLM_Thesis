@@ -402,7 +402,8 @@ if __name__ == "__main__" :
     # data_generator(name = "G", n = 20, num_flights= 10, num_ships=10, num_cargos=200, total_time_slot=84)
     # data_generator(name = "H", n = 40, num_flights= 20, num_ships=20, num_cargos=400, total_time_slot=84)
     # data_generator(name = "I", n = 50, num_flights= 30, num_ships=30, num_cargos=600, total_time_slot=84)
-    data_generator(name = "Y", n = 69, num_flights= 50, num_ships=50, num_cargos=300, total_time_slot=315)
+    # data_generator(name = "Y", n = 69, num_flights= 50, num_ships=50, num_cargos=300, total_time_slot=315)
+    data_generator(name = "Z", n = 69, num_flights= 50, num_ships=50, num_cargos=300, total_time_slot=315)
 
     # for i in range(4,6) :
     #     data_generator(name = "A1_" + str(i), n = 4, num_flights= 1, num_ships=1, num_cargos=5, total_time_slot=63)

@@ -176,7 +176,7 @@ Solution* CargoRoute::branch_and_price() {
     try{
         GRBEnv env = GRBEnv();
         GRBModel model = GRBModel(env);
-        model.set(GRB_IntParam_OutputFlag, false);
+        model.set(GRB_IntParam_OutputFlag, true);
         //initialize
         z = new vector<GRBVar>[cargos.size()];
         z_ = new vector<GRBVar>[cargos.size()];
@@ -991,7 +991,7 @@ double CargoRoute::getObjVal() const {
 
 double CargoRoute::get_P_value(){
     double P_val = 0;
-    if(is_designed_route_added == true) {
+    if(is_designed_route_added) {
         if(networks.get_cur_flights().size() <= 2) {
             //first subproblem
             P_val -= networks.getSea_network().getShips()[0].route.cost;
@@ -999,6 +999,8 @@ double CargoRoute::get_P_value(){
             vector<Route> routes = networks.getAir_network().getFlights()[0].routes;
             P_val -= routes[0].cost * networks.getAir_network().getFlights()[0].freq * TOTAL_WEEK;
         }
+    }else{
+      P_val -= 2500 + 2200 * 2 * TOTAL_WEEK;
     }
     P_val += objVal;
     if(networks.get_cur_flights().size() <= 2)

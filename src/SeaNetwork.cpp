@@ -49,7 +49,7 @@ void SeaNetwork::read_ship_param(string ships_data) {
             string token;
 
             getline(iss, token, '\t');
-            char stating_node = token[0];
+            char stating_node = excel_alpha_to_char(token);
 
             getline(iss, token, '\t');
             int starting_time = stoi(token);
@@ -92,7 +92,7 @@ void SeaNetwork::read_sea_routes(string data_path, vector<Ship> &ships) {
         getline(iss, token, ',');
         start_node = parse_node(token);
         cur_node = start_node;
-        total_cost += stop_cost[(int) cur_node[0] -45];
+        total_cost += stop_cost[(int) cur_node[0] -48];
         nodes.push_back(cur_node);
         while(getline(iss, token, ',')){
 			next_node = parse_node(token);
@@ -103,6 +103,8 @@ void SeaNetwork::read_sea_routes(string data_path, vector<Ship> &ships) {
                 total_cost += arc_cost[(int) cur_node[0] -48][(int) next_node[0] -48];
                 total_cost += stop_cost[(int) next_node[0] -48];
             }
+            if(total_cost > 90000)
+                cout << "Hi";
             cur_node = next_node;
         }
 

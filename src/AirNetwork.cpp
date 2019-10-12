@@ -52,7 +52,7 @@ void AirNetwork::read_flights_param(std::string flights_data) {
             string token;
 
             getline(iss, token, '\t');
-            char flight_name = token[0];
+            char flight_name = excel_alpha_to_char(token);
 
             getline(iss, token, '\t');
             int flight_gap = stoi(token);

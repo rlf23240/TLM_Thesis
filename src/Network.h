@@ -45,9 +45,12 @@ public:
     int *getStop_cost() const;
     int **getArc_cost() const;
 
-  static int excel_alpha_to_num(string str);
-  static char excel_alpha_to_char(string str);
-  static string parse_node(string token);
+    static string num_to_excel_like_alpha(int num);
+    static int excel_alpha_to_num(string str);
+    static char excel_alpha_to_char(string str);
+    static string parse_node(string token);
+    static string parse_node_backward(string token);
+
 };
 
 

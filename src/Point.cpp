@@ -27,13 +27,26 @@ struct Point{
         this->time = stoi(name.substr(2));
     }
 
-friend std::ostream &operator<<(std::ostream &os, const Point &point) {
-	os  <<  point.layer << (char) (48 + point.node) <<  point.time;
-	return os;
-}
+	friend std::ostream &operator<<(std::ostream &os, const Point &point) {
+		os  <<  point.layer << num_to_excel_like_alpha(point.node) <<  point.time;
+		return os;
+	}
 
-int layer;
-int node;
-int time;
+	static string num_to_excel_like_alpha(int num){
+    	string s;
+    	if(num < 26){
+    		s.push_back((char) (num + 'A'));
+    	}else{
+    		int first = (int) num / 26;
+    		int second = num % 26;
+    		s.push_back((char) (first + 'A'));
+    		s.push_back((char) (second + 'A'));
+    	}
+    	return s;
+    }
+
+	int layer;
+	int node;
+	int time;
 };
 
