@@ -176,7 +176,7 @@ Solution* CargoRoute::branch_and_price() {
     try{
         GRBEnv env = GRBEnv();
         GRBModel model = GRBModel(env);
-        model.set(GRB_IntParam_OutputFlag, true);
+        model.set(GRB_IntParam_OutputFlag, false);
         //initialize
         z = new vector<GRBVar>[cargos.size()];
         z_ = new vector<GRBVar>[cargos.size()];
@@ -243,7 +243,13 @@ Solution* CargoRoute::branch_and_price() {
                 z_value[k].push_back(z[k][p].get(GRB_DoubleAttr_X));
             }
         }
+        vector<Path*>* obj_paths = new vector<Path *>[cargos.size()];
 
+        for(int k = 0; k < cargos.size(); k++) {
+            for (const auto &path : target_path[k]) {
+              obj_paths[k].push_back(new Path(path));
+            }
+        }
         Solution *sol = new Solution(cargos.size(), target_path, z_value, get_P_value(), get_r_column(), networks.getSea_Air_Route());
         return sol;
     } catch(GRBException e) {
@@ -649,7 +655,7 @@ void CargoRoute::update_arcs() {
             for (int i = 0; i < nodes.size() - 1; i++) {
                 Point cur_point = Point(3, (int) nodes[i][0] - 48, stoi(nodes[i].substr(1)) + w * 7 * TIME_SLOT_A_DAY);
                 Point next_point = Point(3, (int) nodes[i + 1][0] - 48, stoi(nodes[i + 1].substr(1)) + w * 7 * TIME_SLOT_A_DAY);
-                if(next_point.time >= TOTAL_TIME_SLOT) break;
+                if(next_point.time >= TOTAL_TIME_SLOT) continue;
                 double pi5 = cons5[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)].get(
                         GRB_DoubleAttr_Pi);
                 arcs[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)]->minus_fixed_profit(pi5);
@@ -666,6 +672,7 @@ void CargoRoute::update_arcs() {
                 for (int i = 0; i < nodes.size() - 1; i++) {
                     Point cur_point = Point(4, (int) nodes[i][0] - 48, week * 7 * TIME_SLOT_A_DAY + stoi(nodes[i].substr(1)));
                     Point next_point = Point(4, (int) nodes[i+1][0] - 48, week * 7 * TIME_SLOT_A_DAY + stoi(nodes[i+1].substr(1)));
+                    if(next_point.time >= TOTAL_TIME_SLOT) continue;
                     double pi6 = cons6[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)].get(GRB_DoubleAttr_Pi);
                     double pi7 = cons7[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)].get(GRB_DoubleAttr_Pi);
                     arcs[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)]->minus_fixed_profit(pi6);
@@ -1066,6 +1073,9 @@ void CargoRoute::reset_bp() {
     }
     incumbent = 0;
     integer_set.clear();
+//    for(int i = 0; i < all_paths.size(); i++){
+//      delete all_paths[i];
+//    }
     all_paths.clear();
     delete[] chosen_paths;
     delete[] z;

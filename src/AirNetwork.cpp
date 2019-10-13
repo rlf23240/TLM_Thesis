@@ -180,7 +180,7 @@ void AirNetwork::generate_designed_flight() {
     while (cur_time - start_time < cur_flight.cycle_time -1) {
         do {
             next_node = dis(gen) % num_nodes;
-        } while (cur_node == next_node);
+        } while (cur_node == next_node || time_cost[cur_node][next_node] > TOTAL_TIME_SLOT);
 
         next_time = cur_time + time_cost[cur_node][next_node];
         total_cost += stop_cost[next_node];

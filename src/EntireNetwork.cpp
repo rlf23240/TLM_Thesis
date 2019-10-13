@@ -42,11 +42,24 @@ EntireNetwork::EntireNetwork() = default;
 
 void EntireNetwork::rebuild_networks() {
 
+    for(int i = 0; i < all_paths.size(); i++){
+      delete all_paths[i];
+    }
+    all_paths.clear();
+
+
     cout << air_network.getFlights()[0].routes[0];
     cout << sea_network.getShips()[0].route;
 
+    cout << "1" << endl;
     create_networks(data_str);
-    find_all_paths();
+    cout << "2" << endl;
+    try {
+      find_all_paths();
+    }catch (std::bad_alloc& ba)
+    {
+      std::cerr << "bad_alloc caught: " << ba.what() << '\n';
+    }
 
     for(int i = 0; i < num_nodes; i++){
         for(int j = 0; j < num_nodes; j++) {
@@ -569,6 +582,7 @@ void EntireNetwork::add_rival_flights() {
 }
 
 void EntireNetwork::find_all_paths() {
+
     paths_categories = new vector<Path*>*[num_nodes];
     for(int i = 0; i < num_nodes; i++)
         paths_categories[i] = new vector<Path*>[num_nodes];

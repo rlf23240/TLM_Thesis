@@ -103,8 +103,6 @@ void SeaNetwork::read_sea_routes(string data_path, vector<Ship> &ships) {
                 total_cost += arc_cost[(int) cur_node[0] -48][(int) next_node[0] -48];
                 total_cost += stop_cost[(int) next_node[0] -48];
             }
-            if(total_cost > 90000)
-                cout << "Hi";
             cur_node = next_node;
         }
 
@@ -181,7 +179,7 @@ void SeaNetwork::generate_designed_ship() {
     while (cur_time - start_time < cur_ship.cycle_time - 5) {
         do {
             next_node = dis(gen) % num_nodes;
-        } while (cur_node == next_node);
+        } while (cur_node == next_node || time_cost[cur_node][next_node] > TOTAL_TIME_SLOT);
 
         next_time = cur_time + time_cost[cur_node][next_node];
         total_cost += stop_cost[next_node] * (1+SHIP_STOP_DAY);
