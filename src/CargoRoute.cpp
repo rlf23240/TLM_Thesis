@@ -44,10 +44,10 @@ void CargoRoute::read_cargo_file(string data) {
             string token;
 
             getline(iss, token, '\t');
-            char departure = (char)token[0];
+            char departure = Network::excel_alpha_to_char(token);
 
             getline(iss, token, '\t');
-            char destination = (char)token[0];
+            char destination = Network::excel_alpha_to_char(token);
 
             getline(iss, token, '\t');
             int starting_time = stoi(token);
@@ -102,10 +102,10 @@ void CargoRoute::get_available_path(vector<Path*>** path_categories, vector<Path
         pair<char, char> OD(cargo->departure, cargo->destination);
 
         if(used_OD.find(OD) == used_OD.end()){ //OD not in the set
-            vector<Path*>  od_available_path = path_categories[(int) cargo->departure - 65][(int) cargo->destination - 65];
+            vector<Path*>  od_available_path = path_categories[(int) cargo->departure - 48][(int) cargo->destination - 48];
 //            cout << od_available_path.size() << endl;
             paths.insert(paths.end(), od_available_path.begin(), od_available_path.end()); //append available path to paths
-//            cout << paths.size() << " " << cargo->departure << cargo->destination << " " << path_categories[(int) cargo->departure - 65][(int) cargo->destination - 65].size() << endl;
+//            cout << paths.size() << " " << cargo->departure << cargo->destination << " " << path_categories[(int) cargo->departure - 48][(int) cargo->destination - 48].size() << endl;
         }
         else{
 //            cout << "collision" << endl;
@@ -243,7 +243,13 @@ Solution* CargoRoute::branch_and_price() {
                 z_value[k].push_back(z[k][p].get(GRB_DoubleAttr_X));
             }
         }
+        vector<Path*>* obj_paths = new vector<Path *>[cargos.size()];
 
+        for(int k = 0; k < cargos.size(); k++) {
+            for (const auto &path : target_path[k]) {
+              obj_paths[k].push_back(new Path(path));
+            }
+        }
         Solution *sol = new Solution(cargos.size(), target_path, z_value, get_P_value(), get_r_column(), networks.getSea_Air_Route());
         return sol;
     } catch(GRBException e) {
@@ -272,8 +278,8 @@ void CargoRoute::bp_init(GRBModel &model) {
 
 void CargoRoute::select_init_path() {
     for (int k = 0 ; k < cargos.size(); k++) {
-        int departure = cargos[k]->departure - 65;
-        int destination = cargos[k]->destination - 65 ;
+        int departure = cargos[k]->departure - 48;
+        int destination = cargos[k]->destination - 48 ;
 
 //        Path *best_path = nullptr;
         int path_count = 0 ;
@@ -507,8 +513,8 @@ void CargoRoute::set_constr5(GRBModel &model) {
         for (const auto &ship : ships) {
             vector<string> nodes = ship.route.nodes;
             for (int i = 0; i < nodes.size() - 1; i++) {
-                Point cur_point = Point(3, (int) nodes[i][0] - 65, stoi(nodes[i].substr(1)) + w * 7 * TIME_SLOT_A_DAY);
-                Point next_point = Point(3, (int) nodes[i + 1][0] - 65, stoi(nodes[i + 1].substr(1)) + w * 7 * TIME_SLOT_A_DAY);
+                Point cur_point = Point(3, (int) nodes[i][0] - 48, stoi(nodes[i].substr(1)) + w * 7 * TIME_SLOT_A_DAY);
+                Point next_point = Point(3, (int) nodes[i + 1][0] - 48, stoi(nodes[i + 1].substr(1)) + w * 7 * TIME_SLOT_A_DAY);
                 if(next_point.time >= TOTAL_TIME_SLOT) break;
                 GRBLinExpr lhs = 0;
                 for (int k = 0; k < cargos.size(); k++) {
@@ -537,8 +543,8 @@ void CargoRoute::set_constr6(GRBModel &model) {
             for(const auto &route : flight.routes){
                 vector<string> nodes = route.nodes;
                 for(int i = 0; i < nodes.size() -1; i++){
-                    Point cur_point = Point(4, (int) nodes[i][0] - 65, week * 7 * TIME_SLOT_A_DAY + stoi(nodes[i].substr(1)));
-                    Point next_point = Point(4, (int) nodes[i+1][0] - 65, week * 7 * TIME_SLOT_A_DAY + stoi(nodes[i+1].substr(1)));
+                    Point cur_point = Point(4, (int) nodes[i][0] - 48, week * 7 * TIME_SLOT_A_DAY + stoi(nodes[i].substr(1)));
+                    Point next_point = Point(4, (int) nodes[i+1][0] - 48, week * 7 * TIME_SLOT_A_DAY + stoi(nodes[i+1].substr(1)));
                     GRBLinExpr lhs = 0;
                     for(int k = 0; k < cargos.size(); k++){
                         for(int p = 0; p < target_path[k].size(); p++){
@@ -565,8 +571,8 @@ void CargoRoute::set_constr7(GRBModel &model) {
             for(const auto &route : flight.routes){
                 vector<string> nodes = route.nodes;
                 for(int i = 0; i < nodes.size() -1; i++){
-                    Point cur_point = Point(4, (int) nodes[i][0] - 65, week * 7 * TIME_SLOT_A_DAY + stoi(nodes[i].substr(1)));
-                    Point next_point = Point(4, (int) nodes[i+1][0] - 65, week * 7 * TIME_SLOT_A_DAY + stoi(nodes[i+1].substr(1)));
+                    Point cur_point = Point(4, (int) nodes[i][0] - 48, week * 7 * TIME_SLOT_A_DAY + stoi(nodes[i].substr(1)));
+                    Point next_point = Point(4, (int) nodes[i+1][0] - 48, week * 7 * TIME_SLOT_A_DAY + stoi(nodes[i+1].substr(1)));
                     GRBLinExpr lhs = 0;
                     for(int k = 0; k < cargos.size(); k++){
                         for(int p = 0; p < target_path[k].size(); p++){
@@ -647,9 +653,9 @@ void CargoRoute::update_arcs() {
         for (const auto &ship : ships) {
             vector<string> nodes = ship.route.nodes;
             for (int i = 0; i < nodes.size() - 1; i++) {
-                Point cur_point = Point(3, (int) nodes[i][0] - 65, stoi(nodes[i].substr(1)) + w * 7 * TIME_SLOT_A_DAY);
-                Point next_point = Point(3, (int) nodes[i + 1][0] - 65, stoi(nodes[i + 1].substr(1)) + w * 7 * TIME_SLOT_A_DAY);
-                if(next_point.time >= TOTAL_TIME_SLOT) break;
+                Point cur_point = Point(3, (int) nodes[i][0] - 48, stoi(nodes[i].substr(1)) + w * 7 * TIME_SLOT_A_DAY);
+                Point next_point = Point(3, (int) nodes[i + 1][0] - 48, stoi(nodes[i + 1].substr(1)) + w * 7 * TIME_SLOT_A_DAY);
+                if(next_point.time >= TOTAL_TIME_SLOT) continue;
                 double pi5 = cons5[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)].get(
                         GRB_DoubleAttr_Pi);
                 arcs[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)]->minus_fixed_profit(pi5);
@@ -664,8 +670,9 @@ void CargoRoute::update_arcs() {
             for (const auto &route : flight.routes) {
                 vector<string> nodes = route.nodes;
                 for (int i = 0; i < nodes.size() - 1; i++) {
-                    Point cur_point = Point(4, (int) nodes[i][0] - 65, week * 7 * TIME_SLOT_A_DAY + stoi(nodes[i].substr(1)));
-                    Point next_point = Point(4, (int) nodes[i+1][0] - 65, week * 7 * TIME_SLOT_A_DAY + stoi(nodes[i+1].substr(1)));
+                    Point cur_point = Point(4, (int) nodes[i][0] - 48, week * 7 * TIME_SLOT_A_DAY + stoi(nodes[i].substr(1)));
+                    Point next_point = Point(4, (int) nodes[i+1][0] - 48, week * 7 * TIME_SLOT_A_DAY + stoi(nodes[i+1].substr(1)));
+                    if(next_point.time >= TOTAL_TIME_SLOT) continue;
                     double pi6 = cons6[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)].get(GRB_DoubleAttr_Pi);
                     double pi7 = cons7[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)].get(GRB_DoubleAttr_Pi);
                     arcs[networks.get_node_idx(cur_point)][networks.get_node_idx(next_point)]->minus_fixed_profit(pi6);
@@ -682,8 +689,8 @@ pair<Path*, int> CargoRoute::select_most_profit_path() {
     Path* best_path = nullptr;
     int best_k = -1;
     for (int k = 0 ; k < cargos.size(); k++) {
-        int departure = cargos[k]->departure - 65;
-        int destination = cargos[k]->destination - 65 ;
+        int departure = cargos[k]->departure - 48;
+        int destination = cargos[k]->destination - 48 ;
 //        cout << departure << " " << destination << " " << path_categories[departure][destination].size() << endl;
         for (const auto &path : path_categories[departure][destination]) {
             cal_path_reduced_cost(path, k);
@@ -762,13 +769,13 @@ pair<int,int> CargoRoute::find_kp_pair(){
 
 void CargoRoute::find_sea_arcs() {
     SeaNetwork seaNetwork = networks.getSea_network();
-    for(int i = 65 ; i < 65+num_nodes ;i++){
+    for(int i = 48 ; i < 48+num_nodes ;i++){
         for(int t = 0; t < TOTAL_TIME_SLOT; t++){
             for(const auto& arc : seaNetwork.nodes[(char) i][t]->out_arcs){
                 string out_node = arc->start_node->getName();
                 string in_node = arc->end_node->getName();
-                Point out_point = Point(0, (int) out_node[0] -65, stoi(out_node.substr(1)));
-                Point in_point = Point(0, (int) in_node[0] -65, stoi(in_node.substr(1)));
+                Point out_point = Point(0, (int) out_node[0] -48, stoi(out_node.substr(1)));
+                Point in_point = Point(0, (int) in_node[0] -48, stoi(in_node.substr(1)));
 
                 sea_arc_pairs.emplace_back(networks.get_node_idx(out_point), networks.get_node_idx(in_point));
 //                cout << out_point << " " << in_point << " " << networks.get_node_idx(out_point) << " " << networks.get_node_idx(in_point) << networks.idx_to_point(networks.get_node_idx(out_point)) << " "<< networks.idx_to_point(networks.get_node_idx(in_point)) << " " << endl;
@@ -779,13 +786,13 @@ void CargoRoute::find_sea_arcs() {
 
 void CargoRoute::find_air_arcs() {
     AirNetwork airNetwork = networks.getAir_network();
-    for(int i = 65 ; i < 65+num_nodes ;i++){
+    for(int i = 48 ; i < 48+num_nodes ;i++){
         for(int t = 0; t < TOTAL_TIME_SLOT; t++){
             for(const auto& arc : airNetwork.nodes[(char) i][t]->out_arcs){
                 string out_node = arc->start_node->getName();
                 string in_node = arc->end_node->getName();
-                Point out_point = Point(1, (int) out_node[0] -65, stoi(out_node.substr(1)));
-                Point in_point = Point(1, (int) in_node[0] -65, stoi(in_node.substr(1)));
+                Point out_point = Point(1, (int) out_node[0] -48, stoi(out_node.substr(1)));
+                Point in_point = Point(1, (int) in_node[0] -48, stoi(in_node.substr(1)));
 
                 air_arc_pairs.emplace_back(networks.get_node_idx(out_point), networks.get_node_idx(in_point));
 //                cout << out_point << " " << in_point << " " << networks.get_node_idx(out_point) << " " << networks.get_node_idx(in_point) << " " << networks.idx_to_point(networks.get_node_idx(out_point)) << " "<< networks.idx_to_point(networks.get_node_idx(in_point)) << " " << endl;
@@ -801,9 +808,9 @@ void CargoRoute::arcs_to_file(string data) {
 
 		Point first = networks.idx_to_point(arc.first);
 		Point second = networks.idx_to_point(arc.second);
-		sea_file << to_string(first.layer) + (char) (first.node +65) + to_string(first.time) << ",";
-		sea_file << to_string(second.layer) + (char) (second.node +65) + to_string(second.time);
-		cout << to_string(first.layer) + (char) (first.node +65) + to_string(first.time) << " " << to_string(second.layer) + (char) (second.node +65) + to_string(second.time) << endl;
+		sea_file << to_string(first.layer) + (char) (first.node +48) + to_string(first.time) << ",";
+		sea_file << to_string(second.layer) + (char) (second.node +48) + to_string(second.time);
+		cout << to_string(first.layer) + (char) (first.node +48) + to_string(first.time) << " " << to_string(second.layer) + (char) (second.node +48) + to_string(second.time) << endl;
 
 		sea_file << "\n";
 	}
@@ -815,9 +822,9 @@ void CargoRoute::arcs_to_file(string data) {
 
 		Point first = networks.idx_to_point(arc.first);
 		Point second = networks.idx_to_point(arc.second);
-		air_file << to_string(first.layer) + (char) (first.node +65) + to_string(first.time) << ",";
-		air_file << to_string(second.layer) + (char) (second.node +65) + to_string(second.time) ;
-		cout << to_string(first.layer) + (char) (first.node +65) + to_string(first.time) << " " << to_string(second.layer) + (char) (second.node +65) + to_string(second.time) << endl;
+		air_file << to_string(first.layer) + (char) (first.node +48) + to_string(first.time) << ",";
+		air_file << to_string(second.layer) + (char) (second.node +48) + to_string(second.time) ;
+		cout << to_string(first.layer) + (char) (first.node +48) + to_string(first.time) << " " << to_string(second.layer) + (char) (second.node +48) + to_string(second.time) << endl;
 
 		air_file << "\n";
 	}
@@ -868,8 +875,8 @@ double CargoRoute::get_sea_complicate_constr_val(int start_idx, int end_idx, int
     //right hand side
     Route route = networks.getSea_network().getShips()[0].route;
     for(int i = 0; i < route.nodes.size()-1; i++){
-        Point out_point = Point(0, (int) route.nodes[i][0] - 65 , stoi(route.nodes[i].substr(1)));
-        Point in_point = Point(0, (int) route.nodes[i+1][0] - 65 , stoi(route.nodes[i+1].substr(1)));
+        Point out_point = Point(0, (int) route.nodes[i][0] - 48 , stoi(route.nodes[i].substr(1)));
+        Point in_point = Point(0, (int) route.nodes[i+1][0] - 48 , stoi(route.nodes[i+1].substr(1)));
         int out_point_idx = networks.get_node_idx(out_point);
         int in_point_idx = networks.get_node_idx(in_point);
         if(out_point_idx == start_idx && in_point_idx == end_idx){
@@ -900,8 +907,8 @@ double CargoRoute::get_air_complicate_constr_val(int start_idx, int end_idx, int
     for(int week = 0; week < TIME_PERIOD / 7; week++) {
         for(const auto &route : networks.getAir_network().getFlights()[0].routes) {
             for (int i = 0; i < route.nodes.size() - 1; i++) {
-                Point out_point = Point(1, (int) route.nodes[i][0] - 65, week * 7 * TIME_SLOT_A_DAY + stoi(route.nodes[i].substr(1)));
-                Point in_point = Point(1, (int) route.nodes[i+1][0] - 65, week * 7 * TIME_SLOT_A_DAY + stoi(route.nodes[i + 1].substr(1)));
+                Point out_point = Point(1, (int) route.nodes[i][0] - 48, week * 7 * TIME_SLOT_A_DAY + stoi(route.nodes[i].substr(1)));
+                Point in_point = Point(1, (int) route.nodes[i+1][0] - 48, week * 7 * TIME_SLOT_A_DAY + stoi(route.nodes[i + 1].substr(1)));
                 int out_point_idx = networks.get_node_idx(out_point);
                 int in_point_idx = networks.get_node_idx(in_point);
                 if (out_point_idx == start_idx && in_point_idx == end_idx) {
@@ -936,8 +943,8 @@ double CargoRoute::complicate_sea_rhs(int start_idx, int end_idx, int ub) {
     Route route = networks.getSea_network().getShips()[0].route;
     for(int w = 0; w < TOTAL_WEEK ; w++) {
         for (int i = 0; i < route.nodes.size() - 1; i++) {
-            Point out_point = Point(0, (int) route.nodes[i][0] - 65, stoi(route.nodes[i].substr(1)) + w * 7 * TIME_SLOT_A_DAY);
-            Point in_point = Point(0, (int) route.nodes[i + 1][0] - 65, stoi(route.nodes[i + 1].substr(1))+ w * 7 * TIME_SLOT_A_DAY);
+            Point out_point = Point(0, (int) route.nodes[i][0] - 48, stoi(route.nodes[i].substr(1)) + w * 7 * TIME_SLOT_A_DAY);
+            Point in_point = Point(0, (int) route.nodes[i + 1][0] - 48, stoi(route.nodes[i + 1].substr(1))+ w * 7 * TIME_SLOT_A_DAY);
             int out_point_idx = networks.get_node_idx(out_point);
             int in_point_idx = networks.get_node_idx(in_point);
             if (out_point_idx == start_idx && in_point_idx == end_idx) {
@@ -955,8 +962,8 @@ double CargoRoute::complicate_air_rhs(int start_idx, int end_idx, int ub) {
     for(int week = 0; week < TIME_PERIOD / 7; week++) {
         for(const auto &route : networks.getAir_network().getFlights()[0].routes) {
             for (int i = 0; i < route.nodes.size() - 1; i++) {
-                Point out_point = Point(1, (int) route.nodes[i][0] - 65, week * 7 * TIME_SLOT_A_DAY + stoi(route.nodes[i].substr(1)));
-                Point in_point = Point(1, (int) route.nodes[i+1][0] - 65, week * 7 * TIME_SLOT_A_DAY + stoi(route.nodes[i + 1].substr(1)));
+                Point out_point = Point(1, (int) route.nodes[i][0] - 48, week * 7 * TIME_SLOT_A_DAY + stoi(route.nodes[i].substr(1)));
+                Point in_point = Point(1, (int) route.nodes[i+1][0] - 48, week * 7 * TIME_SLOT_A_DAY + stoi(route.nodes[i + 1].substr(1)));
                 int out_point_idx = networks.get_node_idx(out_point);
                 int in_point_idx = networks.get_node_idx(in_point);
                 if (out_point_idx == start_idx && in_point_idx == end_idx) {
@@ -991,7 +998,7 @@ double CargoRoute::getObjVal() const {
 
 double CargoRoute::get_P_value(){
     double P_val = 0;
-    if(is_designed_route_added == true) {
+    if(is_designed_route_added) {
         if(networks.get_cur_flights().size() <= 2) {
             //first subproblem
             P_val -= networks.getSea_network().getShips()[0].route.cost;
@@ -999,6 +1006,8 @@ double CargoRoute::get_P_value(){
             vector<Route> routes = networks.getAir_network().getFlights()[0].routes;
             P_val -= routes[0].cost * networks.getAir_network().getFlights()[0].freq * TOTAL_WEEK;
         }
+    }else{
+      P_val -= 2500 + 2200 * 2 * TOTAL_WEEK;
     }
     P_val += objVal;
     if(networks.get_cur_flights().size() <= 2)
@@ -1064,6 +1073,9 @@ void CargoRoute::reset_bp() {
     }
     incumbent = 0;
     integer_set.clear();
+//    for(int i = 0; i < all_paths.size(); i++){
+//      delete all_paths[i];
+//    }
     all_paths.clear();
     delete[] chosen_paths;
     delete[] z;
@@ -1095,8 +1107,8 @@ Solution* CargoRoute::Run_full_model() {
 
 
     for (int k = 0 ; k < cargos.size(); k++) {
-        int departure = cargos[k]->departure - 65;
-        int destination = cargos[k]->destination - 65 ;
+        int departure = cargos[k]->departure - 48;
+        int destination = cargos[k]->destination - 48 ;
 
         for (const auto &path : path_categories[departure][destination]) {
             if(is_path_feasible_for_cargo(path, cargos[k])) {

@@ -15,6 +15,11 @@ struct Path{
         this->stay_at_virtual = path.stay_at_virtual;
         this->virtual_entry_time = path.virtual_entry_time;
     }
+    Path(const Path *path) {
+      this->points.assign(path->points.begin(), path->points.end());
+      this->stay_at_virtual = path->stay_at_virtual;
+      this->virtual_entry_time = path->virtual_entry_time;
+    }
 
     Path(Point start_point){
         this->points.push_back(start_point);

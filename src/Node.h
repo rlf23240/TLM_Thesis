@@ -60,5 +60,9 @@ public:
 private:
     int cost = 0;
     std::string name;
+    int layer;
+    int node;
+    int time;
+    static int excel_alpha_to_num(string str);
 };
 #endif //TLM_THESIS_NODE_H

@@ -49,7 +49,7 @@ void SeaNetwork::read_ship_param(string ships_data) {
             string token;
 
             getline(iss, token, '\t');
-            char stating_node = token[0];
+            char stating_node = excel_alpha_to_char(token);
 
             getline(iss, token, '\t');
             int starting_time = stoi(token);
@@ -86,23 +86,22 @@ void SeaNetwork::read_sea_routes(string data_path, vector<Ship> &ships) {
         string token;
         getline(iss, token, ',');
         int volume_ub = stoi(token);
-
         vector<string> nodes;
         string start_node,cur_node, next_node;
         int total_cost = 0;
         getline(iss, token, ',');
-        start_node = token;
+        start_node = parse_node(token);
         cur_node = start_node;
-        total_cost += stop_cost[(int) cur_node[0] -65];
+        total_cost += stop_cost[(int) cur_node[0] -48];
         nodes.push_back(cur_node);
         while(getline(iss, token, ',')){
-            nodes.push_back(token);
-            next_node = token;
+			next_node = parse_node(token);
+            nodes.push_back(next_node);
             if(cur_node[0] == next_node[0]){
-                total_cost += stop_cost[(int) cur_node[0] -65] * (stoi(next_node.substr(1)) - stoi(cur_node.substr(1)));
+                total_cost += stop_cost[(int) cur_node[0] -48] * (stoi(next_node.substr(1)) - stoi(cur_node.substr(1)));
             }else{
-                total_cost += arc_cost[(int) cur_node[0] -65][(int) next_node[0] -65];
-                total_cost += stop_cost[(int) next_node[0] -65];
+                total_cost += arc_cost[(int) cur_node[0] -48][(int) next_node[0] -48];
+                total_cost += stop_cost[(int) next_node[0] -48];
             }
             cur_node = next_node;
         }
@@ -123,13 +122,13 @@ void SeaNetwork::run_algo() {
 }
 
 void SeaNetwork::forward_update(Route **dp, int node, int time) {
-    char node_char = (char) ('A' + node) ;
+    char node_char = (char) ('0' + node) ;
     Node* cur_node = nodes[node_char][time];
 
     for (auto& arc : cur_node->out_arcs){
         Node* end_node = arc->end_node;
         char end_node_char = end_node->getName()[0];
-        int end_node_idx = (int) end_node_char - 65;
+        int end_node_idx = (int) end_node_char - 48;
 
         int additional_stay_days = (node_char==end_node_char)? 0 : SHIP_STOP_DAY;
 
@@ -168,26 +167,26 @@ void SeaNetwork::generate_designed_ship() {
     uniform_int_distribution<int> dis(0, INT_MAX);
     Ship cur_ship = designed_ships[0];
 
-    int start_node = (int) cur_ship.route.nodes[0][0] - 65;
+    int start_node = (int) cur_ship.route.nodes[0][0] - 48;
     int start_time = cur_ship.start_time;
     int cur_node = start_node;
     int cur_time = start_time;
     int next_node, next_time;
     int total_cost = 0;
     vector<string> nodes;
-    nodes.push_back((char) (65 + start_node) + to_string(start_time));
+    nodes.push_back((char) (48 + start_node) + to_string(start_time));
     total_cost = stop_cost[start_node];
     while (cur_time - start_time < cur_ship.cycle_time - 5) {
         do {
             next_node = dis(gen) % num_nodes;
-        } while (cur_node == next_node);
+        } while (cur_node == next_node || time_cost[cur_node][next_node] > TOTAL_TIME_SLOT);
 
         next_time = cur_time + time_cost[cur_node][next_node];
         total_cost += stop_cost[next_node] * (1+SHIP_STOP_DAY);
         total_cost += arc_cost[cur_node][next_node];
 
-        nodes.push_back((char) (65 + next_node) + to_string(next_time));
-        nodes.push_back((char) (65 + next_node) + to_string(next_time + SHIP_STOP_DAY));
+        nodes.push_back((char) (48 + next_node) + to_string(next_time));
+        nodes.push_back((char) (48 + next_node) + to_string(next_time + SHIP_STOP_DAY));
 
         cur_node = next_node;
         cur_time = next_time;
@@ -198,13 +197,13 @@ void SeaNetwork::generate_designed_ship() {
         if(next_time < TOTAL_TIME_SLOT) {
             total_cost += stop_cost[next_node];
             total_cost += arc_cost[cur_node][next_node];
-            nodes.push_back((char) (65 + next_node) + to_string(next_time));
+            nodes.push_back((char) (48 + next_node) + to_string(next_time));
         }
     }
 
 
     Route route = Route(nodes, total_cost);
-    Ship new_ship = Ship((char) (65 + start_node), start_time, 1, cur_ship.cycle_time, cur_ship.volume_ub);
+    Ship new_ship = Ship((char) (48 + start_node), start_time, 1, cur_ship.cycle_time, cur_ship.volume_ub);
     new_ship.route = route;
     designed_ships[0] = new_ship;
 
@@ -249,8 +248,8 @@ vector<Route *> SeaNetwork::find_routes_from_single_node(char start_node, int st
         dp[i] = new vector<Route*>[TOTAL_TIME_SLOT];
 
 
-    int start_node_idx = (int) start_node - 'A';
-    int end_node_idx = (int) end_node - 'A';
+    int start_node_idx = (int) start_node - '0';
+    int end_node_idx = (int) end_node - '0';
 
     vector<string> init_node = vector<string>();
     init_node.push_back(start_node + to_string(start_time));
@@ -267,7 +266,7 @@ vector<Route *> SeaNetwork::find_routes_from_single_node(char start_node, int st
 }
 
 void SeaNetwork::forward_append(vector<Route *> **dp, int node, int time, int finish_time) {
-    char node_char = (char) ('A' + node);
+    char node_char = (char) ('0' + node);
     Node *cur_node = nodes[node_char][time];
 
     for (auto &arc : cur_node->out_arcs) {
@@ -275,7 +274,7 @@ void SeaNetwork::forward_append(vector<Route *> **dp, int node, int time, int fi
         char end_node_char = end_node->getName()[0];
         if(node_char == end_node_char) continue;
 
-        int end_node_idx = (int) end_node_char - 65;
+        int end_node_idx = (int) end_node_char - 48;
         int additional_stay_days = (node_char == end_node_char) ? 0 : SHIP_STOP_DAY;
 
         int end_time = stoi(end_node->getName().substr(1)) + additional_stay_days;

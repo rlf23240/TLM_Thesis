@@ -229,71 +229,71 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
     cout << endl;
 
     SeaNetwork sea_network = networks.getSea_network();
-    for(int i = 0; i < sea_arc_pair.size(); i++){
-        if(pi[i] != 0){
-            int start_idx = sea_arc_pair[i].first;
-            int end_idx = sea_arc_pair[i].second;
-            Point start = networks.idx_to_point(start_idx);
-            Point end = networks.idx_to_point(end_idx);
-            for(auto &arc : sea_network.nodes[(char) start.node +65][start.time]->out_arcs){
-                if((int) arc->end_node->getName()[0] - 65 == end.node){
-                    arc->fixed_cost -= pi[i];  //update cost
-                }
-            }
-            if(networks.arcs.find(start_idx) != networks.arcs.end() && networks.arcs[start_idx].find(end_idx) != networks.arcs[start_idx].end()){ //found arc in entirenetwork
-                networks.arcs[start_idx][end_idx]->minus_fixed_profit(pi[i]); //update profit
-//                cout << start << " " << end << " "<< networks.arcs[start_idx][end_idx]->fixed_profit << endl;
-            }
-        }
-    }
+//    for(int i = 0; i < sea_arc_pair.size(); i++){
+//        if(pi[i] != 0){
+//            int start_idx = sea_arc_pair[i].first;
+//            int end_idx = sea_arc_pair[i].second;
+//            Point start = networks.idx_to_point(start_idx);
+//            Point end = networks.idx_to_point(end_idx);
+//            for(auto &arc : sea_network.nodes[(char) start.node +48][start.time]->out_arcs){
+//                if((int) arc->end_node->getName()[0] - 48 == end.node){
+//                    arc->fixed_cost -= pi[i];  //update cost
+//                }
+//            }
+//            if(networks.arcs.find(start_idx) != networks.arcs.end() && networks.arcs[start_idx].find(end_idx) != networks.arcs[start_idx].end()){ //found arc in entirenetwork
+//                networks.arcs[start_idx][end_idx]->minus_fixed_profit(pi[i]); //update profit
+////                cout << start << " " << end << " "<< networks.arcs[start_idx][end_idx]->fixed_profit << endl;
+//            }
+//        }
+//    }
 
 
 
     AirNetwork air_network = networks.getAir_network();
-    for(unsigned long long int i = 0; i <  air_arc_pair.size(); i++){
-        if(pi[sea_arc_pair.size() + i] != 0){
-            int start_idx = air_arc_pair[i].first;
-            int end_idx = air_arc_pair[i].second;
-            Point start = networks.idx_to_point(air_arc_pair[i].first);
-            Point end = networks.idx_to_point(air_arc_pair[i].second);
-            for(auto &arc : air_network.nodes[(char) start.node +65][start.time % (7 * TIME_SLOT_A_DAY)]->out_arcs){
-                if((int) arc->end_node->getName()[0] - 65 == end.node){
-                    arc->fixed_cost -= pi[sea_arc_pair.size() + i];
-                }
-            }
-            if(networks.arcs.find(start_idx) != networks.arcs.end() && networks.arcs[start_idx].find(end_idx) != networks.arcs[start_idx].end()){ //found arc in entirenetwork
-                networks.arcs[start_idx][end_idx]->minus_fixed_profit(pi[sea_arc_pair.size() + i]); //update profit
-//                cout << start << " " << end << " "<< networks.arcs[start_idx][end_idx]->fixed_profit << endl;
-            }
-        }
-    }
-
-
-    for(unsigned long long int i = 0; i < air_arc_pair.size(); i++){
-        if(pi[sea_arc_pair.size() + air_arc_pair.size() + i] != 0){
-            int start_idx = air_arc_pair[i].first;
-            int end_idx = air_arc_pair[i].second;
-            Point start = networks.idx_to_point(air_arc_pair[i].first);
-            Point end = networks.idx_to_point(air_arc_pair[i].second);
-            for(auto &arc : air_network.nodes[(char) start.node +65][start.time % (7 * TIME_SLOT_A_DAY)]->out_arcs){
-                if((int) arc->end_node->getName()[0] - 65 == end.node){
-                    arc->fixed_cost -= pi[sea_arc_pair.size() + air_arc_pair.size() + i];
-                }
-            }
-            if(networks.arcs.find(start_idx) != networks.arcs.end() && networks.arcs[start_idx].find(end_idx) != networks.arcs[start_idx].end()){ //found arc in entirenetwork
-                networks.arcs[start_idx][end_idx]->minus_fixed_profit(pi[sea_arc_pair.size() + air_arc_pair.size() + i]); //update profit
-//                cout << start << " " << end << " "<< networks.arcs[start_idx][end_idx]->fixed_profit << endl;
-            }
-        }
-    }
+//    for(unsigned long long int i = 0; i <  air_arc_pair.size(); i++){
+//        if(pi[sea_arc_pair.size() + i] != 0){
+//            int start_idx = air_arc_pair[i].first;
+//            int end_idx = air_arc_pair[i].second;
+//            Point start = networks.idx_to_point(air_arc_pair[i].first);
+//            Point end = networks.idx_to_point(air_arc_pair[i].second);
+//            for(auto &arc : air_network.nodes[(char) start.node +48][start.time % (7 * TIME_SLOT_A_DAY)]->out_arcs){
+//                if((int) arc->end_node->getName()[0] - 48 == end.node){
+//                    arc->fixed_cost -= pi[sea_arc_pair.size() + i];
+//                }
+//            }
+//            if(networks.arcs.find(start_idx) != networks.arcs.end() && networks.arcs[start_idx].find(end_idx) != networks.arcs[start_idx].end()){ //found arc in entirenetwork
+//                networks.arcs[start_idx][end_idx]->minus_fixed_profit(pi[sea_arc_pair.size() + i]); //update profit
+////                cout << start << " " << end << " "<< networks.arcs[start_idx][end_idx]->fixed_profit << endl;
+//            }
+//        }
+//    }
+//
+//
+//    for(unsigned long long int i = 0; i < air_arc_pair.size(); i++){
+//        if(pi[sea_arc_pair.size() + air_arc_pair.size() + i] != 0){
+//            int start_idx = air_arc_pair[i].first;
+//            int end_idx = air_arc_pair[i].second;
+//            Point start = networks.idx_to_point(air_arc_pair[i].first);
+//            Point end = networks.idx_to_point(air_arc_pair[i].second);
+//            for(auto &arc : air_network.nodes[(char) start.node +48][start.time % (7 * TIME_SLOT_A_DAY)]->out_arcs){
+//                if((int) arc->end_node->getName()[0] - 48 == end.node){
+//                    arc->fixed_cost -= pi[sea_arc_pair.size() + air_arc_pair.size() + i];
+//                }
+//            }
+//            if(networks.arcs.find(start_idx) != networks.arcs.end() && networks.arcs[start_idx].find(end_idx) != networks.arcs[start_idx].end()){ //found arc in entirenetwork
+//                networks.arcs[start_idx][end_idx]->minus_fixed_profit(pi[sea_arc_pair.size() + air_arc_pair.size() + i]); //update profit
+////                cout << start << " " << end << " "<< networks.arcs[start_idx][end_idx]->fixed_profit << endl;
+//            }
+//        }
+//    }
 
 //    air_network.run_algo();
 //    sea_network.run_algo();
-//    air_network.generate_designed_flight();
-//    this->cargoRoute.getNetworks().setAir_network(air_network);
-//    sea_network.generate_designed_ship();
-//    this->cargoRoute.getNetworks().setSea_network(sea_network);
-    this->cargoRoute.getNetworks().generate_new_routes();
+    air_network.generate_designed_flight();
+    this->cargoRoute.getNetworks().setAir_network(air_network);
+    sea_network.generate_designed_ship();
+    this->cargoRoute.getNetworks().setSea_network(sea_network);
+//    this->cargoRoute.getNetworks().generate_new_routes();
     this->cargoRoute.rebuild_entire_network();
 }
 

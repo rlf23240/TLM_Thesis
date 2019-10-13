@@ -13,4 +13,4 @@ Cargo :3,	z :0.2,	Path :2C27->4C27->4D29-><
 Route : B5->A15->A16->B26->B27-><		cost : 1490
 Route : A5->B7->C8->D10->A12-><		cost : 1930
 Route : A13->B15->C16->D18->A20-><		cost : 1930
-Run time : 16.464 sec. 
+Run time : 16.464 sec.

@@ -5,11 +5,12 @@
 #include <ctime>
 #include "numeric"
 #include "algorithm"
+#include "string.h"
 
 using namespace std;
 
 bool is_designed_route_added = true;
-bool iter_added = true;
+bool iter_added = false;
 bool col_deletion = false;
 
 void generate_paths_arcs(vector<string> data_sets);
@@ -172,17 +173,21 @@ int main() {
     vector<string> data_sets{"A1", "A2", "A3"};
     vector<string> data_sets2{"A5"};
     vector<string> data_sets3{"A", "B", "C", "D", "E"};
-
-
     vector<string> A1_sets{"A1_1","A1_2","A1_3","A1_4","A1_5"};
     vector<string> A2_sets{"A2_1","A2_2","A2_3","A2_4","A2_5","A2_6","A2_7","A2_8","A2_9","A2_10"};
     vector<string> A3_sets{"A3_1","A3_2","A3_3","A3_4","A3_5"};
 
+
 //    run_danzig_wolfe(data_sets2);
 //    run_gurobi_model(A1_sets);
 
-    compare_grb_algo(data_sets2);
+//    compare_grb_algo(data_sets2);
 //    compare_designed_route_added(data_sets3);
+
+//    compare_grb_algo(A1_sets);
+//    run_gurobi_model(data_sets3);
+//    run_danzig_wolfe(vector<string>{"Z"});
+    compare_designed_route_added(vector<string>{"Z"});
 //    compare_iter_added(data_sets3);
 //    compare_col_deletion(data_sets3);
 //    return 0;

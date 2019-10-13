@@ -21,7 +21,7 @@ ostream &operator<<(ostream &os, const Route &route) {
     if(!route.nodes.empty()) {
         os << "Route : ";
         for (const string &node : route.nodes) {
-            os << node << "->";
+            os << Network::parse_node_backward(node) << "->";
         }
         os << "<\t\tcost : ";
         os << route.cost << endl;
@@ -51,6 +51,42 @@ void Network::read_data(std::string data_path) {
     read_time_cost(data_path + "_timecost.txt");
     add_nodes();
     add_edges();
+}
+
+string Network::num_to_excel_like_alpha(int num){
+  string s;
+  if(num < 26){
+    s.push_back((char) (num + 'A'));
+  }else{
+    int first = (int) num / 26;
+    int second = num % 26;
+    s.push_back((char) (first + 'A'));
+    s.push_back((char) (second + 'A'));
+  }
+  return s;
+}
+
+int Network::excel_alpha_to_num(string str){
+    if(str.size() <= 1)
+        return (int) str[0] - 'A';
+    else{
+        return ((int) str[0] - 'A' +1) * 26 + ((int) str[1] - 'A');
+      }
+}
+char Network::excel_alpha_to_char(string str){
+    return (char) excel_alpha_to_num(str) + 48; // start from 0
+
+}
+string Network::parse_node(string token){
+    if((int)token[1] >= 65){
+      return excel_alpha_to_char(token.substr(0,2)) + token.substr(2);
+    }
+    else{
+      return excel_alpha_to_char(token.substr(0,1)) + token.substr(1);
+    }
+}
+string Network::parse_node_backward(string token){
+    return num_to_excel_like_alpha((int) token[0] - 48) + token.substr(1);
 }
 
 void Network::read_node(std::string node_data_path) {
@@ -140,7 +176,7 @@ void Network::read_time_cost(std::string time_data_path) {
 void Network::add_nodes() {
     // add time space network nodes
     for(int i = 0; i < num_nodes; i++){
-        char letter = (char) (65+i);
+        char letter = (char) (48+i);
         nodes[letter] = vector<Node*>();
 
         for(int node = 0; node < TOTAL_TIME_SLOT; node++){
@@ -165,9 +201,9 @@ void Network::add_edges() {
         for(int i = 0; i < num_nodes; i++){
             for(int out = 0; out < num_nodes; out++){
                 if(arc_cost[i][out] < INT_MAX && t+time_cost[i][out] < TOTAL_TIME_SLOT){
-//                    cout << (char) (65+i) <<t<< " To " << (char) (65+out)<<t+time_cost[i][out]
+//                    cout << (char) (65+i) <<t<< " To " << (char) (48+out)<<t+time_cost[i][out]
 //                    << "  Arc Cost :" <<arc_cost[i][out]<<endl;
-                    add_edge(nodes[(char) 'A'+i][t], nodes[(char) 'A'+out][t + time_cost[i][out]], arc_cost[i][out]);
+                    add_edge(nodes[(char) '0'+i][t], nodes[(char) '0'+out][t + time_cost[i][out]], arc_cost[i][out]);
                             // start                  end                                            cost
                 }
             }
@@ -181,8 +217,8 @@ Route Network::DP_shortest_path(char start_node, int start_time, char end_node, 
         dp[i] = new Route[TOTAL_TIME_SLOT];
 
 
-    int start_node_idx = (int) start_node - 'A';
-    int end_node_idx = (int) end_node - 'A';
+    int start_node_idx = (int) start_node - '0';
+    int end_node_idx = (int) end_node - '0';
 
     vector<string> init_node = vector<string>();
     init_node.push_back(start_node + to_string(start_time));
@@ -200,13 +236,13 @@ Route Network::DP_shortest_path(char start_node, int start_time, char end_node, 
 }
 
 void Network::forward_update(Route** dp, int node, int time) {
-    char node_char = (char) ('A' + node) ;
+    char node_char = (char) ('0' + node) ;
     Node* cur_node = nodes[node_char][time];
 
     for (auto& arc : cur_node->out_arcs){
         Node* end_node = arc->end_node;
         char end_node_char = end_node->getName()[0];
-        int end_node_idx = (int) end_node_char - 65;
+        int end_node_idx = (int) end_node_char - 48;
         int end_time = stoi(end_node->getName().substr(1));
 
         //Calculate cost if append end node to current route
