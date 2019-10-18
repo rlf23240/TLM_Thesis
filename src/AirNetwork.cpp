@@ -308,7 +308,7 @@ vector<Route*> AirNetwork::find_routes_from_single_node(char start_node, int sta
                     Route *route = new Route(new_nodes, cost);
                     routes.push_back(route);
                     
-                    cout << *route
+                    cout << *route;
     
                 } else {
                     stack.push_back(new NodeTraversalData(next_node_str, cost, next_node->out_arcs));

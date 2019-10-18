@@ -325,7 +325,7 @@ vector<Route *> SeaNetwork::find_routes_from_single_node(char start_node, int st
                     Route *route = new Route(new_nodes, cost);
                     routes.push_back(route);
                     
-                    cout << *route << endl;
+                    cout << *route;
                 } else {
                     stack.push_back(new NodeTraversalData(next_node_str, cost, next_node->out_arcs));
                 }
