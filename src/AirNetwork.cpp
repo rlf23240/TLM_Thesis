@@ -257,50 +257,71 @@ vector<Route*> AirNetwork::find_all_routes() {
 }
 
 vector<Route*> AirNetwork::find_routes_from_single_node(char start_node, int start_time, char end_node, int end_time) {
-    vector<Route*> **dp = new vector<Route*> *[num_nodes];
-    for (int i = 0; i < num_nodes; i++)
-        dp[i] = new vector<Route*>[TOTAL_TIME_SLOT];
-
-
+    // TODO: Very Important! Check this algorithm is vaild!!
+    
+    // Internal data use to record travesal state.
+    struct NodeTraversalData {
+        string node;
+        vector<Arc*> arcs;
+        int cost;
+    
+        NodeTraversalData(string node, int cost, vector<Arc*> arcs): node(node), cost(cost), arcs(arcs) {}
+    };
+    
+    vector<Route*> routes = vector<Route*>();
+    
     int start_node_idx = (int) start_node - 'A';
     int end_node_idx = (int) end_node - 'A';
-
-    vector<string> init_node = vector<string>();
-    init_node.push_back(start_node + to_string(start_time));
-
-    dp[start_node_idx][start_time].push_back(new Route(init_node, stop_cost[start_node_idx]));
-    forward_append(dp, start_node_idx, start_time);
-
-    for (int t = start_time + 1; t < end_time; t++) {
-        for (int node = 0; node < num_nodes; node++) {
-            forward_append(dp, node, t);
+    
+    // Use stack to record passed node.
+    vector<NodeTraversalData*> stack {new NodeTraversalData(start_node + to_string(start_time), stop_cost[start_node_idx], nodes[start_node][start_time]->out_arcs)};
+    while (stack.empty() == false) {
+        string node_str = stack.back()->node;
+        
+        // If arcs are all visited pop back and find next node. 
+        if (stack.back()->arcs.empty()) {
+            delete stack.back();
+            stack.pop_back();
+            for_each(stack.begin(), stack.end(), [](NodeTraversalData* data) {
+                cout << data->node;
+            });
+            cout << endl;
+        } else {
+            Arc *arc = stack.back()->arcs.back();
+            stack.back()->arcs.pop_back();
+            for_each(stack.begin(), stack.end(), [](NodeTraversalData* data) {
+                cout << data->node;
+            });
+            cout << endl;
+            
+            Node *next_node = arc->end_node;
+            int next_time = next_node->getTime();
+            string next_node_str = next_node->getName();
+    
+            double cost = stack.back()->cost + arc->cost + next_node->getCost();
+            
+            // If node is feasible...
+            if (next_time <= end_time) {
+                // If we reach the goal...
+                if (next_node->getNode() == end_node_idx) {
+                    vector<string> new_nodes = vector<string>();
+                    for (auto& data : stack) {
+                        new_nodes.push_back(data->node);
+                    }
+                    // TODO: Very Important! Check wheather if we need add additional node to stay at the end!
+                    new_nodes.push_back(next_node_str);
+                    routes.push_back(new Route(new_nodes, cost));
+                } else {
+                    stack.push_back(new NodeTraversalData(next_node_str, cost, next_node->out_arcs));
+                }
+            }
         }
+        
+        //int time = stoi(node_str.substr(1));
+        //Node *cur_node = nodes[node_str[0]][time];
     }
-    return dp[end_node_idx][end_time];
-}
 
-void AirNetwork::forward_append(vector<Route*>** dp, int node, int time) {
-    char node_char = (char) ('A' + node) ;
-    Node* cur_node = nodes[node_char][time];
-
-    for (auto& arc : cur_node->out_arcs){
-        Node* end_node = arc->end_node;
-        char end_node_char = end_node->getName()[0];
-
-        int end_node_idx = (int) end_node_char - 65;
-        int end_time = stoi(end_node->getName().substr(1));
-
-        //Calculate cost if append end node to current route
-        vector<Route*> cur_routes = dp[node][time];
-        vector<Route*> end_routes = dp[end_node_idx][end_time];
-        for(const auto& route : cur_routes) {
-            double new_cost = route->cost + arc->cost + end_node->getCost();
-            vector<string> new_nodes;
-            new_nodes.assign(route->nodes.begin(), route->nodes.end());
-            new_nodes.push_back(end_node_char + to_string(end_time));
-            dp[end_node_idx][end_time].push_back(new Route(new_nodes, new_cost));
-        }
-    }
+    return routes;
 }
 
 void AirNetwork::set_designed_flight(Route route) {

@@ -20,6 +20,8 @@ public:
             vector<Path *> *rival_path,
             unordered_set<int> *chosen_paths,
             unordered_map<int,unordered_map<int, bool>> integer_set);
+    
+    ~BB_node();
 
     bool operator<(const BB_node &rhs) const;
 

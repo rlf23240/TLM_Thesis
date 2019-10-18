@@ -2,6 +2,7 @@
 // Created by Ashee on 2019/5/22.
 //
 #include "Node.h"
+#include <cctype>
 
 Arc::Arc(Node *start_node, Node *end_node, int cost)
         : start_node(start_node), end_node(end_node), cost(cost){
@@ -61,11 +62,25 @@ int Node::getLayer() const {
 }
 
 int Node::getNode() const {
-    return name[1] - 65; //char to int (A to 0)
+    if (std::isdigit(name[0])) {
+        return name[1] - 65; //char to int (A to 0)
+    }
+    return name[0] - 65;
 }
-
+// TODO: Very Important! I use this to extact the time, but it apperently has two kind of node, for example, 0A5 and H1, so I make some change to seperate this into two cases. Check if this is feasible!
 int Node::getTime() const {
-    return stoi(name.substr(2));
+    if (std::isdigit(name[0])) {
+        return stoi(name.substr(2));
+    }
+    return stoi(name.substr(1));
 }
 
+Arc* Node::connected(Node* node) {
+    for (auto &arc : this->out_arcs) {
+        if (arc->end_node->getNode() == node->getNode()) {
+            return arc;
+        }
+    }
+    return NULL;
+}
 

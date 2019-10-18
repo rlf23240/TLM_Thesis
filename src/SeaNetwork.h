@@ -28,6 +28,7 @@ private:
     vector<Ship> designed_ships;
     vector<Ship> cur_ships;
     vector<Ship> rival_ships;
+    
     void read_ship_param(string ships_data);
     void read_data(string data_path) override;
     void forward_update(Route **dp, int node, int time) override;
@@ -40,6 +41,7 @@ private:
 public:
     explicit SeaNetwork(string data_path, int num_cur_ships,int num_rival_ships);
     SeaNetwork();
+    
     void generate_designed_ship();
     void run_algo() override;
     const vector<Ship> &getShips() const;

@@ -24,7 +24,7 @@ public:
     void rebuild_entire_network();
     const vector<pair<int, int>> &getSea_arc_pairs() const;
     const vector<pair<int, int>> &getAir_arc_pairs() const;
-    EntireNetwork &getNetworks();
+    EntireNetwork *getNetworks();
     vector<Path *> find_all_paths();
     void arcs_to_file(string data);
 
@@ -35,7 +35,7 @@ private:
     double **e, **e_, **v, **v_;
     vector<Cargo*> cargos;
     vector<Path*> all_paths;
-    EntireNetwork networks;
+    EntireNetwork* networks;
 
     vector<Path*>** path_categories;
     vector<Path*>* target_path;

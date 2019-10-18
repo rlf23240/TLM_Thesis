@@ -18,6 +18,9 @@ class EntireNetwork {
 public:
     explicit EntireNetwork(string data);
     EntireNetwork();
+    
+    ~EntireNetwork();
+    
     void generate_new_routes();
     void set_sea_air_route(Route sea_route, Route air_route);
     void rebuild_networks();
@@ -29,19 +32,21 @@ public:
     const unordered_map<int, unordered_map<int, Arc *>> &getArcs() const;
     vector<Flight> get_cur_flights();
     vector<Ship> get_cur_ships();
-    AirNetwork &getAir_network();
-    SeaNetwork &getSea_network();
+    AirNetwork* getAir_network();
+    SeaNetwork* getSea_network();
     vector<Route> getSea_Air_Route();
-    void setAir_network(const AirNetwork &air_network);
-    void setSea_network(const SeaNetwork &sea_network);
+    void setAir_network(AirNetwork* air_network);
+    void setSea_network(SeaNetwork* sea_network);
     unordered_map<int, unordered_map<int, Arc*>> arcs;
 
 private :
     void create_networks(string data);
+    
     void read_param_data(string data);
     void read_unload_cost_data(string data);
     void read_unit_profit_data(string data);
     void read_unit_cost_data(string data);
+    
     void add_designed_ships();
     void add_designed_flights();
     void add_virtual_network(string data);
@@ -55,11 +60,13 @@ private :
     void find_paths_from_single_node(Path path, Point point, int*** color);
     void add_path(Path* path);
     bool check_path_feasibility(Path* path);
+    
     int*** create_3d_array(int x, int y, int z);
-
+    void release_3d_array(int ***array, unsigned int sx, unsigned int sy, unsigned int sz);
+    
     string data_str;
-    AirNetwork air_network;
-    SeaNetwork sea_network;
+    AirNetwork *air_network = NULL;
+    SeaNetwork *sea_network = NULL;
 
     vector<Path*> all_paths;
     vector<Path*>** paths_categories;

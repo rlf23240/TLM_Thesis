@@ -8,9 +8,6 @@
 
 using namespace std;
 
-
-
-
 /*-----------------Route struct------------------------------*/
 Route::Route(const vector<string> &nodes, double cost) : nodes(nodes), cost(cost) {}
 
@@ -67,7 +64,6 @@ void Network::read_node(std::string node_data_path) {
             arc_cost[i] = new int[num_nodes];
         //read arc cost
         for (int i = 0; getline(file, line); i++) { //row counter
-
             istringstream iss(line);
             string token;
             for (int j = 0 ;getline(iss, token, '\t') ; j++) { //col counter
@@ -151,6 +147,7 @@ void Network::add_nodes() {
     }
 }
 
+// TODO: Change the responsibility of freeing memory to caller.
 bool Network::add_edge(Node* start, Node* end, int cost) {
     Arc* new_arc = new Arc(start, end, cost);
     start->out_arcs.push_back(new_arc);
@@ -160,7 +157,6 @@ bool Network::add_edge(Node* start, Node* end, int cost) {
 }
 
 void Network::add_edges() {
-
     for(int t = 0; t < TOTAL_TIME_SLOT; t++){
         for(int i = 0; i < num_nodes; i++){
             for(int out = 0; out < num_nodes; out++){
@@ -175,6 +171,7 @@ void Network::add_edges() {
     }
 }
 
+// TODO: Change the responsibility of freeing memory to caller.
 Route Network::DP_shortest_path(char start_node, int start_time, char end_node, int end_time) {
     Route **dp = new Route *[num_nodes];
     for (int i = 0; i < num_nodes; i++)
@@ -196,7 +193,15 @@ Route Network::DP_shortest_path(char start_node, int start_time, char end_node, 
                 forward_update(dp, node, t);
         }
     }
-    return dp[end_node_idx][end_time];
+        
+    // Release useless memories.
+    Route result = dp[end_node_idx][end_time];
+    for (int i = 0; i < num_nodes; ++i) {
+        delete[] dp[i];
+    }
+    delete[] dp;
+    
+    return result;
 }
 
 void Network::forward_update(Route** dp, int node, int time) {
@@ -216,7 +221,7 @@ void Network::forward_update(Route** dp, int node, int time) {
         new_cost = MAX(0, new_cost);
 
         // if yes, replace old route.
-        if (new_cost < end_route.cost){
+        if (new_cost < end_route.cost) {
             vector<string> new_nodes;
             new_nodes.assign(cur_route.nodes.begin(), cur_route.nodes.end());
             new_nodes.push_back(end_node_char + to_string(end_time));
@@ -238,5 +243,23 @@ int *Network::getStop_cost() const {
 int **Network::getArc_cost() const {
     return arc_cost;
 }
-
-
+        
+Network::~Network() {
+    delete[] stop_cost;
+    
+    for (int i = 0; i < num_nodes; ++i) {
+        delete[] arc_cost[i];
+    }
+    delete[] arc_cost;
+    
+    for (int i = 0; i < num_nodes; ++i) {
+        delete[] time_cost[i];
+    }
+    delete[] time_cost;
+    
+    for_each(nodes.begin(), nodes.end(), [](pair<char, vector<Node*>> node_set) {
+        for_each(node_set.second.begin(), node_set.second.end(), [](Node* node) {
+            delete node;
+        });
+    });
+}

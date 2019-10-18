@@ -14,15 +14,15 @@ EntireNetwork::EntireNetwork(string data) {
     read_unit_profit_data(data);
     read_unit_cost_data(data);
     cout << "===========AIR===========" << endl;
-    air_network = AirNetwork("../Data/" + data + "_air", num_cur_flights, num_cur_ships);
+    air_network = new AirNetwork(data + "_air", num_cur_flights, num_cur_ships);
     cout << "===========SEA===========" << endl;
-    sea_network = SeaNetwork("../Data/" + data + "_sea", num_cur_ships, num_cur_ships);
-
+    sea_network = new SeaNetwork(data + "_sea", num_cur_ships, num_cur_ships);
+//cout<<air_network.num_nodes<<endl;
     create_networks(data);
     find_all_paths();
 
-    candidate_designed_flight_routes = air_network.find_all_routes();
-    candidate_designed_ship_routes = sea_network.find_all_routes();
+    candidate_designed_flight_routes = air_network->find_all_routes();
+    candidate_designed_ship_routes = sea_network->find_all_routes();
 
 //    for(auto &route : candidate_designed_flight_routes){
 //        cout << *route << endl;
@@ -42,8 +42,8 @@ EntireNetwork::EntireNetwork() = default;
 
 void EntireNetwork::rebuild_networks() {
 
-    cout << air_network.getFlights()[0].routes[0];
-    cout << sea_network.getShips()[0].route;
+    cout << air_network->getFlights()[0].routes[0];
+    cout << sea_network->getShips()[0].route;
 
     create_networks(data_str);
     find_all_paths();
@@ -69,8 +69,8 @@ void EntireNetwork::generate_new_routes() {
 }
 
 void EntireNetwork::set_sea_air_route(Route sea_route, Route air_route) {
-    sea_network.set_designed_ship(sea_route);
-    air_network.set_designed_flight(air_route);
+    sea_network->set_designed_ship(sea_route);
+    air_network->set_designed_flight(air_route);
 }
 
 void EntireNetwork::create_networks(string data) {
@@ -87,7 +87,7 @@ void EntireNetwork::create_networks(string data) {
 
 void EntireNetwork::read_param_data(string data) {
     fstream file;
-    file.open("../Data/" + data + "_param.txt");
+    file.open(data + "_param.txt");
     string line;
     getline(file, line);
     istringstream iss(line);
@@ -106,7 +106,7 @@ void EntireNetwork::read_param_data(string data) {
 
 void EntireNetwork::read_unload_cost_data(string data) {
     fstream file;
-    file.open("../Data/" + data + "_unload_cost.txt");
+    file.open(data + "_unload_cost.txt");
 
     string line;
     getline(file, line);
@@ -122,7 +122,7 @@ void EntireNetwork::read_unit_profit_data(string data) {
     sea_profit =  vector<vector<double>>{num_nodes};
 
     fstream air_file,sea_file;
-    air_file.open("../Data/" + data + "_air_profit.txt");
+    air_file.open(data + "_air_profit.txt");
 
     double profit_multiplier = 1;
     if(air_file.is_open()) {
@@ -144,7 +144,7 @@ void EntireNetwork::read_unit_profit_data(string data) {
         cout << "Can't read unit profit file !!!" << endl;
     }
 
-    sea_file.open("../Data/" + data + "_sea_profit.txt");
+    sea_file.open(data + "_sea_profit.txt");
 
     if(sea_file.is_open()) {
         string line;
@@ -178,7 +178,7 @@ void EntireNetwork::read_unit_cost_data(string data) {
     sea_cost =  vector<vector<double>>{num_nodes};
 
     fstream air_file,sea_file;
-    air_file.open("../Data/" + data + "_air_trans_cost.txt");
+    air_file.open(data + "_air_trans_cost.txt");
 
     if(air_file.is_open()) {
         string line;
@@ -200,7 +200,7 @@ void EntireNetwork::read_unit_cost_data(string data) {
         exit(1);
     }
 
-    sea_file.open("../Data/" + data + "_sea_trans_cost.txt");
+    sea_file.open(data + "_sea_trans_cost.txt");
 
     if(sea_file.is_open()) {
         string line;
@@ -235,7 +235,7 @@ void EntireNetwork::add_designed_ships() {
     nodes[layer] = vector<vector<Node*>>(num_nodes); //first time space network layer
 
     //add nodes
-    int* node_cost = sea_network.getStop_cost();
+    int* node_cost = sea_network->getStop_cost();
     for(int i = 0; i < num_nodes; i++){
         nodes[layer][i] = vector<Node*>(TOTAL_TIME_SLOT);
         for(int t = 0 ; t < TOTAL_TIME_SLOT; t++){
@@ -244,9 +244,9 @@ void EntireNetwork::add_designed_ships() {
     }
 
     //add routes arc
-    int** arc_cost = sea_network.getArc_cost();
+    int** arc_cost = sea_network->getArc_cost();
     for(int w = 0; w < TOTAL_WEEK; w++) {
-        for (const auto &ship : sea_network.getShips()) {
+        for (const auto &ship : sea_network->getShips()) {
             Route route = ship.route;
             for (int i = 0; i < route.nodes.size() - 1; i++) {
                 char start_node_char = route.nodes[i][0];
@@ -271,7 +271,7 @@ void EntireNetwork::add_designed_flights() {
     nodes[layer] = vector<vector<Node*>>(num_nodes);
 
     //add nodes
-    int* node_cost = air_network.getStop_cost();
+    int* node_cost = air_network->getStop_cost();
     for(int i = 0; i < num_nodes; i++){
         nodes[layer][i] = vector<Node*>(TOTAL_TIME_SLOT);
         for(int t = 0 ; t < TOTAL_TIME_SLOT; t++){
@@ -279,9 +279,9 @@ void EntireNetwork::add_designed_flights() {
         }
     }
 
-    int** arc_cost = air_network.getArc_cost();
+    int** arc_cost = air_network->getArc_cost();
 
-    for(const auto &flight : air_network.getFlights()){
+    for(const auto &flight : air_network->getFlights()){
         for(int week = 0 ; week < TIME_PERIOD / 7; week++) {
             for(const auto &route : flight.routes){
                 for(int i = 0; i < route.nodes.size()-1; i++) {
@@ -332,7 +332,7 @@ void EntireNetwork::add_current_ships() {
     nodes[layer] = vector<vector<Node*>>(num_nodes); //first time space network layer
 
     //add nodes
-    int* node_cost = sea_network.getStop_cost();
+    int* node_cost = sea_network->getStop_cost();
     for(int i = 0; i < num_nodes; i++){
         nodes[layer][i] = vector<Node*>(TOTAL_TIME_SLOT);
         for(int t = 0 ; t < TOTAL_TIME_SLOT; t++){
@@ -340,9 +340,9 @@ void EntireNetwork::add_current_ships() {
         }
     }
 
-    int** arc_cost = sea_network.getArc_cost();
+    int** arc_cost = sea_network->getArc_cost();
     for(int w = 0; w < TOTAL_WEEK; w++) {
-        for (const auto &ship : sea_network.getCur_ships()) {
+        for (const auto &ship : sea_network->getCur_ships()) {
             Route route = ship.route;
             for (int i = 0; i < route.nodes.size() - 1; i++) {
                 char start_node_char = route.nodes[i][0];
@@ -367,7 +367,7 @@ void EntireNetwork::add_virtual_network(string data) {
     nodes[layer] = vector<vector<Node*>>(num_nodes);
 
     //add nodes
-    int* virtual_node_cost = read_stop_cost("../Data/" + data +"_virtual.txt");
+    int* virtual_node_cost = read_stop_cost(data +"_virtual.txt");
     for(int i = 0; i < num_nodes; i++){
         nodes[layer][i] = vector<Node*>(TOTAL_TIME_SLOT);
         for(int t = 0 ; t < TOTAL_TIME_SLOT; t++){
@@ -458,7 +458,7 @@ void EntireNetwork::add_current_flights() {
     nodes[layer] = vector<vector<Node*>>(num_nodes);
 
     //add nodes
-    int* node_cost = air_network.getStop_cost();
+    int* node_cost = air_network->getStop_cost();
     for(int i = 0; i < num_nodes; i++){
         nodes[layer][i] = vector<Node*>(TOTAL_TIME_SLOT);
         for(int t = 0 ; t < TOTAL_TIME_SLOT; t++){
@@ -467,9 +467,9 @@ void EntireNetwork::add_current_flights() {
     }
 
     //add arcs
-    int** arc_cost = air_network.getArc_cost();
+    int** arc_cost = air_network->getArc_cost();
 
-    for(const auto &flight : air_network.getCur_flights()){
+    for(const auto &flight : air_network->getCur_flights()){
         for(int week = 0 ; week < TIME_PERIOD / 7; week++) {
             for(const auto &route : flight.routes){
                 for(int i = 0; i < route.nodes.size()-1; i++) {
@@ -497,7 +497,7 @@ void EntireNetwork::add_rival_ships() {
     nodes[layer] = vector<vector<Node*>>(num_nodes); //first time space network layer
 
     //add nodes
-    int* node_cost = sea_network.getStop_cost();
+    int* node_cost = sea_network->getStop_cost();
     for(int i = 0; i < num_nodes; i++){
         nodes[layer][i] = vector<Node*>(TOTAL_TIME_SLOT);
         for(int t = 0 ; t < TOTAL_TIME_SLOT; t++){
@@ -505,9 +505,9 @@ void EntireNetwork::add_rival_ships() {
         }
     }
 
-    int** arc_cost = sea_network.getArc_cost();
+    int** arc_cost = sea_network->getArc_cost();
     for(int w = 0; w < TOTAL_WEEK; w++) {
-        for (const auto &ship : sea_network.getRival_ships()) {
+        for (const auto &ship : sea_network->getRival_ships()) {
             Route route = ship.route;
             for (int i = 0; i < route.nodes.size() - 1; i++) {
                 char start_node_char = route.nodes[i][0];
@@ -534,7 +534,7 @@ void EntireNetwork::add_rival_flights() {
     nodes[layer] = vector<vector<Node*>>(num_nodes);
 
     //add nodes
-    int* node_cost = air_network.getStop_cost();
+    int* node_cost = air_network->getStop_cost();
     for(int i = 0; i < num_nodes; i++){
         nodes[layer][i] = vector<Node*>(TOTAL_TIME_SLOT);
         for(int t = 0 ; t < TOTAL_TIME_SLOT; t++){
@@ -543,9 +543,9 @@ void EntireNetwork::add_rival_flights() {
     }
 
     //add arcs
-    int** arc_cost = air_network.getArc_cost();
+    int** arc_cost = air_network->getArc_cost();
 
-    for(const auto &flight : air_network.getRival_flights()){
+    for(const auto &flight : air_network->getRival_flights()){
         for(int week = 0 ; week < TIME_PERIOD / 7; week++) {
             for(const auto &route : flight.routes){
                 for(int i = 0; i < route.nodes.size()-1; i++) {
@@ -580,6 +580,8 @@ void EntireNetwork::find_all_paths() {
                 int ***visited = create_3d_array(num_layers, num_nodes, TOTAL_TIME_SLOT);
                 Path path = Path(point);
                 find_paths_from_single_node(path, point, visited);
+                
+                release_3d_array(visited, num_layers, num_nodes, TOTAL_TIME_SLOT);
             }
         }
     }
@@ -685,6 +687,16 @@ int ***EntireNetwork::create_3d_array(int x, int y, int z) {
     return arr;
 }
 
+void EntireNetwork::release_3d_array(int ***array, unsigned int sx, unsigned int sy, unsigned int sz) {
+    for (int i = 0; i < sx; ++i) {
+        for (int j = 0; j < sy; ++j) {
+            delete[] array[i][j];
+        }
+        delete[] array[i];
+    }
+    delete[] array;
+}
+
 vector<Path *> **EntireNetwork::getPaths_categories() const {
     return paths_categories;
 }
@@ -713,35 +725,40 @@ const unordered_map<int, unordered_map<int, Arc *>> &EntireNetwork::getArcs() co
 }
 
 vector<Flight> EntireNetwork::get_cur_flights() {
-    return this->air_network.getCur_flights();
+    return this->air_network->getCur_flights();
 }
 
 vector<Ship> EntireNetwork::get_cur_ships() {
-    return this->sea_network.getCur_ships();
+    return this->sea_network->getCur_ships();
 }
 
-AirNetwork &EntireNetwork::getAir_network() {
+AirNetwork* EntireNetwork::getAir_network() {
     return air_network;
 }
 
-SeaNetwork &EntireNetwork::getSea_network(){
+SeaNetwork* EntireNetwork::getSea_network(){
     return sea_network;
 }
 
 vector<Route> EntireNetwork::getSea_Air_Route() {
     vector<Route> sea_air_routes;
-    sea_air_routes.push_back(sea_network.getDesignedShips()[0].route);
-    sea_air_routes.insert(sea_air_routes.end(), air_network.getDesignedFlights()[0].routes.begin(), air_network.getDesignedFlights()[0].routes.end());
+    sea_air_routes.push_back(sea_network->getDesignedShips()[0].route);
+    sea_air_routes.insert(sea_air_routes.end(), air_network->getDesignedFlights()[0].routes.begin(), air_network->getDesignedFlights()[0].routes.end());
 
     return sea_air_routes;
 }
 
-void EntireNetwork::setAir_network(const AirNetwork &air_network) {
+void EntireNetwork::setAir_network(AirNetwork *air_network) {
     EntireNetwork::air_network = air_network;
 }
 
-void EntireNetwork::setSea_network(const SeaNetwork &sea_network) {
+void EntireNetwork::setSea_network(SeaNetwork *sea_network) {
     EntireNetwork::sea_network = sea_network;
+}
+
+EntireNetwork::~EntireNetwork() {
+    delete air_network;
+    delete sea_network;
 }
 
 

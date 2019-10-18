@@ -47,7 +47,10 @@ struct Arc{
 class Node {
 public:
     Node(const std::string &name, int cost);
-
+    
+    // NULL if not connected
+    Arc* connected(Node* node);
+    
     int getCost() const;
     const std::string &getName() const;
     int getLayer() const;
@@ -56,7 +59,7 @@ public:
     std::vector<Arc*> out_arcs;
     std::vector<Arc*> in_arcs;
 
-
+    
 private:
     int cost = 0;
     std::string name;

@@ -16,6 +16,7 @@ BB_node::BB_node(double obj,
     this->rival_path = new vector<Path*>[cargo_size];
     this->chosen_paths = new unordered_set<int>[cargo_size];
     for(int k = 0; k < cargo_size; k++){
+        // TODO: Check if this need deep copy or not!
         this->target_path[k].assign(target_path[k].begin(), target_path[k].end()); //copy vector
         this->rival_path[k].assign(rival_path[k].begin(), rival_path[k].end()); //copy vector
         this->chosen_paths[k] = chosen_paths[k];
@@ -67,3 +68,8 @@ double BB_node::getObj() const {
     return obj;
 }
 
+BB_node::~BB_node() {
+    /*delete target_path;
+    delete rival_path;
+    delete chosen_paths;*/
+}

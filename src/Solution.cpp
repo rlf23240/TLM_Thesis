@@ -17,9 +17,15 @@ struct Solution{
         this->z_value = new vector<double>[cargo_size];
 
         for(int k = 0; k < cargo_size; k++){
+           // TODO: Check this if need deep copy or not?
             this->target_path[k].assign(target_path[k].begin(), target_path[k].end());
             this->z_value[k].assign(z_value[k].begin(), z_value[k].end());
         }
+    }
+    
+    ~Solution() {
+        delete target_path;
+        delete z_value;
     }
 
     friend ostream &operator<<(ostream &os, const Solution &solution) {

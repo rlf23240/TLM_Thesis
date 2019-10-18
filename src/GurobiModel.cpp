@@ -29,12 +29,12 @@ GurobiModel::GurobiModel(string data){
 void GurobiModel::Run_GurobiModel(string data) {
     clock_t start = clock();
     CargoRoute cargo_route = CargoRoute(data);
-    EntireNetwork network = cargo_route.getNetworks();
-    SeaNetwork sea_network = network.getSea_network();
-    AirNetwork air_network = network.getAir_network();
+    EntireNetwork *network = cargo_route.getNetworks();
+    SeaNetwork *sea_network = network->getSea_network();
+    AirNetwork *air_network = network->getAir_network();
 
-    vector<Route*> candidate_designed_flight_routes = air_network.find_all_routes();
-    vector<Route*> candidate_designed_ship_routes = sea_network.find_all_routes();
+    vector<Route*> candidate_designed_flight_routes = air_network->find_all_routes();
+    vector<Route*> candidate_designed_ship_routes = sea_network->find_all_routes();
     cout  << candidate_designed_ship_routes.size()<<endl;
     cout  << candidate_designed_flight_routes.size() << endl;
 
@@ -51,7 +51,7 @@ void GurobiModel::Run_GurobiModel(string data) {
         for(const auto& air_route : candidate_designed_flight_routes) {
             if (double(clock() - start) / CLOCKS_PER_SEC > time_limit_for_gurobi)
               break;
-            cargo_route.getNetworks().set_sea_air_route(*sea_route, *air_route);
+            cargo_route.getNetworks()->set_sea_air_route(*sea_route, *air_route);
             cargo_route.rebuild_entire_network();
 
             Solution *result = cargo_route.Run_full_model();
@@ -81,12 +81,12 @@ void GurobiModel::Run_GurobiModel(string data) {
 
 void GurobiModel::all_paths_for_GurobiModel(string data) {
     CargoRoute cargo_route = CargoRoute(data);
-    EntireNetwork network = cargo_route.getNetworks();
-    SeaNetwork sea_network = network.getSea_network();
-    AirNetwork air_network = network.getAir_network();
+    EntireNetwork *network = cargo_route.getNetworks();
+    SeaNetwork *sea_network = network->getSea_network();
+    AirNetwork *air_network = network->getAir_network();
 
-    vector<Route*> candidate_designed_flight_routes = air_network.find_all_routes();
-    vector<Route*> candidate_designed_ship_routes = sea_network.find_all_routes();
+    vector<Route*> candidate_designed_flight_routes = air_network->find_all_routes();
+    vector<Route*> candidate_designed_ship_routes = sea_network->find_all_routes();
     cout  << candidate_designed_ship_routes.size()<<endl;
     cout  << candidate_designed_flight_routes.size() << endl;
 
@@ -101,7 +101,7 @@ void GurobiModel::all_paths_for_GurobiModel(string data) {
 //
     for(const auto& sea_route : candidate_designed_ship_routes){
         for(const auto& air_route : candidate_designed_flight_routes){
-            cargo_route.getNetworks().set_sea_air_route(*sea_route, *air_route);
+            cargo_route.getNetworks()->set_sea_air_route(*sea_route, *air_route);
             cargo_route.rebuild_entire_network();
 
             vector<Path*> paths = cargo_route.find_all_paths();
