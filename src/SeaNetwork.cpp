@@ -5,6 +5,8 @@
 //
 
 #include "SeaNetwork.h"
+#include "Dijkstra.h"
+
 unsigned sea_seed = 0;
 
 Ship::Ship(char start_node, int start_time, int frequency, int cycle_time, int volume_ub) : start_node(start_node),
@@ -246,6 +248,26 @@ vector<Route *> SeaNetwork::find_all_routes() {
 
 vector<Route *> SeaNetwork::find_routes_from_single_node(char start_node, int start_time, char end_node, int end_time) {
     
+    // Apply Dijkstra to estimate distance.
+    // Use for reducing searching prosess.
+    vector<vector<int>> distance = vector<vector<int>>(num_nodes, vector<int>(num_nodes, 99999));
+    for (int i = 0; i < num_nodes; ++i) {
+        for (int t = end_time; t >= start_time; --t) {
+            Node *node = nodes[(char)i + 'A'][t];
+            
+            for (auto &arc: node->in_arcs) {
+                Node *prev_node = arc->start_node;
+                int prev_time = prev_node->getTime();
+                if (prev_time >= start_time) {
+                    distance[prev_node->getNode()][node->getNode()] = t - prev_time;
+                    distance[node->getNode()][prev_node->getNode()] = t - prev_time;
+                }
+            }
+        }
+    }
+    
+    vector<int> shortest = Graph::dijkastra(num_nodes, end_node-'A', distance);
+    
     cout << "=======================SeaNetwork::find_routes_from_single_node=======================" << endl;
     
     // Internal data use to record travesal state.
@@ -270,33 +292,34 @@ vector<Route *> SeaNetwork::find_routes_from_single_node(char start_node, int st
     vector<NodeTraversalData*> stack {new NodeTraversalData(start_node + to_string(start_time), stop_cost[start_node_idx], nodes[start_node][start_time]->out_arcs)};
     
     while (stack.empty() == false) {
-        string node_str = stack.back()->node;
+        auto data = stack.back();
+        
+        string node_str = data->node;
+        char node_char = node_str[0];
+        int cur_time = stoi(node_str.substr(1));
+        
         // If arcs are all visited and self-loop also considered, then pop back and find next node.
-        if (stack.back()->arcs.empty()) {
-            int next_time = stoi(node_str.substr(1)) + 1;
+        if (stack.back()->arcs.empty() || (end_time-cur_time) < shortest[node_char-'A']) {
+            int next_time =  cur_time + 1;
             if (stack.back()->wait == true || next_time > end_time) {
                 delete stack.back();
                 stack.pop_back();
             } else if (next_time <= end_time) {
-                auto data = stack.back();
-                
                 int cost = data->cost;
                 char node_char = node_str[0];
                 
                 Node *node = nodes[node_char][next_time];
-                if (node->getNode() != node_char - 'A') {
-                    cout<<node->getNode() << endl;
-                    cout<<"miss match!"<<endl;
-                }
                 stack.push_back(new NodeTraversalData(
                     node->getName(),
                     cost,
                     node->out_arcs
                 ));
+                
+                data->wait = true;
             }
-            stack.back()->wait = true;
         } else {
             Arc *arc = stack.back()->arcs.back();
+            stack.back()->arcs.pop_back();
             
             Node *next_node = arc->end_node;
             string next_node_str = next_node->getName();

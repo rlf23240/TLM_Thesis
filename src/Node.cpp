@@ -49,7 +49,7 @@ double Arc::getUnitCost() const {
 
 Node::Node(const std::string &name, int cost) : cost(cost), name(name) {}
 
-const std::string &Node::getName() const {
+std::string Node::getName() const {
     return name;
 }
 

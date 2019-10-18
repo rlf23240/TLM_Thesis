@@ -315,9 +315,6 @@ vector<Route*> AirNetwork::find_routes_from_single_node(char start_node, int sta
                 }
             }
         }
-        
-        //int time = stoi(node_str.substr(1));
-        //Node *cur_node = nodes[node_str[0]][time];
     }
 
     return routes;

@@ -52,7 +52,7 @@ public:
     Arc* connected(Node* node);
     
     int getCost() const;
-    const std::string &getName() const;
+    std::string getName() const;
     int getLayer() const;
     int getNode() const;
     int getTime() const;
