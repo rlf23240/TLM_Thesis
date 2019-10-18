@@ -21,14 +21,17 @@ set(src_files src/Dantzig_wolfe.cpp
               src/SeaNetwork.cpp
               src/SeaNetwork.h
               src/EntireNetwork.cpp
-              src/EntireNetwork.h src/Path.cpp
+              src/EntireNetwork.h
+              src/Path.cpp
               src/Point.cpp
               src/Cargo.cpp
               src/CargoRoute.cpp
               src/CargoRoute.h
               src/BB_node.cpp
               src/BB_node.h
-              src/Solution.cpp)
+              src/Solution.cpp
+              src/Dijkstra.h
+              src/Dijkstra.cpp)
 
 add_executable(TLM_Thesis main.cpp ${src_files})
 add_executable(Model model.cpp)
