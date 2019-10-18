@@ -251,6 +251,9 @@ vector<Route *> SeaNetwork::find_routes_from_single_node(char start_node, int st
         string node;
         vector<Arc*> arcs;
         int cost;
+        
+        // Consider stay in same point. Different from AirNetwork.
+        bool wait = false;
     
         NodeTraversalData(string node, int cost, vector<Arc*> arcs): node(node), cost(cost), arcs(arcs) {}
     };
@@ -263,30 +266,50 @@ vector<Route *> SeaNetwork::find_routes_from_single_node(char start_node, int st
     
     // Use stack to record passed node.
     vector<NodeTraversalData*> stack {new NodeTraversalData(start_node + to_string(start_time), stop_cost[start_node_idx], nodes[start_node][start_time]->out_arcs)};
+    
     while (stack.empty() == false) {
         string node_str = stack.back()->node;
         
-        // If arcs are all visited pop back and find next node.
+        // If arcs are all visited and self-loop also considered, then pop back and find next node.
         if (stack.back()->arcs.empty()) {
-            delete stack.back();
-            stack.pop_back();
-            for_each(stack.begin(), stack.end(), [](NodeTraversalData* data) {
+            if (stack.back()->wait == true) {
+                delete stack.back();
+                stack.pop_back();
+            } else {
+                auto data = stack.back();
+                stack.back()->wait = true;
+                
+                int cost = data->cost;
+                int next_time = stoi(node_str.substr(1)) + 1;
+                char node_char = node_str[0];
+                
+                Node *node = nodes[node_char][next_time];
+                
+                stack.push_back(new NodeTraversalData(
+                    to_string(node->getNode()) + to_string(next_time),
+                    cost,
+                    node->out_arcs
+                ));
+            }
+            
+            for (auto& data: stack) {
                 cout << data->node;
-            });
+            };
             cout << endl;
         } else {
             Arc *arc = stack.back()->arcs.back();
             stack.back()->arcs.pop_back();
-            for_each(stack.begin(), stack.end(), [](NodeTraversalData* data) {
+            for (auto& data: stack) {
                 cout << data->node;
-            });
+            };
             cout << endl;
             
             Node *next_node = arc->end_node;
-            int next_time = next_node->getTime();
             string next_node_str = next_node->getName();
                 
             int additional_stay_days = (next_node->getNode() == end_node_idx) ? 0 : SHIP_STOP_DAY;
+            
+            int next_time = next_node->getTime() + additional_stay_days;
             
             // TODO: Very Important! Check the cost is vaild!
             double cost = stack.back()->cost + arc->cost + next_node->getCost() * (1 + additional_stay_days);
@@ -301,7 +324,7 @@ vector<Route *> SeaNetwork::find_routes_from_single_node(char start_node, int st
                     }
                     new_nodes.push_back(next_node_str);
                     
-                    // TODO: Very Important! !ir didn't have this one?
+                    // TODO: Very Important! Air didn't have this one?
                     if (additional_stay_days != 0)
                         new_nodes.push_back(to_string(next_node->getNode()) + to_string(end_time));
                     
@@ -314,63 +337,6 @@ vector<Route *> SeaNetwork::find_routes_from_single_node(char start_node, int st
     }
 
     return routes;
-     
-    /*struct NodeTraversalData {
-        string node;
-        int cost;
-        vector<Arc*> visited_arcs = vector<Arc*>();
-    
-        NodeTraversalData(string node, int cost): node(node), cost(cost) {}
-    };
-    
-    vector<Route*> routes = vector<Route*>();
-    
-    int start_node_idx = (int) start_node - 'A';
-    int end_node_idx = (int) end_node - 'A';
-    
-    vector<NodeTraversalData> stack {NodeTraversalData(start_node + to_string(start_time), stop_cost[start_node_idx])};
-    while (stack.empty() == false) {
-        for (int node = 0; node < num_nodes; node++) {
-            string node_str = stack.back().node;
-            
-            int time = stoi(node_str.substr(1));
-            Node *cur_node = nodes[node_str[0]][time];
-            
-            char node_char = (char) ('A' + node);
-            Node *new_node = nodes[node_char][time+1];
-            
-            int additional_stay_days = (node == end_node) ? 0 : SHIP_STOP_DAY;
-                            
-            // If fessible...
-            int next_time = stoi(new_node->getName().substr(1));
-            
-            vector<Arc*> visited = stack.back().visited_arcs;
-            if (visited.size() == cur_node->out_arcs.size()) {
-                stack.pop_back();
-            } else {
-                Arc *arc = cur_node->connected(new_node);
-                if (arc != NULL && find(visited.begin(), visited.end(), arc) == visited.end() && next_time <= end_time) {
-                    double cost = stack.back().cost + arc->cost + new_node->getCost();
-                    stack.back().visited_arcs.push_back(arc);
-                    
-                    stack.push_back(NodeTraversalData(node_char + to_string(next_time), cost));
-                    if (additional_stay_days != 0)
-                        stack.push_back(NodeTraversalData(end_node + to_string(end_time), cost));
-                    
-                    if (node == end_node_idx) {
-                        vector<string> new_nodes = vector<string>();
-                        for (auto& data : stack) {
-                            new_nodes.push_back(data.node);
-                        }
-                        routes.push_back(new Route(new_nodes, cost));
-                        cout << *routes.back() << endl;
-                    }
-                }
-            }
-        }
-    }
-    
-    return routes;*/
 }
 
 void SeaNetwork::set_designed_ship(Route route) {

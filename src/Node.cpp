@@ -83,4 +83,3 @@ Arc* Node::connected(Node* node) {
     }
     return NULL;
 }
-

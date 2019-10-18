@@ -171,8 +171,8 @@ unordered_map<string, pair<double, double>> run_danzig_wolfe_without_designed(co
 int main() {
     // TODO: Very Important! Change it to accept argv!
     // This is the directory of data. Fill it up before you run.
-    string base = "/TLM_Thesis/Data/";
-    
+    string base = "../Data/";
+
     vector<string> data_sets{"A1", "A2", "A3"};
     vector<string> data_sets2{"H"};
     vector<string> data_sets3{"A", "B", "C", "D", "E"};

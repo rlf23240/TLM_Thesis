@@ -282,16 +282,16 @@ vector<Route*> AirNetwork::find_routes_from_single_node(char start_node, int sta
         if (stack.back()->arcs.empty()) {
             delete stack.back();
             stack.pop_back();
-            for_each(stack.begin(), stack.end(), [](NodeTraversalData* data) {
+            for (auto& data: stack) {
                 cout << data->node;
-            });
+            };
             cout << endl;
         } else {
             Arc *arc = stack.back()->arcs.back();
             stack.back()->arcs.pop_back();
-            for_each(stack.begin(), stack.end(), [](NodeTraversalData* data) {
+            for (auto& data: stack) {
                 cout << data->node;
-            });
+            };
             cout << endl;
             
             Node *next_node = arc->end_node;

@@ -5,6 +5,7 @@
 #include "Network.h"
 #include "Node.h"
 #include "param.h"
+#include <algorithm>
 
 using namespace std;
 
@@ -257,9 +258,9 @@ Network::~Network() {
     }
     delete[] time_cost;
     
-    for_each(nodes.begin(), nodes.end(), [](pair<char, vector<Node*>> node_set) {
-        for_each(node_set.second.begin(), node_set.second.end(), [](Node* node) {
+    for (auto& node_set: nodes) {
+        for (auto& node: node_set.second) {
             delete node;
-        });
-    });
+        }
+    }
 }
