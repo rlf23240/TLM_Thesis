@@ -257,6 +257,8 @@ vector<Route*> AirNetwork::find_all_routes() {
 }
 
 vector<Route*> AirNetwork::find_routes_from_single_node(char start_node, int start_time, char end_node, int end_time) {
+    
+    cout << "=======================AirNetwork::find_routes_from_single_node=======================" << endl;
     // TODO: Very Important! Check this algorithm is vaild!!
     
     // Internal data use to record travesal state.
@@ -282,17 +284,9 @@ vector<Route*> AirNetwork::find_routes_from_single_node(char start_node, int sta
         if (stack.back()->arcs.empty()) {
             delete stack.back();
             stack.pop_back();
-            for (auto& data: stack) {
-                cout << data->node;
-            };
-            cout << endl;
         } else {
             Arc *arc = stack.back()->arcs.back();
             stack.back()->arcs.pop_back();
-            for (auto& data: stack) {
-                cout << data->node;
-            };
-            cout << endl;
             
             Node *next_node = arc->end_node;
             int next_time = next_node->getTime();
@@ -310,7 +304,12 @@ vector<Route*> AirNetwork::find_routes_from_single_node(char start_node, int sta
                     }
                     // TODO: Very Important! Check wheather if we need add additional node to stay at the end!
                     new_nodes.push_back(next_node_str);
-                    routes.push_back(new Route(new_nodes, cost));
+                    
+                    Route *route = new Route(new_nodes, cost);
+                    routes.push_back(route);
+                    
+                    cout << *route
+    
                 } else {
                     stack.push_back(new NodeTraversalData(next_node_str, cost, next_node->out_arcs));
                 }
