@@ -138,24 +138,26 @@ void SeaNetwork::forward_update(Route **dp, int node, int time) {
         int end_time = stoi(end_node->getName().substr(1)) + additional_stay_days;
 
         try {
-            //Calculate cost if append end node to current route
-            Route cur_route = dp[node][time];
-            Route end_route = dp[end_node_idx][end_time];
-            double new_cost = cur_route.cost + arc->cost + arc->fixed_cost + end_node->getCost() * (1 + additional_stay_days);
-            new_cost = MAX(0, new_cost);
+            if (end_time < TOTAL_TIME_SLOT) {
+                //Calculate cost if append end node to current route
+                Route cur_route = dp[node][time];
+                Route end_route = dp[end_node_idx][end_time];
+                double new_cost = cur_route.cost + arc->cost + arc->fixed_cost + end_node->getCost() * (1 + additional_stay_days);
+                new_cost = MAX(0, new_cost);
 
-            // if yes, replace old route.
-            if (new_cost < end_route.cost) {
-                vector<string> new_nodes;
-                new_nodes.assign(cur_route.nodes.begin(), cur_route.nodes.end());
+                // if yes, replace old route.
+                if (new_cost < end_route.cost) {
+                    vector<string> new_nodes;
+                    new_nodes.assign(cur_route.nodes.begin(), cur_route.nodes.end());
 
-                if (additional_stay_days != 0)
-                    new_nodes.push_back(end_node_char + to_string(end_time - additional_stay_days));
-                new_nodes.push_back(end_node_char + to_string(end_time));
-//            //cout << end_node_idx << " " << end_time <<endl;
-//
-                dp[end_node_idx][end_time] = Route(new_nodes, new_cost);
+                    if (additional_stay_days != 0)
+                        new_nodes.push_back(end_node_char + to_string(end_time - additional_stay_days));
+                    new_nodes.push_back(end_node_char + to_string(end_time));
+    //            //cout << end_node_idx << " " << end_time <<endl;
+    //
+                    dp[end_node_idx][end_time] = Route(new_nodes, new_cost);
 
+                }
             }
         }
         catch(bad_alloc& e){
@@ -304,7 +306,7 @@ vector<Route *> SeaNetwork::find_routes_from_single_node(char start_node, int st
         int cur_time = stoi(node_str.substr(1));
         
         // If arcs are all visited and self-loop also considered, then pop back and find next node.
-        if (stack.back()->arcs.empty() || (end_time-cur_time) < shortest[node_char-'A'] || data->cost > 10000) {
+        if (stack.back()->arcs.empty() || (end_time-cur_time) < shortest[node_char-'A'] || data->cost > 15000) {
             //int next_time =  cur_time + 1;
             delete stack.back();
             stack.pop_back();
