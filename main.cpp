@@ -113,7 +113,7 @@ unordered_map<string, pair<double, double>> run_danzig_wolfe(string base_dir, co
     for(const string &data_set : data_sets) {
         start = clock();
 
-        Dantzig_wolfe dantzig_wolfe = Dantzig_wolfe(CargoRoute(base_dir + "data/" + data_set));
+        Dantzig_wolfe dantzig_wolfe = Dantzig_wolfe(CargoRoute(base_dir + "Data/" + data_set));
         string file_prefix = "Result_DW_";
         double run_time = double(clock() - start)/CLOCKS_PER_SEC;
         dantzig_wolfe.output_result(base_dir + "results/" + file_prefix + data_set
@@ -153,7 +153,7 @@ unordered_map<string, pair<double, double>> run_danzig_wolfe_without_designed(st
     for(const string &data_set : data_sets) {
         start = clock();
 
-        Dantzig_wolfe dantzig_wolfe = Dantzig_wolfe(CargoRoute(data_set));
+        Dantzig_wolfe dantzig_wolfe = Dantzig_wolfe(CargoRoute(base_dir + "Data/" + data_set));
         string file_prefix = "Result_DW_";
         file_prefix += "noDesign_";
         double run_time = double(clock() - start)/CLOCKS_PER_SEC;
@@ -171,21 +171,24 @@ unordered_map<string, pair<double, double>> run_danzig_wolfe_without_designed(st
 int main() {
     // TODO: Very Important! Change it to accept argv!
     // This is the directory of data. Fill it up before you run.
-    string base_dir = "../"
+    string base_dir = "../";
 
+    // H: 1000/5000
+    // A: inf/10000
+    
     vector<string> data_sets{"A1", "A2", "A3"};
-    vector<string> data_sets2{"A"};
+    vector<string> data_sets2{"I"};
     vector<string> data_sets3{"A", "B", "C", "D", "E"};
 
     vector<string> A1_sets{"A1_1","A1_2","A1_3","A1_4","A1_5"};
     vector<string> A2_sets{"A2_1","A2_2","A2_3","A2_4","A2_5","A2_6","A2_7","A2_8","A2_9","A2_10"};
     vector<string> A3_sets{"A3_1","A3_2","A3_3","A3_4","A3_5"};
 
-    run_danzig_wolfe(base_dir, data_sets2);
+    //run_danzig_wolfe(base_dir, data_sets2);
     //run_gurobi_model(A1_sets);
     
-    //compare_grb_algo(data_sets2);
-//    compare_designed_route_added(data_sets3);
+    //compare_grb_algo(base_dir, data_sets2);
+    compare_designed_route_added(base_dir, data_sets3);
 //    compare_iter_added(data_sets3);
 //    compare_col_deletion(data_sets3);
 //    return 0;
