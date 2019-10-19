@@ -17,9 +17,9 @@ void compare_grb_algo(vector<string> data_sets);
 void compare_designed_route_added(vector<string> data_sets);
 void compare_iter_added(vector<string> data_sets);
 void compare_col_deletion(vector<string> data_sets);
-unordered_map<string, pair<double, double>> run_danzig_wolfe(const vector<string>& data_sets);
-unordered_map<string, pair<double, double>> run_danzig_wolfe_without_designed(const vector<string>& data_sets);
-unordered_map<string, pair<double, double>> run_gurobi_model(const vector<string>& data_sets);
+unordered_map<string, pair<double, double>> run_danzig_wolfe(string base_dir, const vector<string>& data_sets);
+unordered_map<string, pair<double, double>> run_danzig_wolfe_without_designed(string base_dir, const vector<string>& data_sets);
+unordered_map<string, pair<double, double>> run_gurobi_model(string base_dir, const vector<string>& data_sets);
 
 void generate_paths_arcs(vector<string> data_sets){
     for(const string &data_set : data_sets) {
@@ -32,10 +32,10 @@ void generate_paths_arcs(vector<string> data_sets){
     }
 }
 
-void compare_grb_algo(vector<string> data_sets){
+void compare_grb_algo(string base_dir, vector<string> data_sets){
     unordered_map<string, pair<double, double>> grb_results, algo_results;
-    grb_results = run_gurobi_model(data_sets);
-    algo_results = run_danzig_wolfe(data_sets);
+    grb_results = run_gurobi_model(base_dir, data_sets);
+    algo_results = run_danzig_wolfe(base_dir, data_sets);
     vector<double> gaps;
 
     for(const auto &data_set : data_sets){
@@ -49,10 +49,10 @@ void compare_grb_algo(vector<string> data_sets){
          << "Average : " << accumulate(gaps.begin(), gaps.end(),0.0) /(double) gaps.size() << "\n";
 }
 
-void compare_designed_route_added(vector<string> data_sets){
+void compare_designed_route_added(string base_dir, vector<string> data_sets){
     unordered_map<string, pair<double, double>> without_results, with_results;
-    with_results = run_danzig_wolfe(data_sets);
-    without_results = run_danzig_wolfe_without_designed(data_sets);
+    with_results = run_danzig_wolfe(base_dir, data_sets);
+    without_results = run_danzig_wolfe_without_designed(base_dir, data_sets);
     vector<double> gaps;
 
     for(const auto &data_set : data_sets){
@@ -66,13 +66,13 @@ void compare_designed_route_added(vector<string> data_sets){
          << "Average : " << accumulate(gaps.begin(), gaps.end(),0.0) /(double) gaps.size() << "\n";
 }
 
-void compare_iter_added(vector<string> data_sets){
+void compare_iter_added(string base_dir, vector<string> data_sets){
     is_designed_route_added = true;
     unordered_map<string, pair<double, double>> iter_added_results, no_iter_added_results;
     iter_added = true;
-    iter_added_results = run_danzig_wolfe(data_sets);
+    iter_added_results = run_danzig_wolfe(base_dir,data_sets);
     iter_added = false;
-    no_iter_added_results = run_danzig_wolfe(data_sets);
+    no_iter_added_results = run_danzig_wolfe(base_dir, data_sets);
     vector<double> gaps;
 
     for(const auto &data_set : data_sets){
@@ -86,12 +86,12 @@ void compare_iter_added(vector<string> data_sets){
          << "Average : " << accumulate(gaps.begin(), gaps.end(),0.0) /(double) gaps.size() << "\n";
 }
 
-void compare_col_deletion(vector<string> data_sets){
+void compare_col_deletion(string base_dir, vector<string> data_sets){
     unordered_map<string, pair<double, double>> col_del_results, no_col_del_results;
     col_deletion = true;
-    col_del_results = run_danzig_wolfe(data_sets);
+    col_del_results = run_danzig_wolfe(base_dir,data_sets);
     col_deletion = false;
-    no_col_del_results = run_danzig_wolfe(data_sets);
+    no_col_del_results = run_danzig_wolfe(base_dir,data_sets);
     vector<double> gaps;
 
     for(const auto &data_set : data_sets){
@@ -105,7 +105,7 @@ void compare_col_deletion(vector<string> data_sets){
          << "Average : " << accumulate(gaps.begin(), gaps.end(),0.0) /(double) gaps.size() << "\n";
 }
 
-unordered_map<string, pair<double, double>> run_danzig_wolfe(const vector<string>& data_sets){
+unordered_map<string, pair<double, double>> run_danzig_wolfe(string base_dir, const vector<string>& data_sets){
     vector<double> times{};
     clock_t start;
     is_designed_route_added = true;
@@ -113,10 +113,10 @@ unordered_map<string, pair<double, double>> run_danzig_wolfe(const vector<string
     for(const string &data_set : data_sets) {
         start = clock();
 
-        Dantzig_wolfe dantzig_wolfe = Dantzig_wolfe(CargoRoute(data_set));
+        Dantzig_wolfe dantzig_wolfe = Dantzig_wolfe(CargoRoute(base_dir + "data/" + data_set));
         string file_prefix = "Result_DW_";
         double run_time = double(clock() - start)/CLOCKS_PER_SEC;
-        dantzig_wolfe.output_result(file_prefix + data_set
+        dantzig_wolfe.output_result(base_dir + "results/" + file_prefix + data_set
                 , run_time);
         results[data_set] = make_pair(dantzig_wolfe.getBestSol()->P, run_time);
     }
@@ -126,7 +126,7 @@ unordered_map<string, pair<double, double>> run_danzig_wolfe(const vector<string
     return results;
 }
 
-unordered_map<string, pair<double, double>> run_gurobi_model(const vector<string>& data_sets){
+unordered_map<string, pair<double, double>> run_gurobi_model(string base_dir, const vector<string>& data_sets){
     vector<double> times{};
     clock_t start;
     unordered_map<string, pair<double, double>> results;
@@ -136,7 +136,7 @@ unordered_map<string, pair<double, double>> run_gurobi_model(const vector<string
         GurobiModel model = GurobiModel(data_set);
         model.Run_GurobiModel(data_set);
         double run_time = double(clock() - start)/CLOCKS_PER_SEC;
-        model.output_result("Result_model_" + data_set, MIN(time_limit_for_gurobi, run_time));
+        model.output_result(base_dir + "results/Result_model_" + data_set, MIN(time_limit_for_gurobi, run_time));
         results[data_set] = make_pair(model.getBestSol()->P, run_time);
     }
     for(const auto &data_set : data_sets){
@@ -145,7 +145,7 @@ unordered_map<string, pair<double, double>> run_gurobi_model(const vector<string
     return results;
 }
 
-unordered_map<string, pair<double, double>> run_danzig_wolfe_without_designed(const vector<string>& data_sets){
+unordered_map<string, pair<double, double>> run_danzig_wolfe_without_designed(string base_dir, const vector<string>& data_sets){
     vector<double> times{};
     clock_t start;
     is_designed_route_added = false;
@@ -157,7 +157,7 @@ unordered_map<string, pair<double, double>> run_danzig_wolfe_without_designed(co
         string file_prefix = "Result_DW_";
         file_prefix += "noDesign_";
         double run_time = double(clock() - start)/CLOCKS_PER_SEC;
-        dantzig_wolfe.output_result(file_prefix + data_set
+        dantzig_wolfe.output_result(base_dir + "results/"+ file_prefix + data_set
                 , run_time);
         results[data_set] = make_pair(dantzig_wolfe.getBestSol()->P, run_time);
     }
@@ -171,21 +171,17 @@ unordered_map<string, pair<double, double>> run_danzig_wolfe_without_designed(co
 int main() {
     // TODO: Very Important! Change it to accept argv!
     // This is the directory of data. Fill it up before you run.
-    string base = "../Data/";
+    string base_dir = "../"
 
     vector<string> data_sets{"A1", "A2", "A3"};
-    vector<string> data_sets2{"H"};
+    vector<string> data_sets2{"A"};
     vector<string> data_sets3{"A", "B", "C", "D", "E"};
 
     vector<string> A1_sets{"A1_1","A1_2","A1_3","A1_4","A1_5"};
     vector<string> A2_sets{"A2_1","A2_2","A2_3","A2_4","A2_5","A2_6","A2_7","A2_8","A2_9","A2_10"};
     vector<string> A3_sets{"A3_1","A3_2","A3_3","A3_4","A3_5"};
 
-    for (auto iter = data_sets2.begin(); iter != data_sets2.end(); iter++) {
-        (*iter) = base + (*iter);
-    }
-    
-    run_danzig_wolfe(data_sets2);
+    run_danzig_wolfe(base_dir, data_sets2);
     //run_gurobi_model(A1_sets);
     
     //compare_grb_algo(data_sets2);

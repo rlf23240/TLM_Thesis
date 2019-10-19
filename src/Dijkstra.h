@@ -15,7 +15,7 @@
 using namespace std;
 
 namespace Graph {
-    vector<int> dijkastra(int num_nodes, int start, vector<vector<int>> distance);
+    vector<int> dijkstra(int num_nodes, int start, vector<vector<int>> distance);
 }
 
 #endif /* Dijkstra_hpp */

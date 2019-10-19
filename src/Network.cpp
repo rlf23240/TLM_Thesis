@@ -119,6 +119,7 @@ void Network::read_time_cost(std::string time_data_path) {
 
             for (int j = 0 ;getline(iss, token, '\t'); j++) { //col counter
 //                cout << token;
+        
                 if( token[0] != 'M') {
                     time_cost[i][j] = stoi(token);
                 }

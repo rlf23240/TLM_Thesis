@@ -13,7 +13,7 @@
 using namespace std;
 
 namespace Graph {
-    vector<int> dijkastra(int num_nodes, int start_node, vector<vector<int>> distance) {
+    vector<int> dijkstra(int num_nodes, int start_node, vector<vector<int>> distance) {
         vector<int> shortest = vector<int>(num_nodes, 99999);
         vector<bool> visited = vector<bool>(num_nodes, false);
         

@@ -266,7 +266,7 @@ vector<Route *> SeaNetwork::find_routes_from_single_node(char start_node, int st
         }
     }
     
-    vector<int> shortest = Graph::dijkastra(num_nodes, end_node-'A', distance);
+    vector<int> shortest = Graph::dijkstra(num_nodes, end_node-'A', distance);
     
     cout << "=======================SeaNetwork::find_routes_from_single_node=======================" << endl;
     
@@ -275,9 +275,6 @@ vector<Route *> SeaNetwork::find_routes_from_single_node(char start_node, int st
         string node;
         vector<Arc*> arcs;
         int cost;
-        
-        // Consider stay in same point. Different from AirNetwork.
-        bool wait = false;
     
         NodeTraversalData(string node, int cost, vector<Arc*> arcs): node(node), cost(cost), arcs(arcs) {}
     };
@@ -299,24 +296,10 @@ vector<Route *> SeaNetwork::find_routes_from_single_node(char start_node, int st
         int cur_time = stoi(node_str.substr(1));
         
         // If arcs are all visited and self-loop also considered, then pop back and find next node.
-        if (stack.back()->arcs.empty() || (end_time-cur_time) < shortest[node_char-'A']) {
-            int next_time =  cur_time + 1;
-            if (stack.back()->wait == true || next_time > end_time) {
-                delete stack.back();
-                stack.pop_back();
-            } else if (next_time <= end_time) {
-                int cost = data->cost;
-                char node_char = node_str[0];
-                
-                Node *node = nodes[node_char][next_time];
-                stack.push_back(new NodeTraversalData(
-                    node->getName(),
-                    cost,
-                    node->out_arcs
-                ));
-                
-                data->wait = true;
-            }
+        if (stack.back()->arcs.empty() || (end_time-cur_time) < shortest[node_char-'A'] || data->cost > 10000) {
+            //int next_time =  cur_time + 1;
+            delete stack.back();
+            stack.pop_back();
         } else {
             Arc *arc = stack.back()->arcs.back();
             stack.back()->arcs.pop_back();

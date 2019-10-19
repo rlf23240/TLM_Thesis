@@ -44,7 +44,7 @@ struct Solution{
 
     void to_file(string name, double run_time){
         fstream file;
-        file.open("../results/" + name + ".txt", ios::out);
+        file.open(name + ".txt", ios::out);
         if(!file.is_open()){
             cout << "fail to open results file" << endl;
             exit(1);
