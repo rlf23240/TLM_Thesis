@@ -75,7 +75,7 @@ int Node::getTime() const {
     return stoi(name.substr(1));
 }
 
-Arc* Node::connected(Node* node) {
+Arc* Node::arc_to(Node* node) {
     for (auto &arc : this->out_arcs) {
         if (arc->end_node->getNode() == node->getNode()) {
             return arc;

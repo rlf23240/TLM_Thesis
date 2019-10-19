@@ -49,7 +49,7 @@ public:
     Node(const std::string &name, int cost);
     
     // NULL if not connected
-    Arc* connected(Node* node);
+    Arc* arc_to(Node* node);
     
     int getCost() const;
     std::string getName() const;

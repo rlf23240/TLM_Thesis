@@ -257,8 +257,8 @@ vector<Route*> AirNetwork::find_all_routes() {
 }
 
 vector<Route*> AirNetwork::find_routes_from_single_node(char start_node, int start_time, char end_node, int end_time) {
-    
     cout << "=======================AirNetwork::find_routes_from_single_node=======================" << endl;
+    
     // TODO: Very Important! Check this algorithm is vaild!!
     
     // Internal data use to record travesal state.
@@ -297,7 +297,7 @@ vector<Route*> AirNetwork::find_routes_from_single_node(char start_node, int sta
             // If node is feasible...
             if (next_time <= end_time) {
                 // If we reach the goal...
-                if (next_node->getNode() == end_node_idx) {
+                if (next_node->getNode() == end_node_idx && next_time == end_time) {
                     vector<string> new_nodes = vector<string>();
                     for (auto& data : stack) {
                         new_nodes.push_back(data->node);
