@@ -98,15 +98,17 @@ void SeaNetwork::read_sea_routes(string data_path, vector<Ship> &ships) {
         total_cost += stop_cost[(int) cur_node[0] -65];
         nodes.push_back(cur_node);
         while(getline(iss, token, ',')){
-            nodes.push_back(token);
-            next_node = token;
-            if(cur_node[0] == next_node[0]){
-                total_cost += stop_cost[(int) cur_node[0] -65] * (stoi(next_node.substr(1)) - stoi(cur_node.substr(1)));
-            }else{
-                total_cost += arc_cost[(int) cur_node[0] -65][(int) next_node[0] -65];
-                total_cost += stop_cost[(int) next_node[0] -65];
+            if (token != "") {
+                nodes.push_back(token);
+                next_node = token;
+                if(cur_node[0] == next_node[0]){
+                    total_cost += stop_cost[(int) cur_node[0] -65] * (stoi(next_node.substr(1)) - stoi(cur_node.substr(1)));
+                }else{
+                    total_cost += arc_cost[(int) cur_node[0] -65][(int) next_node[0] -65];
+                    total_cost += stop_cost[(int) next_node[0] -65];
+                }
+                cur_node = next_node;
             }
-            cur_node = next_node;
         }
 
         Route route = Route(nodes, total_cost);
@@ -306,7 +308,7 @@ vector<Route *> SeaNetwork::find_routes_from_single_node(char start_node, int st
         int cur_time = stoi(node_str.substr(1));
         
         // If arcs are all visited and self-loop also considered, then pop back and find next node.
-        if (stack.back()->arcs.empty() || (end_time-cur_time) < shortest[node_char-'A'] || data->cost > 15000) {
+        if (stack.back()->arcs.empty() || (end_time-cur_time) < shortest[node_char-'A'] || data->cost > 80000000) {
             //int next_time =  cur_time + 1;
             delete stack.back();
             stack.pop_back();

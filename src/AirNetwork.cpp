@@ -104,11 +104,18 @@ void AirNetwork::read_air_routes(string data_path, vector<Flight> &flights){
         cur_node = start_node;
         nodes.push_back(cur_node);
         total_cost += stop_cost[(int) cur_node[0] - 65];
+    
+        int cycle_time = 0;
         while(getline(iss, token, ',')){
             if(token == ""){
-                Route route = Route(nodes, total_cost);
-                routes.push_back(route);
-                nodes.clear();
+                if (nodes.size() != 0) {
+                    Route route = Route(nodes, total_cost);
+                    routes.push_back(route);
+                    
+                    cycle_time = stoi(nodes.back().substr(1)) - stoi(nodes[0].substr(1));
+                    nodes.clear();
+                }
+    
                 total_cost = stop_cost[(int) cur_node[0] - 65];
             }else{
                 nodes.push_back(token);
@@ -121,9 +128,12 @@ void AirNetwork::read_air_routes(string data_path, vector<Flight> &flights){
             }
             cur_node = next_node;
         }
-        int cycle_time = stoi(nodes.back().substr(1)) - stoi(nodes[0].substr(1));
-        Route route = Route(nodes, total_cost);
-        routes.push_back(route);
+
+        if (nodes.size() != 0) {
+            Route route = Route(nodes, total_cost);
+            routes.push_back(route);
+            cycle_time = stoi(nodes.back().substr(1)) - stoi(nodes[0].substr(1));
+        }
 
         Flight new_flight = Flight(start_node[0], cycle_time+1, routes.size(), cycle_time, volume_ub, weight_ub);
         new_flight.routes = routes;
@@ -278,7 +288,8 @@ vector<Route*> AirNetwork::find_routes_from_single_node(char start_node, int sta
     // Use stack to record passed node.
     vector<NodeTraversalData*> stack {new NodeTraversalData(start_node + to_string(start_time), stop_cost[start_node_idx], nodes[start_node][start_time]->out_arcs)};
     while (stack.empty() == false) {
-        string node_str = stack.back()->node;
+        auto data = stack.back();
+        string node_str = data->node;
         
         // If arcs are all visited pop back and find next node. 
         if (stack.back()->arcs.empty()) {
