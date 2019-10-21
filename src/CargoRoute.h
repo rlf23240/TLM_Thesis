@@ -27,6 +27,8 @@ public:
     EntireNetwork *getNetworks();
     vector<Path *> find_all_paths();
     void arcs_to_file(string data);
+    
+    void out_put_v_value(ostream& os);
 
     Solution* Run_full_model();
 

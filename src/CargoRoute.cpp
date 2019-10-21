@@ -461,15 +461,20 @@ void CargoRoute::cal_v() {
     for(int k = 0; k < cargos.size(); k++){
         v_[k] = new double[rival_path[k].size()];
     }
-
+    
+    
     for(int k = 0; k < cargos.size(); k++){
         for(int p = 0; p < target_path[k].size(); p++){
             v[k][p] = cargos[k]->alpha * target_path[k][p]->path_cost + cargos[k]->beta * target_path[k][p]->last_time;
         }
+        
+        
         for(int n = 0; n < rival_path[k].size(); n++){
             v_[k][n] = cargos[k]->alpha * rival_path[k][n]->path_cost + cargos[k]->beta * rival_path[k][n]->last_time;
         }
     }
+    
+    //this->out_put_v_value(cout);
 }
 
 void CargoRoute::set_constr3(GRBModel &model) {
@@ -1137,8 +1142,8 @@ Solution* CargoRoute::Run_full_model() {
                 z_value[k].push_back(z[k][p].get(GRB_DoubleAttr_X));
             }
         }
-        Solution* sol = new Solution(cargos.size(), target_path, z_value, get_P_value(), get_r_column(),
-                                     networks->getSea_Air_Route());
+        Solution *sol = new Solution(cargos.size(), target_path, z_value, get_P_value(), get_r_column(), networks->getSea_Air_Route());
+        
         return sol;
 
     } catch(GRBException e) {
@@ -1154,5 +1159,29 @@ vector<Path *> CargoRoute::find_all_paths() {
     path_categories = networks->getPaths_categories();
     get_available_path(path_categories, all_paths);
     return all_paths;
+}
+
+void CargoRoute::out_put_v_value(ostream& os) {
+    // Print out v[k][p]
+    os << "======v[k][p] BEGIN======" << endl;
+    for(int k = 0; k < cargos.size(); k++){
+        for(int p = 0; p < target_path[k].size(); p++){
+            os << "v[" << k << "][" << p << "]: " << v[k][p] << endl;
+            os << *target_path[k][p];
+            os << endl;
+        }
+    }
+    os << "======v[k][p] END======" << endl;
+    os << endl;
+    os << "======v_[k][n] BEGIN======" << endl;
+    for(int k = 0; k < cargos.size(); k++){
+        for(int n = 0; n < rival_path[k].size(); n++){
+            os << "v_[" << k << "][" << n << "]: " << v_[k][n] << endl;
+            os << *rival_path[k][n];
+            os << endl;
+        }
+    }
+    os << "======v_[k][n] END======" << endl;
+    os << endl;
 }
 

@@ -30,7 +30,9 @@ Dantzig_wolfe::Dantzig_wolfe(const CargoRoute &cargoRoute) : cargoRoute(cargoRou
         solutions.push_back(sol);
     }
     Final_result();
-
+    
+    
+    
 }
 
 void Dantzig_wolfe::append_R_column(vector<double> r_column) {
@@ -324,6 +326,13 @@ void Dantzig_wolfe::output_result(string name, double run_time) {
         exit(1);
     }
     best_sol->to_file(name, run_time);
+    
+    fstream v_profile;
+    v_profile.open(name+"_v_profile.txt", ios::out);
+    
+    cargoRoute.out_put_v_value(v_profile);
+    
+    v_profile.close();
 }
 
 Solution *Dantzig_wolfe::getBestSol() const {

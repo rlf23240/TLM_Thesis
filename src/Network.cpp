@@ -92,6 +92,7 @@ void Network::read_stop_cost(std::string cost_data_path) {
         getline(file, line);
         istringstream iss(line);
         string token;
+
         for(int i = 0; getline(iss, token, '\t'); i++) {
             stop_cost[i] = stoi(token);
         }

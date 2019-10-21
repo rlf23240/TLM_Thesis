@@ -8,12 +8,12 @@
 #include "Network.h"
 
 struct Solution{
-    Solution(int cargo_size, vector<Path *> *target_path, vector<double> *z_value, double P, vector<double> r,
-             vector<Route> seaAirRoutes)
+    Solution(int cargo_size, vector<Path *> *target_path, vector<double> *z_value, double P, vector<double> r,  vector<Route> seaAirRoutes)
             : P(P), r(std::move(r)), sea_air_routes(seaAirRoutes) {
         // copy solution
         this->cargo_size = cargo_size;
         this->target_path = new vector<Path*>[cargo_size];
+        
         this->z_value = new vector<double>[cargo_size];
 
         for(int k = 0; k < cargo_size; k++){
@@ -56,6 +56,7 @@ struct Solution{
                 file << "Cargo :"<< k << ",\tz :" << z_value[k][p] <<",\t" << *target_path[k][p] ;
             }
         }
+        
         file << "\n";
         for(const auto route : sea_air_routes){
             file << route;
