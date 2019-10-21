@@ -666,6 +666,9 @@ void CargoRoute::update_arcs() {
                 for (int i = 0; i < nodes.size() - 1; i++) {
                     Point cur_point = Point(4, (int) nodes[i][0] - 65, week * 7 * TIME_SLOT_A_DAY + stoi(nodes[i].substr(1)));
                     Point next_point = Point(4, (int) nodes[i+1][0] - 65, week * 7 * TIME_SLOT_A_DAY + stoi(nodes[i+1].substr(1)));
+                    
+                    if (next_point.time >= TOTAL_TIME_SLOT) break;
+                    
                     double pi6 = cons6[networks->get_node_idx(cur_point)][networks->get_node_idx(next_point)].get(GRB_DoubleAttr_Pi);
                     double pi7 = cons7[networks->get_node_idx(cur_point)][networks->get_node_idx(next_point)].get(GRB_DoubleAttr_Pi);
                     arcs[networks->get_node_idx(cur_point)][networks->get_node_idx(next_point)]->minus_fixed_profit(pi6);
