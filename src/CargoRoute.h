@@ -29,6 +29,7 @@ public:
     void arcs_to_file(string data);
     
     void out_put_v_value(ostream& os);
+    void out_put_v_value_with_target_path(ostream& os, vector<Path*> *target_path);
 
     Solution* Run_full_model();
 
@@ -39,9 +40,9 @@ private:
     vector<Path*> all_paths;
     EntireNetwork* networks;
 
-    vector<Path*>** path_categories;
-    vector<Path*>* target_path;
-    vector<Path*>* rival_path;
+    vector<Path*>** path_categories = NULL;
+    vector<Path*>* target_path = NULL;
+    vector<Path*>* rival_path = NULL;
     unordered_set<int>* chosen_paths;
     unordered_map<int, unordered_map <int, bool>> integer_set;
 

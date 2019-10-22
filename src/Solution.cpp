@@ -18,6 +18,7 @@ struct Solution{
 
         for(int k = 0; k < cargo_size; k++){
            // TODO: Check this if need deep copy or not?
+            
             this->target_path[k].assign(target_path[k].begin(), target_path[k].end());
             this->z_value[k].assign(z_value[k].begin(), z_value[k].end());
         }
@@ -52,6 +53,7 @@ struct Solution{
 
         file << "P : " << P << endl;
         for(int k = 0; k < cargo_size; k++){
+            cout << "Final Size:" << target_path[k].size() << endl;
             for(int p = 0; p < target_path[k].size(); p++){
                 file << "Cargo :"<< k << ",\tz :" << z_value[k][p] <<",\t" << *target_path[k][p] ;
             }
@@ -66,8 +68,8 @@ struct Solution{
     }
 
 
-    vector<Path*>* target_path{};
-    vector<double>* z_value{};
+    vector<Path*>* target_path = NULL;
+    vector<double>* z_value = NULL;
     vector<Route> sea_air_routes{};
     int cargo_size;
     double P{};

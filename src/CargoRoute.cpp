@@ -181,6 +181,15 @@ Solution* CargoRoute::branch_and_price() {
         z = new vector<GRBVar>[cargos.size()];
         z_ = new vector<GRBVar>[cargos.size()];
         u = new vector<GRBVar>[cargos.size()];
+        
+        if (target_path != NULL) {
+            delete[] target_path;
+        }
+        
+        if (rival_path != NULL) {
+            delete[] rival_path;
+        }
+        
         target_path = new vector<Path *>[cargos.size()];
         rival_path = new vector<Path *>[cargos.size()];
         chosen_paths = new unordered_set<int>[cargos.size()];
@@ -1162,6 +1171,7 @@ vector<Path *> CargoRoute::find_all_paths() {
 }
 
 void CargoRoute::out_put_v_value(ostream& os) {
+    
     // Print out v[k][p]
     os << "======v[k][p] BEGIN======" << endl;
     for(int k = 0; k < cargos.size(); k++){
@@ -1185,3 +1195,26 @@ void CargoRoute::out_put_v_value(ostream& os) {
     os << endl;
 }
 
+void CargoRoute::out_put_v_value_with_target_path(ostream& os, vector<Path*> *target_path) {//, vector<Path*> *rival_path) {
+    // Print out v[k][p]
+    os << "======v[k][p] BEGIN======" << endl;
+    for(int k = 0; k < cargos.size(); k++){
+        for(int p = 0; p < target_path[k].size(); p++){
+            os << "v[" << k << "][" << p << "]: " << v[k][p] << endl;
+            os << *target_path[k][p];
+            os << endl;
+        }
+    }
+    os << "======v[k][p] END======" << endl;
+    os << endl;
+    os << "======v_[k][n] BEGIN======" << endl;
+    for(int k = 0; k < cargos.size(); k++){
+        for(int n = 0; n < rival_path[k].size(); n++){
+            os << "v_[" << k << "][" << n << "]: " << v_[k][n] << endl;
+            os << *rival_path[k][n];
+            os << endl;
+        }
+    }
+    os << "======v_[k][n] END======" << endl;
+    os << endl;
+}

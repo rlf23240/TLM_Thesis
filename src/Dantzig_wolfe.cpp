@@ -330,7 +330,7 @@ void Dantzig_wolfe::output_result(string name, double run_time) {
     fstream v_profile;
     v_profile.open(name+"_v_profile.txt", ios::out);
     
-    cargoRoute.out_put_v_value(v_profile);
+    cargoRoute.out_put_v_value_with_target_path(v_profile, best_sol->target_path);
     
     v_profile.close();
 }
