@@ -53,7 +53,6 @@ struct Solution{
 
         file << "P : " << P << endl;
         for(int k = 0; k < cargo_size; k++){
-            cout << "Final Size:" << target_path[k].size() << endl;
             for(int p = 0; p < target_path[k].size(); p++){
                 file << "Cargo :"<< k << ",\tz :" << z_value[k][p] <<",\t" << *target_path[k][p] ;
             }
