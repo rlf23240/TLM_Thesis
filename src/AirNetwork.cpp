@@ -292,7 +292,7 @@ vector<Route*> AirNetwork::find_routes_from_single_node(char start_node, int sta
         string node_str = data->node;
         
         // If arcs are all visited pop back and find next node. 
-        if (stack.back()->arcs.empty()) {
+        if (stack.back()->arcs.empty() || data->cost > 10000) {
             delete stack.back();
             stack.pop_back();
         } else {

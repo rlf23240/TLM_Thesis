@@ -165,7 +165,9 @@ void CargoRoute::cal_path_cost(Path *path) {
         next = &path->points[p+1];
         double arc_cost = arcs[networks->get_node_idx(current->layer, current->node, current->time)]
         [networks->get_node_idx(next->layer, next->node, next->time)]->getUnitCost();
-
+        
+        if (current->layer == 2)
+        
         cost += arc_cost;
     }
     path->path_cost = cost;
@@ -475,6 +477,9 @@ void CargoRoute::cal_v() {
     for(int k = 0; k < cargos.size(); k++){
         for(int p = 0; p < target_path[k].size(); p++){
             v[k][p] = cargos[k]->alpha * target_path[k][p]->path_cost + cargos[k]->beta * target_path[k][p]->last_time;
+            
+            //cout << *target_path[k][p];
+            //cout << cargos[k]->alpha << "*" << target_path[k][p]->path_cost << endl;
         }
         
         
@@ -495,7 +500,7 @@ void CargoRoute::set_constr3(GRBModel &model) {
                 lhs += e_[k][n];
                 rhs += z_[k][n];
             }
-//            cout << e[k][p] << endl;
+            cout << e[k][p] << endl;
             cons3[k].push_back(model.addConstr(lhs* z[k][p] - e[k][p] * rhs <= 0, "cons3" + to_string(k) + to_string(p)));
         }
     }

@@ -378,7 +378,7 @@ void EntireNetwork::add_virtual_network(string data) {
     //add horizontal arcs
     for(int i = 0; i < num_nodes; i++){
         for(int t = 0; t < TOTAL_TIME_SLOT - 1; t++){
-            Arc *arc = new Arc(nodes[layer][i][t], nodes[layer][i][t+1], FIX_COST_OF_VIRTUAL_ARC);
+            Arc *arc = new Arc(nodes[layer][i][t], nodes[layer][i][t+1], FIX_COST_OF_VIRTUAL_ARC, 0, FIX_COST_OF_VIRTUAL_ARC);
             add_arc(nodes[layer][i][t], nodes[layer][i][t+1], arc);
         }
     }
