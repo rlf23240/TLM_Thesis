@@ -142,7 +142,6 @@ void AirNetwork::read_air_routes(string data_path, vector<Flight> &flights){
 }
 
 void AirNetwork::run_algo() {
-
     for(auto &flight : designed_flights) {
         vector<Route> best_routes;
         double best_cost = INT_MAX;
@@ -150,7 +149,7 @@ void AirNetwork::run_algo() {
             double acc_cost = 0;
             vector<Route> routes;
             for (int freq = 0 ; freq < flight.freq; freq ++) {
-                Route route = DP_shortest_path(flight.start_node, i+freq*flight.gap , flight.start_node, i + freq*flight.gap + flight.cycle_time);
+                Route route = shortest_route(flight.start_node, i+freq*flight.gap , flight.start_node, i + freq*flight.gap + flight.cycle_time);
                 routes.push_back(route);
                 acc_cost += route.cost;
             }
@@ -164,68 +163,67 @@ void AirNetwork::run_algo() {
 //            cout << route ;
 //        }
     }
-
 }
+    
+// TODO: Change the responsibility of freeing memory to caller.
+Route AirNetwork::shortest_route(char start_node, int start_time, char end_node, int end_time) {
+    Route **dp = new Route *[num_nodes];
+    for (int i = 0; i < num_nodes; i++)
+        dp[i] = new Route[TOTAL_TIME_SLOT];
 
-void AirNetwork::generate_designed_flight() {
-//    unsigned seed = static_cast<unsigned int>(chrono::system_clock::now().time_since_epoch().count());
-    mt19937 gen = mt19937(air_seed++);
-    uniform_int_distribution<int> dis(0, INT_MAX);
-    Flight cur_flight = designed_flights[0];
 
-    vector<Route> routes;
+    int start_node_idx = (int) start_node - 'A';
+    int end_node_idx = (int) end_node - 'A';
 
-    int start_node = (int) cur_flight.routes[0].nodes[0][0]-65;
-    int start_time = dis(gen) % 5;
-    int cur_node = start_node;
-    int cur_time = start_time;
-    int next_node, next_time;
-    int total_cost = 0;
+    vector<string> init_node = vector<string>();
+    init_node.push_back(start_node + to_string(start_time));
 
-    int freq =  2 ;
+    dp[start_node_idx][start_time] = Route(init_node, stop_cost[start_node_idx]);
+    forward_update(dp, start_node_idx, start_time);
 
-    vector<string> nodes;
-    nodes.push_back((char) (65 + cur_node) + to_string(cur_time));
-    total_cost = stop_cost[cur_node];
-
-    while (cur_time - start_time < cur_flight.cycle_time -1) {
-        do {
-            next_node = dis(gen) % num_nodes;
-        } while (cur_node == next_node);
-
-        next_time = cur_time + time_cost[cur_node][next_node];
-        total_cost += stop_cost[next_node];
-        total_cost += arc_cost[cur_node][next_node];
-
-        nodes.push_back((char) (65 + next_node) + to_string(next_time));
-
-        cur_node = next_node;
-        cur_time = next_time;
-    }
-    //back to start node
-    if(cur_node != start_node) {
-        next_node = start_node;
-        next_time = cur_time + time_cost[cur_node][next_node];
-        if(next_time + 1 + (next_time - start_time) < 20) {
-            cur_time = next_time;
-            total_cost += stop_cost[next_node];
-            total_cost += arc_cost[cur_node][next_node];
-            nodes.push_back((char) (65 + next_node) + to_string(next_time));
+    for (int t = start_time + 1; t < end_time; t++) {
+        for (int node = 0; node < num_nodes; node++) {
+            if (dp[node][t].nodes.empty() == 0)
+                forward_update(dp, node, t);
         }
     }
-
-
-    Route route = Route(nodes, total_cost);
-    int gap = (cur_time - start_time+1);
-
-    Flight new_flight = Flight((char) (65 + start_node), gap, freq, cur_flight.cycle_time, cur_flight.volume_ub , cur_flight.weight_ub);
-    routes.push_back(route);
-    for(int f = 1; f < freq; f++){
-        Route next_route = Route(route,  gap * f);
-        routes.push_back(next_route);
+        
+    // Release useless memories.
+    Route result = dp[end_node_idx][end_time];
+    for (int i = 0; i < num_nodes; ++i) {
+        delete[] dp[i];
     }
-    new_flight.routes = routes;
-    designed_flights[0] = new_flight;
+    delete[] dp;
+
+    return result;
+}
+    
+void AirNetwork::forward_update(Route** dp, int node, int time) {
+    char node_char = (char) ('A' + node) ;
+    Node* cur_node = nodes[node_char][time];
+
+    for (auto& arc : cur_node->out_arcs){
+        Node* end_node = arc->end_node;
+        char end_node_char = end_node->getName()[0];
+        int end_node_idx = (int) end_node_char - 65;
+        int end_time = stoi(end_node->getName().substr(1));
+
+        //Calculate cost if append end node to current route
+        Route cur_route = dp[node][time];
+        Route end_route = dp[end_node_idx][end_time];
+        double new_cost = cur_route.cost + arc->cost + arc->fixed_cost + end_node->getCost();
+        new_cost = MAX(0, new_cost);
+
+        // if yes, replace old route.
+        if (new_cost < end_route.cost) {
+            vector<string> new_nodes;
+            new_nodes.assign(cur_route.nodes.begin(), cur_route.nodes.end());
+            new_nodes.push_back(end_node_char + to_string(end_time));
+            //cout << end_node_idx << " " << end_time <<endl;
+
+            dp[end_node_idx][end_time] = Route(new_nodes, new_cost);
+        }
+    }
 }
 
 void AirNetwork::print_flights(const vector<Flight>& flights, const string& prefix) {
@@ -249,86 +247,6 @@ const vector<Flight> &AirNetwork::getCur_flights() const {
 
 const vector<Flight> &AirNetwork::getRival_flights() const {
     return rival_flights;
-}
-
-vector<Route*> AirNetwork::find_all_routes() {
-    vector<Route*> all_routes;
-
-    for(auto &flight : designed_flights) {
-        int time_range = 7 * TIME_SLOT_A_DAY - flight.gap * flight.freq;
-        for(int i = 0; i <= time_range; i++) {
-            vector<Route*> routes;
-            routes = find_routes_from_single_node(flight.start_node, i , flight.start_node, i + flight.cycle_time);
-            all_routes.insert(all_routes.end(), routes.begin(), routes.end());
-        }
-    }
-    return all_routes;
-
-}
-
-vector<Route*> AirNetwork::find_routes_from_single_node(char start_node, int start_time, char end_node, int end_time) {
-    cout << "=======================AirNetwork::find_routes_from_single_node=======================" << endl;
-    
-    // TODO: Very Important! Check this algorithm is vaild!!
-    
-    // Internal data use to record travesal state.
-    struct NodeTraversalData {
-        string node;
-        vector<Arc*> arcs;
-        int cost;
-    
-        NodeTraversalData(string node, int cost, vector<Arc*> arcs): node(node), cost(cost), arcs(arcs) {}
-    };
-    
-    vector<Route*> routes = vector<Route*>();
-    
-    int start_node_idx = (int) start_node - 'A';
-    int end_node_idx = (int) end_node - 'A';
-    
-    // Use stack to record passed node.
-    vector<NodeTraversalData*> stack {new NodeTraversalData(start_node + to_string(start_time), stop_cost[start_node_idx], nodes[start_node][start_time]->out_arcs)};
-    while (stack.empty() == false) {
-        auto data = stack.back();
-        string node_str = data->node;
-        
-        // If arcs are all visited pop back and find next node. 
-        if (stack.back()->arcs.empty() || data->cost > 10000) {
-            delete stack.back();
-            stack.pop_back();
-        } else {
-            Arc *arc = stack.back()->arcs.back();
-            stack.back()->arcs.pop_back();
-            
-            Node *next_node = arc->end_node;
-            int next_time = next_node->getTime();
-            string next_node_str = next_node->getName();
-    
-            double cost = stack.back()->cost + arc->cost + next_node->getCost();
-    
-            // If node is feasible...
-            if (next_time <= end_time) {
-                // If we reach the goal...
-                if (next_node->getNode() == end_node_idx && next_time == end_time) {
-                    vector<string> new_nodes = vector<string>();
-                    for (auto& data : stack) {
-                        new_nodes.push_back(data->node);
-                    }
-                    // TODO: Very Important! Check wheather if we need add additional node to stay at the end!
-                    new_nodes.push_back(next_node_str);
-                    
-                    Route *route = new Route(new_nodes, cost);
-                    routes.push_back(route);
-                    
-                    cout << *route;
-    
-                } else {
-                    stack.push_back(new NodeTraversalData(next_node_str, cost, next_node->out_arcs));
-                }
-            }
-        }
-    }
-
-    return routes;
 }
 
 void AirNetwork::set_designed_flight(Route route) {

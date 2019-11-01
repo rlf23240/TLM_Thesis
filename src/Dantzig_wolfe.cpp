@@ -16,8 +16,9 @@ Dantzig_wolfe::Dantzig_wolfe(const CargoRoute &cargoRoute) : cargoRoute(cargoRou
     update_arc_by_pi(shadow_price);
     solutions.push_back(sol);
 
-    while(true){
+    while(true) {
         sol = this->cargoRoute.run_bp();
+
         cout << *sol;
         if(end_condition(shadow_price)){
             break;
@@ -249,8 +250,6 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
         }
     }
 
-
-
     AirNetwork *air_network = networks->getAir_network();
     for(unsigned long long int i = 0; i <  air_arc_pair.size(); i++){
         if(pi[sea_arc_pair.size() + i] != 0){
@@ -289,13 +288,13 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
         }
     }
 
-//    air_network.run_algo();
-//    sea_network.run_algo();
+    air_network->run_algo();
+    sea_network->run_algo();
 //    air_network.generate_designed_flight();
 //    this->cargoRoute.getNetworks().setAir_network(air_network);
 //    sea_network.generate_designed_ship();
 //    this->cargoRoute.getNetworks().setSea_network(sea_network);
-    this->cargoRoute.getNetworks()->generate_new_routes();
+    //this->cargoRoute.getNetworks()->generate_new_routes();
     this->cargoRoute.rebuild_entire_network();
 }
 

@@ -21,7 +21,7 @@ public:
     
     ~EntireNetwork();
     
-    void generate_new_routes();
+    //void generate_new_routes();
     void set_sea_air_route(Route sea_route, Route air_route);
     void rebuild_networks();
     vector<Path *> **getPaths_categories() const;

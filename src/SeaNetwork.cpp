@@ -120,17 +120,57 @@ void SeaNetwork::read_sea_routes(string data_path, vector<Ship> &ships) {
 
 void SeaNetwork::run_algo() {
     for(auto &ship : designed_ships) {
-        Route route = DP_shortest_path(ship.start_node, ship.start_time, ship.start_node, ship.start_time+ship.cycle_time);
+        Route route = shortest_route(ship.start_node, ship.start_time, ship.start_node, ship.start_time+ship.cycle_time);
         ship.route = route;
     }
+}
 
+Route SeaNetwork::shortest_route(char start_node_ch, int start_time, char end_node_ch, int end_time) {
+    Route **dp = new Route *[num_nodes];
+    for (int i = 0; i < num_nodes; i++)
+        dp[i] = new Route[TOTAL_TIME_SLOT];
+
+
+    int start_node_idx = (int) start_node_ch - 'A';
+    int end_node_idx = (int) end_node_ch - 'A';
+    
+    Node* start_node = nodes[start_node_ch][start_time];
+    // Ship should stay on harbor at least 1 turn before the departure.
+    Node* additional_stay_node = nodes[start_node_ch][start_time+1];
+    
+    Arc* additional_stay_arc = start_node->arc_to(additional_stay_node);
+
+    vector<string> init_node = vector<string>();
+    init_node.push_back(start_node_ch + to_string(start_time));
+    init_node.push_back(start_node_ch + to_string(start_time+1));
+    
+    int init_cost = 2*stop_cost[start_node_idx] + additional_stay_arc->cost + additional_stay_arc->fixed_cost;
+
+    dp[start_node_idx][start_time] = Route(init_node, init_cost);
+    forward_update(dp, start_node_idx, start_time);
+
+    for (int t = start_time + 1; t < end_time; t++) {
+        for (int node = 0; node < num_nodes; node++) {
+            if (dp[node][t].nodes.empty() == 0)
+                forward_update(dp, node, t);
+        }
+    }
+        
+    // Release useless memories.
+    Route result = dp[end_node_idx][end_time];
+    for (int i = 0; i < num_nodes; ++i) {
+        delete[] dp[i];
+    }
+    delete[] dp;
+
+    return result;
 }
 
 void SeaNetwork::forward_update(Route **dp, int node, int time) {
     char node_char = (char) ('A' + node) ;
     Node* cur_node = nodes[node_char][time];
 
-    for (auto& arc : cur_node->out_arcs){
+    for (auto& arc: cur_node->out_arcs){
         Node* end_node = arc->end_node;
         char end_node_char = end_node->getName()[0];
         int end_node_idx = (int) end_node_char - 65;
@@ -168,54 +208,6 @@ void SeaNetwork::forward_update(Route **dp, int node, int time) {
     }
 }
 
-void SeaNetwork::generate_designed_ship() {
-//    unsigned seed = static_cast<unsigned int>(chrono::system_clock::now().time_since_epoch().count());
-    mt19937 gen =  mt19937(sea_seed++);
-    uniform_int_distribution<int> dis(0, INT_MAX);
-    Ship cur_ship = designed_ships[0];
-
-    int start_node = (int) cur_ship.route.nodes[0][0] - 65;
-    int start_time = cur_ship.start_time;
-    int cur_node = start_node;
-    int cur_time = start_time;
-    int next_node, next_time;
-    int total_cost = 0;
-    vector<string> nodes;
-    nodes.push_back((char) (65 + start_node) + to_string(start_time));
-    total_cost = stop_cost[start_node];
-    while (cur_time - start_time < cur_ship.cycle_time - 5) {
-        do {
-            next_node = dis(gen) % num_nodes;
-        } while (cur_node == next_node);
-
-        next_time = cur_time + time_cost[cur_node][next_node];
-        total_cost += stop_cost[next_node] * (1+SHIP_STOP_DAY);
-        total_cost += arc_cost[cur_node][next_node];
-
-        nodes.push_back((char) (65 + next_node) + to_string(next_time));
-        nodes.push_back((char) (65 + next_node) + to_string(next_time + SHIP_STOP_DAY));
-
-        cur_node = next_node;
-        cur_time = next_time;
-    }
-    if(cur_node != start_node){
-        next_node = start_node;
-        next_time = cur_time + time_cost[cur_node][next_node];
-        if(next_time < TOTAL_TIME_SLOT) {
-            total_cost += stop_cost[next_node];
-            total_cost += arc_cost[cur_node][next_node];
-            nodes.push_back((char) (65 + next_node) + to_string(next_time));
-        }
-    }
-
-
-    Route route = Route(nodes, total_cost);
-    Ship new_ship = Ship((char) (65 + start_node), start_time, 1, cur_ship.cycle_time, cur_ship.volume_ub);
-    new_ship.route = route;
-    designed_ships[0] = new_ship;
-
-}
-
 void SeaNetwork::print_ships(vector<Ship> designed_ships, string prefix) {
     cout << "---------------" + prefix ;
     cout << " ships routes-----------" <<endl;
@@ -236,140 +228,6 @@ const vector<Ship> &SeaNetwork::getCur_ships() const {
 
 const vector<Ship> &SeaNetwork::getRival_ships() const {
     return rival_ships;
-}
-
-vector<Route *> SeaNetwork::find_all_routes() {
-    vector<Route*> all_routes;
-
-    for(auto &ship : designed_ships) {
-        vector<Route*> routes;
-        routes = find_routes_from_single_node(ship.start_node, ship.start_time, ship.start_node, ship.start_time+ship.cycle_time);
-        all_routes.insert(all_routes.end(), routes.begin(), routes.end());
-    }
-    return all_routes;
-}
-
-
-vector<Route *> SeaNetwork::find_routes_from_single_node(char start_node, int start_time, char end_node, int end_time) {
-    
-    // Apply Dijkstra to estimate distance.
-    // Use for reducing searching prosess.
-    vector<vector<int>> distance = vector<vector<int>>(num_nodes, vector<int>(num_nodes, 99999));
-    for (int i = 0; i < num_nodes; ++i) {
-        for (int t = end_time; t >= start_time; --t) {
-            Node *node = nodes[(char)i + 'A'][t];
-            
-            for (auto &arc: node->in_arcs) {
-                Node *prev_node = arc->start_node;
-                int prev_time = prev_node->getTime();
-                if (prev_time >= start_time) {
-                    distance[prev_node->getNode()][node->getNode()] = t - prev_time;
-                    distance[node->getNode()][prev_node->getNode()] = t - prev_time;
-                }
-            }
-        }
-    }
-    
-    vector<int> shortest = Graph::dijkstra(num_nodes, end_node-'A', distance);
-    
-    cout << "=======================SeaNetwork::find_routes_from_single_node=======================" << endl;
-        
-    // Internal data use to record travesal state.
-    struct NodeTraversalData {
-        string node;
-        vector<Arc*> arcs;
-        int cost;
-    
-        NodeTraversalData(string node, int cost, vector<Arc*> arcs): node(node), cost(cost), arcs(arcs) {}
-    };
-    
-    // TODO: Very Important! Check this algorithm is vaild!!
-    vector<Route*> routes = vector<Route*>();
-    
-    int start_node_idx = (int) start_node - 'A';
-    int end_node_idx = (int) end_node - 'A';
-    
-    
-    Node *start = nodes[start_node][start_time];
-    // Use stack to record passed node.
-    vector<NodeTraversalData*> stack {
-        new NodeTraversalData(
-            start_node + to_string(start_time),
-            stop_cost[start_node_idx],
-            {start->arc_to(nodes[start_node][start_time+1])}
-        )
-    };
-    
-    while (stack.empty() == false) {
-        auto data = stack.back();
-        
-        string node_str = data->node;
-        char node_char = node_str[0];
-        int cur_time = stoi(node_str.substr(1));
-        
-        // If arcs are all visited and self-loop also considered, then pop back and find next node.
-        if (stack.back()->arcs.empty() || (end_time-cur_time) < shortest[node_char-'A'] || data->cost > 250000) {
-            //int next_time =  cur_time + 1;
-            delete stack.back();
-            stack.pop_back();
-        } else {
-            Arc *arc = stack.back()->arcs.back();
-            stack.back()->arcs.pop_back();
-            
-            Node *next_node = arc->end_node;
-            string next_node_str = next_node->getName();
-            char next_node_char = next_node_str[0];
-                
-            // If we need to load and unload cargos, we need some additional days.
-            bool need_to_load = (node_char != next_node_char);
-            
-            int next_time = next_node->getTime();
-            if (need_to_load) {
-                next_time += SHIP_STOP_DAY;
-            }
-            
-            // TODO: Very Important! Check the cost is vaild!
-            double cost = stack.back()->cost + arc->cost + next_node->getCost();
-                        
-            // If node is feasible...
-            if (next_time <= end_time) {
-                // If we reach the goal...
-                if (next_node->getNode() == end_node_idx && next_time == end_time) {
-                    vector<string> new_nodes = vector<string>();
-                    for (auto& data : stack) {
-                        new_nodes.push_back(data->node);
-                    }
-                    new_nodes.push_back(next_node_str);
-                    
-                    // Air transpotation no need to load.
-                    if (need_to_load) {
-                        Node* additional_stay = nodes[next_node_char][next_time];
-                        Arc* arc = next_node->arc_to(additional_stay);
-                        
-                        cost += arc->cost + additional_stay->getCost();
-                        
-                        new_nodes.push_back(next_node_char + to_string(end_time));
-                    }
-                    
-                    Route *route = new Route(new_nodes, cost);
-                    routes.push_back(route);
-                    
-                    cout << *route;
-                } else {
-                    if (need_to_load) {
-                        Node* additional_stay = nodes[next_node_char][next_time];
-                        Arc* arc = next_node->arc_to(additional_stay);
-                        
-                        stack.push_back(new NodeTraversalData(next_node_str, cost, {arc}));
-                    } else {
-                        stack.push_back(new NodeTraversalData(next_node_str, cost, next_node->out_arcs));
-                    }
-                }
-            }
-        }
-    }
-
-    return routes;
 }
 
 void SeaNetwork::set_designed_ship(Route route) {

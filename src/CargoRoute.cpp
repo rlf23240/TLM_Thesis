@@ -500,7 +500,6 @@ void CargoRoute::set_constr3(GRBModel &model) {
                 lhs += e_[k][n];
                 rhs += z_[k][n];
             }
-            cout << e[k][p] << endl;
             cons3[k].push_back(model.addConstr(lhs* z[k][p] - e[k][p] * rhs <= 0, "cons3" + to_string(k) + to_string(p)));
         }
     }

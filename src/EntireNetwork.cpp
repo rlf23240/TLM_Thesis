@@ -21,8 +21,8 @@ EntireNetwork::EntireNetwork(string data) {
     create_networks(data);
     find_all_paths();
 
-    candidate_designed_flight_routes = air_network->find_all_routes();
-    candidate_designed_ship_routes = sea_network->find_all_routes();
+    //candidate_designed_flight_routes = air_network->find_all_routes();
+    //candidate_designed_ship_routes = sea_network->find_all_routes();
 
 //    for(auto &route : candidate_designed_flight_routes){
 //        cout << *route << endl;
@@ -56,7 +56,8 @@ void EntireNetwork::rebuild_networks() {
     }
 }
 
-void EntireNetwork::generate_new_routes() {
+// 何これ？
+/*void EntireNetwork::generate_new_routes() {
 //    random_device rd;
 //    unsigned seed = static_cast<unsigned int>(chrono::system_clock::now().time_since_epoch().count());
     mt19937 gen =  mt19937(seed++);
@@ -64,9 +65,10 @@ void EntireNetwork::generate_new_routes() {
 
     int sea_route_idx = dis(gen) % candidate_designed_ship_routes.size();
     int air_route_idx = dis(gen) % candidate_designed_flight_routes.size();
-
+    
+    
     set_sea_air_route(*candidate_designed_ship_routes[sea_route_idx], *candidate_designed_flight_routes[air_route_idx]);
-}
+}*/
 
 void EntireNetwork::set_sea_air_route(Route sea_route, Route air_route) {
     sea_network->set_designed_ship(sea_route);

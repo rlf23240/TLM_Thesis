@@ -29,16 +29,18 @@ protected:
     int** time_cost = NULL;
 
 public:
+    virtual Route shortest_route(char start_node, int start_time, char end_node, int end_time) = 0;
+    
     virtual void add_nodes();
     virtual void run_algo() = 0;
     virtual void read_data(std::string data_path);
     virtual void read_node(std::string node_data_path);
-    virtual void forward_update(Route** dp, int node, int time);
+    
     void add_edges();
     bool add_edge(Node* start, Node* end, int cost);
     void read_stop_cost(std::string cost_data_path);
     void read_time_cost(std::string time_data_path);
-    Route DP_shortest_path(char start_node, int start_time, char end_node, int end_time);
+    
     unordered_map<char, vector<Node*>> nodes;
 
     unsigned getNum_nodes() const;

@@ -174,67 +174,6 @@ void Network::add_edges() {
     }
 }
 
-// TODO: Change the responsibility of freeing memory to caller.
-Route Network::DP_shortest_path(char start_node, int start_time, char end_node, int end_time) {
-    Route **dp = new Route *[num_nodes];
-    for (int i = 0; i < num_nodes; i++)
-        dp[i] = new Route[TOTAL_TIME_SLOT];
-
-
-    int start_node_idx = (int) start_node - 'A';
-    int end_node_idx = (int) end_node - 'A';
-
-    vector<string> init_node = vector<string>();
-    init_node.push_back(start_node + to_string(start_time));
-
-    dp[start_node_idx][start_time] = Route(init_node, stop_cost[start_node_idx]);
-    forward_update(dp, start_node_idx, start_time);
-
-    for (int t = start_time + 1; t < end_time; t++) {
-        for (int node = 0; node < num_nodes; node++) {
-            if (dp[node][t].nodes.empty() == 0)
-                forward_update(dp, node, t);
-        }
-    }
-        
-    // Release useless memories.
-    Route result = dp[end_node_idx][end_time];
-    for (int i = 0; i < num_nodes; ++i) {
-        delete[] dp[i];
-    }
-    delete[] dp;
-    
-    return result;
-}
-
-void Network::forward_update(Route** dp, int node, int time) {
-    char node_char = (char) ('A' + node) ;
-    Node* cur_node = nodes[node_char][time];
-
-    for (auto& arc : cur_node->out_arcs){
-        Node* end_node = arc->end_node;
-        char end_node_char = end_node->getName()[0];
-        int end_node_idx = (int) end_node_char - 65;
-        int end_time = stoi(end_node->getName().substr(1));
-
-        //Calculate cost if append end node to current route
-        Route cur_route = dp[node][time];
-        Route end_route = dp[end_node_idx][end_time];
-        double new_cost = cur_route.cost + arc->cost + arc->fixed_cost + end_node->getCost();
-        new_cost = MAX(0, new_cost);
-
-        // if yes, replace old route.
-        if (new_cost < end_route.cost) {
-            vector<string> new_nodes;
-            new_nodes.assign(cur_route.nodes.begin(), cur_route.nodes.end());
-            new_nodes.push_back(end_node_char + to_string(end_time));
-            //cout << end_node_idx << " " << end_time <<endl;
-
-            dp[end_node_idx][end_time] = Route(new_nodes, new_cost);
-        }
-    }
-}
-
 unsigned int Network::getNum_nodes() const {
     return num_nodes;
 }
