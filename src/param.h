@@ -25,7 +25,7 @@
 
 extern bool is_designed_route_added;
 extern bool iter_added;
-extern bool col_deletion;
+extern bool not_col_deletion;
 
 static const double  AIR_TRANS_COST_MULTIPLIER = 0.17;
 static const double  SEA_TRANS_COST_MULTIPLIER = 13.4;
@@ -43,12 +43,17 @@ static const unsigned int TOTAL_TIME_SLOT = TIME_PERIOD * TIME_SLOT_A_DAY;
 static const int SHIP_STOP_DAY = 1;
 static const int FIX_COST_OF_VIRTUAL_ARC = 100;
 
+// TODO: Test this.
 static double MU_THRESHOLD = 0;
 static double DW_STOP_THRESHOLD = 0.1;
 static const int time_limit_for_gurobi = 3600; //second
 static const int NUM_INIT_PATHS = 99999;
-static int MAX_BP_ITER = 0; // if the number is very big -> useless
+
+// TODO: Test this.
+static int MAX_BP_ITER = 20; // if the number is very big -> useless
 static int MAX_DW_ITER = 30; // if the number is very big -> useless
+
+// TODO: Test this.
 static double EPSILON = 0.006; //體積轉體積重量之參數(體積/ epsilon =體積重量)
 
 #endif //TLM_THESIS_PARAM_H

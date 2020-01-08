@@ -213,6 +213,14 @@ Solution* CargoRoute::branch_and_price() {
         bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal), target_path, rival_path, chosen_paths, integer_set));
         int iter = 0;
         while (!bb_pool.empty()) {
+            cout << "BP_iter : " << iter << endl;
+            if (iter > MAX_BP_ITER) {
+                set_all_u_integer(model, u);
+                LP_relaxation(model);
+                break;
+            }
+            iter++;
+            
             if (bb_pool.top().getObj() < incumbent) {
                 bb_pool.pop();
                 continue;
@@ -242,14 +250,6 @@ Solution* CargoRoute::branch_and_price() {
             bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal), target_path, rival_path, chosen_paths, integer_set));
             if (is_integral() && incumbent < model.get(GRB_DoubleAttr_ObjVal))
                 incumbent = model.get(GRB_DoubleAttr_ObjVal);
-
-            iter++;
-            cout << "BP_iter : " << iter << endl;
-            if (iter >= MAX_BP_ITER) {
-                set_all_u_integer(model, u);
-                LP_relaxation(model);
-                break;
-            }
         }
 
         objVal = model.get(GRB_DoubleAttr_ObjVal);
@@ -350,18 +350,55 @@ void CargoRoute::LP_relaxation(GRBModel &model) {
 void CargoRoute::column_generation(GRBModel &model) {
     Path *best_path;
     int iter = 0;
+    
+    
+    // TODO: TAST
+    double thres = 0.001;
+    int max_cont_in_thres = 20;
+    
+    double previous = 99999;
+    
+    int cont_in_thres = 0;
+    
     while (true) {
         LP_relaxation(model);
-
+        
         update_arcs();
         pair<Path*, int> path_pair = select_most_profit_path();
         best_path = path_pair.first;
-        int thres = (iter_added == true) ? -100: 0;
-        if(col_deletion == true && thres < 0) thres += 10;
-        if (!path_pair.first || path_pair.first->reduced_cost <= thres) {
+        
+        //double thres = (iter_added == true) ? -100: 0;
+        //if(not_col_deletion == true && thres < 0) thres += 10;
+        
+        /*for all column {
+            //for all k {
+                if z[column.k][column.p] == 0?
+                    not_use ++
+                else
+                    not_use = 0
+            //}
+                
+            if not_use >= 20
+                delete column
+        }*/
+        
+        double delta = abs(model.get(GRB_DoubleAttr_ObjVal)-previous);
+        previous = model.get(GRB_DoubleAttr_ObjVal);
+        
+        if (!path_pair.first || path_pair.first->reduced_cost <= 0.0 || cont_in_thres >= max_cont_in_thres) {
             break;
-        }else{
+        } else {
             append_column(path_pair.first, path_pair.second);
+            
+            if (delta <= thres) {
+                cont_in_thres += 1;
+                cout << iter << " in thres" << endl;
+                
+            } else {
+                cout << iter << " out, max contiune " << cont_in_thres << endl;
+                
+                cont_in_thres = 0;
+            }
         }
 
         cout << best_path->reduced_cost << " " << *best_path;
