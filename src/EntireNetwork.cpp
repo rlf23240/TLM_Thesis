@@ -295,10 +295,16 @@ void EntireNetwork::add_designed_flights() {
 
                     Node *start_node = nodes[layer][(int) start_node_char - 65][start_node_time];
                     Node *end_node = nodes[layer][(int) end_node_char - 65][end_node_time];
-
-                    Arc *arc = new Arc(start_node, end_node,
-                                       arc_cost[(int) start_node_char - 65][(int) end_node_char - 65], flight.volume_ub,
-                                       flight.weight_ub, air_profit[(int) start_node_char - 65][(int) end_node_char - 65], air_cost[(int) start_node_char - 65][(int) end_node_char - 65]);
+                    
+                    Arc *arc = new Arc(start_node,
+                                       end_node,
+                                       arc_cost[(int) start_node_char - 65][(int) end_node_char - 65],
+                                       flight.volume_ub,
+                                       flight.weight_ub,
+                                       // unit profit
+                                       air_profit[(int) start_node_char - 65][(int) end_node_char - 65],
+                                       air_cost[(int) start_node_char - 65][(int) end_node_char - 65]
+                                       );
 
                     add_arc(start_node, end_node, arc);
                 }

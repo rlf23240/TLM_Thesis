@@ -60,8 +60,8 @@ private:
     unordered_map<int, unordered_map<int, Arc*>> arcs;
     void read_cargo_file(string data);
     void get_available_path(vector<Path*>** path_categories, vector<Path*>& paths);
-    void cal_paths_profit();
-    void cal_path_profit(Path* path);
+    //void cal_paths_profit();
+    double cal_path_profit(Path* path, Cargo *cargo);
     void cal_paths_cost();
     void cal_path_cost(Path* path);
     void cal_path_reduced_cost(Path* path, int k);

@@ -118,23 +118,31 @@ void CargoRoute::get_available_path(vector<Path*>** path_categories, vector<Path
     }
 }
 
-void CargoRoute::cal_paths_profit() {
-    for(const auto &path : all_paths) {
-        cal_path_profit(path);
-//        cout << path->path_profit <<  " " << *path;
-    }
-}
-
-void CargoRoute::cal_path_profit(Path* path)/**/{
+double CargoRoute::cal_path_profit(Path *path, Cargo *cargo)/**/{
     double profit = 0;
     double pi = 0;
     bool only_rival = true;
-    Point *cur,*next;
+    Point *cur, *next;
     for(int p = 0; p < path->points.size()-1; p++){
         cur = &path->points[p];
         next = &path->points[p+1];
-        profit += arcs[networks->get_node_idx(*cur)]
-        [networks->get_node_idx(*next)]->unit_profit;
+        
+        Arc *arc = arcs[networks->get_node_idx(*cur)][networks->get_node_idx(*next)];
+        
+        double phi = 1.0;
+        
+        bool is_starting_from_air = (arc->start_node->getLayer() == 1 || arc->start_node->getLayer() == 4);
+        bool is_stop_to_air = (arc->end_node->getLayer() == 1 || arc->end_node->getLayer() == 4);
+        
+        bool is_air_trans = is_starting_from_air && is_stop_to_air;
+        
+        if (is_air_trans == true) {
+            phi = MAX(1.0/EPSILON, cargo->weight/cargo->volume);
+        }
+        
+        profit += arc->unit_profit*phi;
+        
+        
         pi +=  arcs[networks->get_node_idx(*cur)][networks->get_node_idx(*next)]->fixed_profit;
         if(next->layer == 0 || next->layer == 1 || next->layer == 3 || next->layer == 4)
             only_rival = false;
@@ -147,6 +155,8 @@ void CargoRoute::cal_path_profit(Path* path)/**/{
     path->path_profit = profit;
     path->pi = pi;
     path->only_rival = only_rival;
+    
+    return profit;
 }
 
 void CargoRoute::cal_paths_cost() {
@@ -270,7 +280,7 @@ void CargoRoute::bp_init(GRBModel &model) {
     path_categories = networks->getPaths_categories();
     get_available_path(path_categories, all_paths);
     arcs = networks->getArcs();
-    cal_paths_profit();
+    //cal_paths_profit();
     cal_paths_cost();
 
     select_init_path();
@@ -376,7 +386,14 @@ void CargoRoute::Obj_init(GRBModel &model) {
     GRBLinExpr obj = 0;
     for(int k = 0; k < cargos.size(); k++) {
         for (int p = 0; p < target_path[k].size(); p++) {
-            obj += z[k][p] * cargos[k]->volume * target_path[k][p]->path_profit;
+            
+            double target_path_profit = cal_path_profit(target_path[k][p], cargos[k]);
+            
+            obj += z[k][p] * cargos[k]->volume * target_path_profit;
+            
+            //cout << "PATH_PROFIT(" << k << "," << p<< "): " << target_path[k][p]->path_profit << endl;
+            
+            //cout << k << endl;
         }
     }
     model.setObjective(obj, GRB_MAXIMIZE);
@@ -1100,11 +1117,12 @@ void CargoRoute::reset_bp() {
     cons6.clear();
 }
 
+// Not running.
 Solution* CargoRoute::Run_full_model() {
     path_categories = networks->getPaths_categories();
     get_available_path(path_categories, all_paths);
     arcs = networks->getArcs();
-    cal_paths_profit();
+    //cal_paths_profit();
     cal_paths_cost();
 
     z = new vector<GRBVar>[cargos.size()];

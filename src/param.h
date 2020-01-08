@@ -49,5 +49,6 @@ static const int time_limit_for_gurobi = 3600; //second
 static const int NUM_INIT_PATHS = 99999;
 static int MAX_BP_ITER = 0; // if the number is very big -> useless
 static int MAX_DW_ITER = 30; // if the number is very big -> useless
+static double EPSILON = 0.006; //體積轉體積重量之參數(體積/ epsilon =體積重量)
 
 #endif //TLM_THESIS_PARAM_H
