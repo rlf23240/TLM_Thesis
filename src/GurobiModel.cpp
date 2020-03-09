@@ -85,8 +85,8 @@ void GurobiModel::all_paths_for_GurobiModel(string data) {
     SeaNetwork *sea_network = network->getSea_network();
     AirNetwork *air_network = network->getAir_network();
 
-    vector<Route*> candidate_designed_flight_routes = vector<Route*>();//air_network->find_all_routes();
-    vector<Route*> candidate_designed_ship_routes = vector<Route*>();//sea_network->find_all_routes();
+    vector<Route*> candidate_designed_flight_routes = air_network->find_all_routes();
+    vector<Route*> candidate_designed_ship_routes = sea_network->find_all_routes();
     /*cout  << candidate_designed_ship_routes.size()<<endl;
     cout  << candidate_designed_flight_routes.size() << endl;
 
@@ -95,7 +95,7 @@ void GurobiModel::all_paths_for_GurobiModel(string data) {
     }
     for(const auto& route : candidate_designed_flight_routes){
         cout << *route ;
-    }
+    }*/
 
     unordered_set<Path, path_hash, path_equal> all_path;
 //
@@ -121,7 +121,7 @@ void GurobiModel::all_paths_for_GurobiModel(string data) {
         file << "\n";
     }
     file.close();
-    cout << all_path.size();*/
+    cout << all_path.size();
 }
 
 Solution *GurobiModel::getBestSol() const {

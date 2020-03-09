@@ -32,7 +32,8 @@ public:
     
     Route shortest_route(char start_node, int start_time, char end_node, int end_time) override;
     
-    //vector<Route*> find_all_routes();
+    vector<Route*> find_all_routes();
+    
     const vector<Flight> &getFlights() const;
     const vector<Flight> &getCur_flights() const;
     const vector<Flight> &getRival_flights() const;
@@ -50,6 +51,8 @@ private:
     void read_data(std::string data_path) override;
     void print_flights(const vector<Flight>& flights, const string& prefix);
     void read_air_routes(string data_path, vector<Flight> &flights);
+    
+    vector<Route*> find_routes_from_single_node(char start_node, int start_time, char end_node, int end_time);
 };
 
 #endif //TLM_THESIS_AIRNETWORK_H

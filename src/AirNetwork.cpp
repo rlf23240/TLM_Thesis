@@ -264,10 +264,82 @@ const vector<Flight> &AirNetwork::getDesignedFlights() const {
     return designed_flights;
 }
 
+vector<Route*> AirNetwork::find_all_routes() {
+    vector<Route*> all_routes;
 
+    for(auto &flight : designed_flights) {
+        int time_range = 7 * TIME_SLOT_A_DAY - flight.gap * flight.freq;
+        for(int i = 0; i <= time_range; i++) {
+            vector<Route*> routes;
+            routes = find_routes_from_single_node(flight.start_node, i , flight.start_node, i + flight.cycle_time);
+            all_routes.insert(all_routes.end(), routes.begin(), routes.end());
+        }
+    }
+    return all_routes;
 
+}
 
+vector<Route*> AirNetwork::find_routes_from_single_node(char start_node, int start_time, char end_node, int end_time) {
+    cout << "=======================AirNetwork::find_routes_from_single_node=======================" << endl;
+    
+    // TODO: Very Important! Check this algorithm is vaild!!
+    
+    // Internal data use to record travesal state.
+    struct NodeTraversalData {
+        string node;
+        vector<Arc*> arcs;
+        int cost;
+    
+        NodeTraversalData(string node, int cost, vector<Arc*> arcs): node(node), cost(cost), arcs(arcs) {}
+    };
+    
+    vector<Route*> routes = vector<Route*>();
+    
+    int start_node_idx = (int) start_node - 'A';
+    int end_node_idx = (int) end_node - 'A';
+    
+    // Use stack to record passed node.
+    vector<NodeTraversalData*> stack {new NodeTraversalData(start_node + to_string(start_time), stop_cost[start_node_idx], nodes[start_node][start_time]->out_arcs)};
+    while (stack.empty() == false) {
+        auto data = stack.back();
+        string node_str = data->node;
+        
+        // If arcs are all visited pop back and find next node.
+        if (stack.back()->arcs.empty() || data->cost > 10000) {
+            delete stack.back();
+            stack.pop_back();
+        } else {
+            Arc *arc = stack.back()->arcs.back();
+            stack.back()->arcs.pop_back();
+            
+            Node *next_node = arc->end_node;
+            int next_time = next_node->getTime();
+            string next_node_str = next_node->getName();
+    
+            double cost = stack.back()->cost + arc->cost + next_node->getCost();
+    
+            // If node is feasible...
+            if (next_time <= end_time) {
+                // If we reach the goal...
+                if (next_node->getNode() == end_node_idx && next_time == end_time) {
+                    vector<string> new_nodes = vector<string>();
+                    for (auto& data : stack) {
+                        new_nodes.push_back(data->node);
+                    }
+                    // TODO: Very Important! Check wheather if we need add additional node to stay at the end!
+                    new_nodes.push_back(next_node_str);
+                    
+                    Route *route = new Route(new_nodes, cost);
+                    routes.push_back(route);
+                    
+                    cout << *route;
+    
+                } else {
+                    stack.push_back(new NodeTraversalData(next_node_str, cost, next_node->out_arcs));
+                }
+            }
+        }
+    }
 
-
-
-
+    return routes;
+}

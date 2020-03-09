@@ -238,7 +238,138 @@ const vector<Ship> &SeaNetwork::getDesignedShips() const {
     return designed_ships;
 }
 
+vector<Route *> SeaNetwork::find_all_routes() {
+    vector<Route*> all_routes;
 
+    for(auto &ship : designed_ships) {
+        vector<Route*> routes;
+        routes = find_routes_from_single_node(ship.start_node, ship.start_time, ship.start_node, ship.start_time+ship.cycle_time);
+        all_routes.insert(all_routes.end(), routes.begin(), routes.end());
+    }
+    return all_routes;
+}
+
+vector<Route *> SeaNetwork::find_routes_from_single_node(char start_node, int start_time, char end_node, int end_time) {
+    
+    // Apply Dijkstra to estimate distance.
+    // Use for reducing searching prosess.
+    vector<vector<int>> distance = vector<vector<int>>(num_nodes, vector<int>(num_nodes, 99999));
+    for (int i = 0; i < num_nodes; ++i) {
+        for (int t = end_time; t >= start_time; --t) {
+            Node *node = nodes[(char)i + 'A'][t];
+            
+            for (auto &arc: node->in_arcs) {
+                Node *prev_node = arc->start_node;
+                int prev_time = prev_node->getTime();
+                if (prev_time >= start_time) {
+                    distance[prev_node->getNode()][node->getNode()] = t - prev_time;
+                    distance[node->getNode()][prev_node->getNode()] = t - prev_time;
+                }
+            }
+        }
+    }
+    
+    vector<int> shortest = Graph::dijkstra(num_nodes, end_node-'A', distance);
+    
+    cout << "=======================SeaNetwork::find_routes_from_single_node=======================" << endl;
+        
+    // Internal data use to record travesal state.
+    struct NodeTraversalData {
+        string node;
+        vector<Arc*> arcs;
+        int cost;
+    
+        NodeTraversalData(string node, int cost, vector<Arc*> arcs): node(node), cost(cost), arcs(arcs) {}
+    };
+    
+    // TODO: Very Important! Check this algorithm is vaild!!
+    vector<Route*> routes = vector<Route*>();
+    
+    int start_node_idx = (int) start_node - 'A';
+    int end_node_idx = (int) end_node - 'A';
+    
+    
+    Node *start = nodes[start_node][start_time];
+    // Use stack to record passed node.
+    vector<NodeTraversalData*> stack {
+        new NodeTraversalData(
+            start_node + to_string(start_time),
+            stop_cost[start_node_idx],
+            {start->arc_to(nodes[start_node][start_time+1])}
+        )
+    };
+    
+    while (stack.empty() == false) {
+        auto data = stack.back();
+        
+        string node_str = data->node;
+        char node_char = node_str[0];
+        int cur_time = stoi(node_str.substr(1));
+        
+        // If arcs are all visited and self-loop also considered, then pop back and find next node.
+        if (stack.back()->arcs.empty() || (end_time-cur_time) < shortest[node_char-'A'] || data->cost > 250000) {
+            //int next_time =  cur_time + 1;
+            delete stack.back();
+            stack.pop_back();
+        } else {
+            Arc *arc = stack.back()->arcs.back();
+            stack.back()->arcs.pop_back();
+            
+            Node *next_node = arc->end_node;
+            string next_node_str = next_node->getName();
+            char next_node_char = next_node_str[0];
+                
+            // If we need to load and unload cargos, we need some additional days.
+            bool need_to_load = (node_char != next_node_char);
+            
+            int next_time = next_node->getTime();
+            if (need_to_load) {
+                next_time += SHIP_STOP_DAY;
+            }
+            
+            // TODO: Very Important! Check the cost is vaild!
+            double cost = stack.back()->cost + arc->cost + next_node->getCost();
+                        
+            // If node is feasible...
+            if (next_time <= end_time) {
+                // If we reach the goal...
+                if (next_node->getNode() == end_node_idx && next_time == end_time) {
+                    vector<string> new_nodes = vector<string>();
+                    for (auto& data : stack) {
+                        new_nodes.push_back(data->node);
+                    }
+                    new_nodes.push_back(next_node_str);
+                    
+                    // Air transpotation no need to load.
+                    if (need_to_load) {
+                        Node* additional_stay = nodes[next_node_char][next_time];
+                        Arc* arc = next_node->arc_to(additional_stay);
+                        
+                        cost += arc->cost + additional_stay->getCost();
+                        
+                        new_nodes.push_back(next_node_char + to_string(end_time));
+                    }
+                    
+                    Route *route = new Route(new_nodes, cost);
+                    routes.push_back(route);
+                    
+                    cout << *route;
+                } else {
+                    if (need_to_load) {
+                        Node* additional_stay = nodes[next_node_char][next_time];
+                        Arc* arc = next_node->arc_to(additional_stay);
+                        
+                        stack.push_back(new NodeTraversalData(next_node_str, cost, {arc}));
+                    } else {
+                        stack.push_back(new NodeTraversalData(next_node_str, cost, next_node->out_arcs));
+                    }
+                }
+            }
+        }
+    }
+
+    return routes;
+}
 
 
 

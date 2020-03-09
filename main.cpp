@@ -10,7 +10,7 @@ using namespace std;
 
 bool is_designed_route_added = true;
 bool iter_added = true;
-bool col_deletion = false;
+bool not_col_deletion = false;
 
 void generate_paths_arcs(vector<string> data_sets);
 void compare_grb_algo(vector<string> data_sets);
@@ -21,14 +21,15 @@ unordered_map<string, pair<double, double>> run_danzig_wolfe(string base_dir, co
 unordered_map<string, pair<double, double>> run_danzig_wolfe_without_designed(string base_dir, const vector<string>& data_sets);
 unordered_map<string, pair<double, double>> run_gurobi_model(string base_dir, const vector<string>& data_sets);
 
-void generate_paths_arcs(vector<string> data_sets){
+void generate_paths_arcs(string base_dir, vector<string> data_sets){
     for(const string &data_set : data_sets) {
+        string path = base_dir + "Data/" + data_set;
+        
+        CargoRoute cr = CargoRoute(path);
+        cr.arcs_to_file(path);
 
-        CargoRoute cr = CargoRoute(data_set);
-        cr.arcs_to_file(data_set);
-
-        GurobiModel model = GurobiModel(data_set);
-        model.all_paths_for_GurobiModel(data_set);
+        GurobiModel model = GurobiModel(path);
+        model.all_paths_for_GurobiModel(path);
     }
 }
 
@@ -88,9 +89,9 @@ void compare_iter_added(string base_dir, vector<string> data_sets){
 
 void compare_col_deletion(string base_dir, vector<string> data_sets){
     unordered_map<string, pair<double, double>> col_del_results, no_col_del_results;
-    col_deletion = true;
+    not_col_deletion = true;
     col_del_results = run_danzig_wolfe(base_dir,data_sets);
-    col_deletion = false;
+    not_col_deletion = false;
     no_col_del_results = run_danzig_wolfe(base_dir,data_sets);
     vector<double> gaps;
 
@@ -171,24 +172,26 @@ unordered_map<string, pair<double, double>> run_danzig_wolfe_without_designed(st
 int main() {
     // TODO: Very Important! Change it to accept argv!
     // This is the directory of data. Fill it up before you run.
-    string base_dir = "../";
-
+    string base_dir = "";
+    
     // H: 1000/5000
     // A: inf/10000
     
     vector<string> data_sets{"A1", "A2", "A3"};
-    vector<string> data_sets2{"I"};
+    vector<string> data_sets2{"Z40"};
     vector<string> data_sets3{"A", "B", "C", "D", "E"};
-
+    vector<string> data_sets4{"Z6"};
+    
     vector<string> A1_sets{"A1_1","A1_2","A1_3","A1_4","A1_5"};
     vector<string> A2_sets{"A2_1","A2_2","A2_3","A2_4","A2_5","A2_6","A2_7","A2_8","A2_9","A2_10"};
     vector<string> A3_sets{"A3_1","A3_2","A3_3","A3_4","A3_5"};
 
-    //run_danzig_wolfe(base_dir, data_sets2);
+    run_danzig_wolfe(base_dir, data_sets4);
+    //generate_paths_arcs(base_dir, data_sets2);
     //run_gurobi_model(A1_sets);
     
     //compare_grb_algo(base_dir, data_sets2);
-    compare_designed_route_added(base_dir, data_sets3);
+    //compare_designed_route_added(base_dir, data_sets2);
 //    compare_iter_added(data_sets3);
 //    compare_col_deletion(data_sets3);
 //    return 0;

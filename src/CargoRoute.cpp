@@ -360,12 +360,92 @@ void CargoRoute::column_generation(GRBModel &model) {
     
     int cont_in_thres = 0;
     
+    // Maximum of times of column not being use before delete.
+    int max_not_use_for_column_deletion = 20;
+    auto not_use_count = vector<unordered_map<Path*, int>>(cargos.size(), unordered_map<Path*, int>());
+    
+    int log_level = 2;
+    
     while (true) {
         LP_relaxation(model);
-        
         update_arcs();
-        pair<Path*, int> path_pair = select_most_profit_path();
-        best_path = path_pair.first;
+        
+        cout << "Start column usage and deletion checking with log level " << log_level << "." << endl;
+        
+        cout << endl;
+        cout << "===log_level setting===" << endl;
+        cout << "0: silent" << endl;
+        cout << "1: show k, p and not use count." << endl;
+        cout << "2: show k, p, not use count and path detail." << endl;
+        cout << endl;
+        
+        for (int k = 0; k < cargos.size(); ++k) {
+            for (int p = 0; p < target_path[k].size(); ++p) {
+                Path *path = target_path[k][p];
+                
+                // Check column usage.
+                if (z[k][p].get(GRB_DoubleAttr_X) == 0) {
+                    not_use_count[k][path] += 1;
+                } else {
+                    not_use_count[k][path] = 0;
+                }
+                
+                
+                if (log_level >= 1) {
+                    cout << "Current column (" << k << "," << p << ") havn't been use for " << not_use_count[k][path] << " times." << endl;
+                    if (log_level >= 2) {
+                        cout << *path << endl;
+                    }
+                }
+                
+                // If column not use for the time being...
+                if (not_use_count[k][path] >= max_not_use_for_column_deletion) {
+                    not_use_count[k][path] = 0;
+                    
+                    // Erase both from target_path and chosen_paths.
+                    target_path[k].erase(target_path[k].begin() + p);
+                    for (auto iter = chosen_paths[k].begin(); iter != chosen_paths[k].end(); ++iter) {
+                        if ((*iter) == path->index) {
+                            chosen_paths[k].erase(iter);
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // And do it again for rival_path
+            for (int p = 0; p < rival_path[k].size(); ++p) {
+                Path *path = rival_path[k][p];
+                
+                // Check column usage.
+                if (z_[k][p].get(GRB_DoubleAttr_X) == 0) {
+                    not_use_count[k][path] += 1;
+                } else {
+                    not_use_count[k][path] = 0;
+                }
+                
+                if (log_level >= 1) {
+                    cout << "Current column (" << k << "," << p << ") havn't been use for " << not_use_count[k][path] << " times." << endl;
+                    if (log_level >= 2) {
+                        cout << *path << endl;
+                    }
+                }
+                
+                // If column not use for the time being...
+                if (not_use_count[k][path] >= max_not_use_for_column_deletion) {
+                    not_use_count[k][path] = 0;
+                    
+                    // Erase both from rival_path and chosen_paths.
+                    rival_path[k].erase(rival_path[k].begin() + p);
+                    for (auto iter = chosen_paths[k].begin(); iter != chosen_paths[k].end(); ++iter) {
+                        if ((*iter) == path->index) {
+                            chosen_paths[k].erase(iter);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
         
         //double thres = (iter_added == true) ? -100: 0;
         //if(not_col_deletion == true && thres < 0) thres += 10;
@@ -381,6 +461,9 @@ void CargoRoute::column_generation(GRBModel &model) {
             if not_use >= 20
                 delete column
         }*/
+        
+        pair<Path*, int> path_pair = select_most_profit_path();
+        best_path = path_pair.first;
         
         double delta = abs(model.get(GRB_DoubleAttr_ObjVal)-previous);
         previous = model.get(GRB_DoubleAttr_ObjVal);

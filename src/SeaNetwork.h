@@ -30,6 +30,8 @@ public:
     
     Route shortest_route(char start_node, int start_time, char end_node, int end_time) override;
     
+    vector<Route*> find_all_routes();
+    
     void generate_designed_ship();
     void run_algo() override;
     const vector<Ship> &getShips() const;
@@ -49,6 +51,8 @@ private:
     void read_data(string data_path) override;
     void read_sea_routes(string data_path, vector<Ship>& ships);
     void print_ships(vector<Ship> ships, string prefix);
+    
+    vector<Route *> find_routes_from_single_node(char start_node, int start_time, char end_node, int end_time);
 };
 
 #endif //TLM_THESIS_SEANETWORK_H
