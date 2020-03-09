@@ -362,22 +362,20 @@ void CargoRoute::column_generation(GRBModel &model) {
     
     // Maximum of times of column not being use before delete.
     int max_not_use_for_column_deletion = 20;
-    auto not_use_count = vector<unordered_map<Path*, int>>(cargos.size(), unordered_map<Path*, int>());
     
+    // log_level setting
+    // 0: silent
+    // 1: show k, p and not use count.
+    // 2: show k, p, not use count and path detail.
     int log_level = 2;
+    
+    auto not_use_count = vector<unordered_map<Path*, int>>(cargos.size(), unordered_map<Path*, int>());
     
     while (true) {
         LP_relaxation(model);
         update_arcs();
         
         cout << "Start column usage and deletion checking with log level " << log_level << "." << endl;
-        
-        cout << endl;
-        cout << "===log_level setting===" << endl;
-        cout << "0: silent" << endl;
-        cout << "1: show k, p and not use count." << endl;
-        cout << "2: show k, p, not use count and path detail." << endl;
-        cout << endl;
         
         for (int k = 0; k < cargos.size(); ++k) {
             for (int p = 0; p < target_path[k].size(); ++p) {
