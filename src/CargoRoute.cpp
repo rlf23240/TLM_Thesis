@@ -144,8 +144,9 @@ double CargoRoute::cal_path_profit(Path *path, Cargo *cargo)/**/{
         
         
         pi +=  arcs[networks->get_node_idx(*cur)][networks->get_node_idx(*next)]->fixed_profit;
-        if(next->layer == 0 || next->layer == 1 || next->layer == 3 || next->layer == 4)
+        if(next->layer == 0 || next->layer == 1 || next->layer == 3 || next->layer == 4) {
             only_rival = false;
+        }
 //        if(arcs[networks.get_node_idx(cur_node.layer,cur_node.node, cur_node.time)]
 //            [networks.get_node_idx(next_node.layer,next_node.node, next_node.time)]->unit_profit == 0){
 //            cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -170,6 +171,11 @@ void CargoRoute::cal_path_cost(Path *path) {
     Point *current;
     Point *next;
     double cost = 0;
+    
+    // Check whether path contains rival only.
+    // Not a good place to do this but...
+    bool only_rival = true;
+    
     for(int p = 0; p < path->points.size() -1 ; p++){
         current = &path->points[p];
         next = &path->points[p+1];
@@ -179,9 +185,15 @@ void CargoRoute::cal_path_cost(Path *path) {
         if (current->layer == 2)
         
         cost += arc_cost;
+        
+        if(next->layer == 0 || next->layer == 1 || next->layer == 3 || next->layer == 4) {
+            only_rival = false;
+        }
     }
     path->path_cost = cost;
     path->last_time = path->points.back().time - path->points.front().time;
+    
+    path->only_rival = only_rival;
 }
 
 Solution* CargoRoute::branch_and_price() {
@@ -390,7 +402,7 @@ void CargoRoute::column_generation(GRBModel &model) {
                 
                 
                 if (log_level >= 1) {
-                    cout << "Current column (" << k << "," << p << ") havn't been use for " << not_use_count[k][path] << " times." << endl;
+                    cout << "Current column (" << "Non-rival, " << k << ", " << p << ") havn't been use for " << not_use_count[k][path] << " times." << endl;
                     if (log_level >= 2) {
                         cout << *path << endl;
                     }
@@ -423,7 +435,7 @@ void CargoRoute::column_generation(GRBModel &model) {
                 }
                 
                 if (log_level >= 1) {
-                    cout << "Current column (" << k << "," << p << ") havn't been use for " << not_use_count[k][path] << " times." << endl;
+                    cout << "Current column (Rival, " << k << ", " << p << ") havn't been use for " << not_use_count[k][path] << " times." << endl;
                     if (log_level >= 2) {
                         cout << *path << endl;
                     }
