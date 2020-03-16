@@ -184,6 +184,7 @@ void SeaNetwork::forward_update(Route **dp, int node, int time) {
                 //Calculate cost if append end node to current route
                 Route cur_route = dp[node][time];
                 Route end_route = dp[end_node_idx][end_time];
+                
                 double new_cost = cur_route.cost + arc->cost + arc->fixed_cost + end_node->getCost() * (1 + additional_stay_days);
                 new_cost = MAX(0, new_cost);
 

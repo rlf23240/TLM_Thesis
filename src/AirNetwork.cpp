@@ -110,23 +110,27 @@ void AirNetwork::read_air_routes(string data_path, vector<Flight> &flights){
             if(token == ""){
                 if (nodes.size() != 0) {
                     Route route = Route(nodes, total_cost);
+                    
                     routes.push_back(route);
                     
                     cycle_time = stoi(nodes.back().substr(1)) - stoi(nodes[0].substr(1));
                     nodes.clear();
                 }
-    
-                total_cost = stop_cost[(int) cur_node[0] - 65];
             }else{
-                nodes.push_back(token);
-                next_node = token;
-                if(cur_node[0] != next_node[0]) {
+                if (nodes.empty()) {
+                    nodes.push_back(token);
+                    cur_node = token;
+                    total_cost = stop_cost[(int) cur_node[0] - 65];
+                } else {
+                    nodes.push_back(token);
+                    next_node = token;
+    
                     total_cost += arc_cost[(int) cur_node[0] - 65][(int) next_node[0] - 65];
                     total_cost += stop_cost[(int) next_node[0] - 65];
+    
+                    cur_node = next_node;
                 }
-
             }
-            cur_node = next_node;
         }
 
         if (nodes.size() != 0) {
@@ -211,6 +215,7 @@ void AirNetwork::forward_update(Route** dp, int node, int time) {
         //Calculate cost if append end node to current route
         Route cur_route = dp[node][time];
         Route end_route = dp[end_node_idx][end_time];
+        
         double new_cost = cur_route.cost + arc->cost + arc->fixed_cost + end_node->getCost();
         new_cost = MAX(0, new_cost);
 
@@ -220,7 +225,7 @@ void AirNetwork::forward_update(Route** dp, int node, int time) {
             new_nodes.assign(cur_route.nodes.begin(), cur_route.nodes.end());
             new_nodes.push_back(end_node_char + to_string(end_time));
             //cout << end_node_idx << " " << end_time <<endl;
-
+    
             dp[end_node_idx][end_time] = Route(new_nodes, new_cost);
         }
     }

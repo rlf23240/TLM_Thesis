@@ -43,6 +43,11 @@ private:
     vector<Path*>** path_categories = NULL;
     vector<Path*>* target_path = NULL;
     vector<Path*>* rival_path = NULL;
+    
+    #pragma mark Column Deletion
+    // I know this is bed idea to put this, don't complain!
+    vector<unordered_map<Path*, int>>* not_use_count = NULL;
+    
     unordered_set<int>* chosen_paths;
     unordered_map<int, unordered_map <int, bool>> integer_set;
 

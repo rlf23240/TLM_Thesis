@@ -12,6 +12,10 @@ private:
     double obj;
     vector<Path*>* target_path;
     vector<Path*>* rival_path;
+    
+#pragma mark Column Deletion
+    vector<unordered_map<Path*, int>>* not_use_count = NULL;
+    
     unordered_set<int>* chosen_paths;
     unordered_map<int, unordered_map <int, bool>> integer_set;
 public:
@@ -19,6 +23,7 @@ public:
             vector<Path *> *target_path,
             vector<Path *> *rival_path,
             unordered_set<int> *chosen_paths,
+            vector<unordered_map<Path*, int>>* not_use_count,
             unordered_map<int,unordered_map<int, bool>> integer_set);
     
     ~BB_node();
@@ -34,6 +39,8 @@ public:
     vector<Path *> *getTargetPath() const;
 
     vector<Path *> *getRivalPath() const;
+    
+    vector<unordered_map<Path*, int>>* getNotUseCount() const;
 
     unordered_set<int> *getChosenPaths() const;
 
