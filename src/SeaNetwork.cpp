@@ -308,7 +308,7 @@ vector<Route *> SeaNetwork::find_routes_from_single_node(char start_node, int st
         int cur_time = stoi(node_str.substr(1));
         
         // If arcs are all visited and self-loop also considered, then pop back and find next node.
-        if (stack.back()->arcs.empty() || (end_time-cur_time) < shortest[node_char-'A'] || data->cost > 250000) {
+        if (stack.back()->arcs.empty() || (end_time-cur_time) < shortest[node_char-'A']) {
             //int next_time =  cur_time + 1;
             delete stack.back();
             stack.pop_back();
@@ -330,7 +330,7 @@ vector<Route *> SeaNetwork::find_routes_from_single_node(char start_node, int st
             
             // TODO: Very Important! Check the cost is vaild!
             double cost = stack.back()->cost + arc->cost + next_node->getCost();
-                        
+            
             // If node is feasible...
             if (next_time <= end_time) {
                 // If we reach the goal...
