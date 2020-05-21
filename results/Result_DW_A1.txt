@@ -1,13 +1,10 @@
-P : 36605
+P : -9491.55
 Cargo :0,	z :0.5,	Path :2A42->3A43->3B48->3B49->3D56-><
-Cargo :0,	z :0,	Path :2A33->0A34->0D39-><
-Cargo :0,	z :0,	Path :2A54->0A55->0D60-><
-Cargo :1,	z :0,	Path :2C51->4C51->4D52->4B54-><
-Cargo :1,	z :0.229427,	Path :2C48->1C48->1B50-><
-Cargo :1,	z :0.770573,	Path :2C54->1C54->1B56-><
+Cargo :1,	z :1,	Path :2C50->1C50->1D51->1B53-><
+Cargo :2,	z :1,	Path :2C16->0C17->0A20-><
 
-Route : B6->A12->A13->D18->D19->B27->B28-><		cost : 2010
-Route : C0->B2->A3->C5-><		cost : 1370
-Route : C6->B8->A9->C11-><		cost : 1370
-Route : C12->B14->A15->C17-><		cost : 1370
-Run time : 0.977836 sec. 
+Route : B6->B7->A12->A13->C16->C17->A20->A21->B27->B28-><		updated cost : -6.9e+16
+Route : C2->D3->B5->C7-><		updated cost : -1.98e+17
+Route : C8->D9->B11->C13-><		updated cost : -1.98e+17
+Route : C14->D15->B17->C19-><		updated cost : -1.98e+17
+Run time : 6.97497 sec. 

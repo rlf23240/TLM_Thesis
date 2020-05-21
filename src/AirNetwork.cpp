@@ -65,7 +65,7 @@ void AirNetwork::read_flights_param(std::string flights_data) {
 
             getline(iss, token, '\t');
             int weight_ub = stoi(token);
-
+            
             getline(iss, token, '\t');
             int volume_ub = stoi(token);
 
@@ -139,7 +139,15 @@ void AirNetwork::read_air_routes(string data_path, vector<Flight> &flights){
             cycle_time = stoi(nodes.back().substr(1)) - stoi(nodes[0].substr(1));
         }
 
-        Flight new_flight = Flight(start_node[0], cycle_time+1, routes.size(), cycle_time, volume_ub, weight_ub);
+        Flight new_flight = Flight(
+            start_node[0],
+            cycle_time+1,
+            routes.size(),
+            cycle_time,
+            volume_ub,
+            weight_ub
+        );
+        
         new_flight.routes = routes;
         flights.push_back(new_flight);
     }
@@ -155,7 +163,7 @@ void AirNetwork::run_algo() {
             for (int freq = 0 ; freq < flight.freq; freq ++) {
                 Route route = shortest_route(flight.start_node, i+freq*flight.gap , flight.start_node, i + freq*flight.gap + flight.cycle_time);
                 routes.push_back(route);
-                acc_cost += route.cost;
+                acc_cost += route.updated_cost;
             }
             if(acc_cost < best_cost){
                 best_cost = acc_cost;
@@ -216,11 +224,12 @@ void AirNetwork::forward_update(Route** dp, int node, int time) {
         Route cur_route = dp[node][time];
         Route end_route = dp[end_node_idx][end_time];
         
-        double new_cost = cur_route.cost + arc->cost + arc->fixed_cost + end_node->getCost();
-        new_cost = MAX(0, new_cost);
+        double new_cost = cur_route.updated_cost + arc->cost + arc->fixed_cost + end_node->getCost();
+        // TEST: No 0 constrain.
+        //new_cost = MAX(0, new_cost);
 
         // if yes, replace old route.
-        if (new_cost < end_route.cost) {
+        if (new_cost < end_route.updated_cost) {
             vector<string> new_nodes;
             new_nodes.assign(cur_route.nodes.begin(), cur_route.nodes.end());
             new_nodes.push_back(end_node_char + to_string(end_time));

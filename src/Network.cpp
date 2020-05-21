@@ -10,7 +10,7 @@
 using namespace std;
 
 /*-----------------Route struct------------------------------*/
-Route::Route(const vector<string> &nodes, double cost) : nodes(nodes), cost(cost) {}
+Route::Route(const vector<string> &nodes, double updated_cost) : nodes(nodes), updated_cost(updated_cost) {}
 
 Route::Route() = default;
 
@@ -18,11 +18,11 @@ ostream &operator<<(ostream &os, const Route &route) {
 
     if(!route.nodes.empty()) {
         os << "Route : ";
-        for (const string &node : route.nodes) {
+        for (const string &node: route.nodes) {
             os << node << "->";
         }
-        os << "<\t\tcost : ";
-        os << route.cost << endl;
+        os << "<\t\tupdated cost : ";
+        os << route.updated_cost << endl;
     }
     else {
         os << "Empty route" << endl;
@@ -32,14 +32,32 @@ ostream &operator<<(ostream &os, const Route &route) {
 }
 
 Route::Route(Route route, int gap) {
-    for(const string &node : route.nodes){
+    for(const string &node: route.nodes) {
         char n = node[0];
         int time = stoi(node.substr(1)) + gap;
 
         this->nodes.push_back(n + to_string(time));
-        this->cost = route.cost;
+        this->updated_cost = route.updated_cost;
     }
 
+}
+
+double Route::getCost(Network *network) const {
+    double result = 0.0;
+    
+    string prev_node = "";
+    for(const string &node: nodes) {
+        double stop_cost = network->getStop_cost()[(int)(node[0]) - 65];
+        double arc_cost = 0.0;
+        if(prev_node.empty() == false) {
+            arc_cost = network->getArc_cost()[(int)prev_node[0] - 65][(int)node[0] - 65];
+        }
+        result += (stop_cost + arc_cost);
+        
+        prev_node = node;
+    }
+    
+    return result;
 }
 
 /*-----------------------Network class------------------------*/

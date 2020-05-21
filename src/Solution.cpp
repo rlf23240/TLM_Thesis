@@ -59,7 +59,7 @@ struct Solution{
         }
         
         file << "\n";
-        for(const auto route : sea_air_routes){
+        for(const auto &route: sea_air_routes) {
             file << route;
         }
         file << "Run time : " << run_time << " sec. " << endl;

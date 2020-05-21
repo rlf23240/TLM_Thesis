@@ -73,7 +73,7 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
         int m = (int)R.size();
         cout << "m : " << m << endl;
         
-        double bigM = 1e15;
+        double bigM = 1e30;
 
         auto * lambda = new GRBVar[n];
         auto * v = new GRBVar[m];
@@ -145,16 +145,9 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
         
         
         cout << "lambda : " ;
-        for(int i = 0; i < n; i++) {
+        for(int i = 0; i < n; i++)
             cout << lambda[i].get(GRB_DoubleAttr_X) << " ";
-        }
         cout << endl;
-        
-        previous_lambda = vector<double>();
-        for(int i = 0; i < n; i++) {
-            previous_lambda.push_back(lambda[i].get(GRB_DoubleAttr_X));
-        }
-        
         
         cout << "P : " ;
         for (double i: P) {
@@ -182,13 +175,13 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
 
 // TODO: Is this should be same as run_dw?
 void Dantzig_wolfe::Final_result() {
-    /*try{
+    try{
         GRBEnv env = GRBEnv();
         GRBModel model = GRBModel(env);
 
         int n = (int)(P.size()); //size of column
         int m = (int)(R.size()); //size of constraints
-        double bigM = 1e15;
+        int bigM = 1e30;
 
         auto * lambda = new GRBVar[n];
         auto * v = new GRBVar[m];
@@ -250,15 +243,6 @@ void Dantzig_wolfe::Final_result() {
     }
     catch (...) {
         cout << "Exception during optimization" << endl;
-    }*/
-    
-    cout << "========================FINAL RESULT========================" << endl;
-    
-    for(int i = 0; i < P.size(); i++){
-        if(previous_lambda[i] == 1){
-            cout << *solutions[i];
-            best_sol = solutions[i];
-        }
     }
 }
 
@@ -380,10 +364,6 @@ Solution *Dantzig_wolfe::getBestSol() const {
     return best_sol;
 }
 
-
-const CargoRoute Dantzig_wolfe::getCargoRoute() {
-    return cargoRoute;
-}
 
 
 

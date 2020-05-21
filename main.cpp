@@ -102,8 +102,8 @@ void compare_col_deletion(string base_dir, vector<string> data_sets){
              << "Gap : " << gaps.back() << "%""\n";
     }
     cout << "Max gap :" <<*max_element(gaps.begin(), gaps.end()) << "\t"
-         <<"Min gap :" << *min_element(gaps.begin(), gaps.end()) << "\t"
-         << "Average : " << accumulate(gaps.begin(), gaps.end(),0.0) /(double) gaps.size() << "\n";
+         << "Min gap :" << *min_element(gaps.begin(), gaps.end()) << "\t"
+         << "Average :" << accumulate(gaps.begin(), gaps.end(),0.0) /(double) gaps.size() << "\n";
 }
 
 unordered_map<string, pair<double, double>> run_danzig_wolfe(string base_dir, const vector<string>& data_sets){
@@ -111,19 +111,54 @@ unordered_map<string, pair<double, double>> run_danzig_wolfe(string base_dir, co
     clock_t start;
     is_designed_route_added = true;
     unordered_map<string, pair<double, double>> results;
+    //unordered_map<string, Solution*> solutions;
+    //unordered_map<string, Dantzig_wolfe*> dws;
+    
     for(const string &data_set : data_sets) {
         start = clock();
-
+        
         Dantzig_wolfe dantzig_wolfe = Dantzig_wolfe(CargoRoute(base_dir + "Data/" + data_set));
         string file_prefix = "Result_DW_";
         double run_time = double(clock() - start)/CLOCKS_PER_SEC;
-        dantzig_wolfe.output_result(base_dir + "results/" + file_prefix + data_set
-                , run_time);
+        dantzig_wolfe.output_result(base_dir + "results/" + file_prefix + data_set, run_time);
         results[data_set] = make_pair(dantzig_wolfe.getBestSol()->P, run_time);
+        //solutions[data_set] = dantzig_wolfe->getBestSol();
+        //dws[data_set] = dantzig_wolfe;
     }
-    for(const auto &data_set : data_sets){
+    
+    for (const auto &data_set: data_sets) {
+        //Solution *sol = solutions[data_set];
+        //Dantzig_wolfe *dw = dws[data_set];
+        //CargoRoute cargoRoute = dw->getCargoRoute();
+        
         cout << data_set<< "\tSol : " << results[data_set].first << "\tTime : " << results[data_set].second << "\n" ;
+        
+        /*double total_profit = 0.0;
+        int cargo_size = sol->cargo_size;
+        
+        for (int i = 0; i < cargo_size; ++i) {
+            int j = 0;
+            for (const auto &path: sol->target_path[i]) {
+                
+                Cargo *cargo = cargoRoute.getCargos()[i];
+                
+                double profit = sol->z_value[i][j]*cargo->volume*path->path_profit;
+                
+                cout << *path << profit << endl;
+                total_profit += profit;
+                
+                j++;
+            }
+        }
+        
+        cout << "Total profit: " << total_profit << endl;*/
     }
+    
+    // Deleting dw.
+    /*for (const auto &data_set: data_sets) {
+        delete dws[data_set];
+    }*/
+    
     return results;
 }
 
@@ -172,7 +207,10 @@ unordered_map<string, pair<double, double>> run_danzig_wolfe_without_designed(st
 int main() {
     // TODO: Very Important! Change it to accept argv!
     // This is the directory of data. Fill it up before you run.
-    string base_dir = "";
+    //string base_dir = "/Users/ianwang/Documents/GitHub/TLM_Thesis/";
+    //string base_dir = "/Users/ianwang/Desktop/Z40/";
+    //string base_dir = "/Users/ianwang/Desktop/Z6/";
+    string base_dir = "/Users/ianwang/Documents/GitHub/TLM_Thesis/";
     
     // H: 1000/5000
     // A: inf/10000
@@ -180,14 +218,16 @@ int main() {
     vector<string> data_sets{"A1", "A2", "A3"};
     vector<string> data_sets2{"Z40"};
     vector<string> data_sets3{"A", "B", "C", "D", "E"};
-    vector<string> data_sets4{"Z6"};
+    //vector<string> data_sets4{"A1_9"};
+    //vector<string> data_sets4{"Z6"};
+    vector<string> data_sets4{"A1"};
     
     vector<string> A1_sets{"A1_1","A1_2","A1_3","A1_4","A1_5"};
     vector<string> A2_sets{"A2_1","A2_2","A2_3","A2_4","A2_5","A2_6","A2_7","A2_8","A2_9","A2_10"};
     vector<string> A3_sets{"A3_1","A3_2","A3_3","A3_4","A3_5"};
 
     run_danzig_wolfe(base_dir, data_sets4);
-    //generate_paths_arcs(base_dir, data_sets2);
+    //generate_paths_arcs(base_dir, data_sets4);
     //run_gurobi_model(A1_sets);
     
     //compare_grb_algo(base_dir, data_sets2);

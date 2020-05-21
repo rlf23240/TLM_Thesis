@@ -3,18 +3,20 @@
 //
 
 #include "CargoRoute.h"
+#include "hash.hpp"
 
+#include <cstdlib>
 
 //Can't use pair as element in set without this struct
-struct pair_hash
-{
+struct pair_hash {
     template <class T1, class T2>
-    std::size_t operator () (std::pair<T1, T2> const &pair) const
-    {
+    std::size_t operator () (std::pair<T1, T2> const &pair) const {
         std::size_t h1 = std::hash<T1>()(pair.first);
         std::size_t h2 = std::hash<T2>()(pair.second);
-
-        return h1 ^ h2;
+        
+        // Copy from hash_combine from boost library...
+        // TODO: Do we need include boost library?
+        return hash_combine(h1, h2);
     }
 };
 
@@ -75,14 +77,14 @@ void CargoRoute::read_cargo_file(string data) {
 
             cargo_type type;
             if(time_sensitivity == 'H' && product_value == 'H') {
-                type = only_air;
+                type = AirOnly;
             }else if(time_sensitivity == 'H' && product_value == 'L')
             {
-                type = sea_both;
+                type = SeaBoth;
             }else if(time_sensitivity == 'L' && product_value == 'H'){
-                type = air_both;
+                type = AirBoth;
             }else{
-                type = only_sea;
+                type = SeaOnly;
             }
 
             auto * new_cargo = new Cargo(departure, destination, starting_time, end_time, volume, weight, type);
@@ -91,7 +93,7 @@ void CargoRoute::read_cargo_file(string data) {
             cargos.push_back(new_cargo);
         }
     }
-    else{
+    else {
         cout << "cargo file cannot open !!!";
     }
 }
@@ -122,10 +124,10 @@ double CargoRoute::cal_path_profit(Path *path, Cargo *cargo)/**/{
     double profit = 0;
     double pi = 0;
     bool only_rival = true;
-    Point *cur, *next;
-    for(int p = 0; p < path->points.size()-1; p++){
-        cur = &path->points[p];
-        next = &path->points[p+1];
+    const Point *cur, *next;
+    for(int p = 0; p < path->points().size()-1; p++){
+        cur = &path->points()[p];
+        next = &path->points()[p+1];
         
         Arc *arc = arcs[networks->get_node_idx(*cur)][networks->get_node_idx(*next)];
         
@@ -167,31 +169,31 @@ void CargoRoute::cal_paths_cost() {
 }
 
 void CargoRoute::cal_path_cost(Path *path) {
-
-    Point *current;
-    Point *next;
+    const Point *current;
+    const Point *next;
     double cost = 0;
     
     // Check whether path contains rival only.
     // Not a good place to do this but...
     bool only_rival = true;
     
-    for(int p = 0; p < path->points.size() -1 ; p++){
-        current = &path->points[p];
-        next = &path->points[p+1];
+    for(int p = 0; p < path->points().size() -1 ; p++){
+        current = &path->points()[p];
+        next = &path->points()[p+1];
         double arc_cost = arcs[networks->get_node_idx(current->layer, current->node, current->time)]
         [networks->get_node_idx(next->layer, next->node, next->time)]->getUnitCost();
         
-        if (current->layer == 2)
-        
+        // Is this a mistake I accidentally add?
+        // if (current->layer == 2)
         cost += arc_cost;
         
         if(next->layer == 0 || next->layer == 1 || next->layer == 3 || next->layer == 4) {
             only_rival = false;
         }
     }
+    
     path->path_cost = cost;
-    path->last_time = path->points.back().time - path->points.front().time;
+    path->last_time = path->points().back().time - path->points().front().time;
     
     path->only_rival = only_rival;
 }
@@ -224,7 +226,8 @@ Solution* CargoRoute::branch_and_price() {
         BB_node::cargo_size = cargos.size();
         bb_pool.push(BB_node(
             model.get(GRB_DoubleAttr_ObjVal),
-            target_path, rival_path,
+            target_path,
+            rival_path,
             chosen_paths,
             not_use_count,
             integer_set
@@ -260,8 +263,6 @@ Solution* CargoRoute::branch_and_price() {
             pair<int, int> kp_pair = find_kp_pair();
 
             //branching
-            // TODO: 0.5 branch
-
             integer_set[kp_pair.first][kp_pair.second] = false;
             LP_relaxation(model);
             bb_pool.push(BB_node(
@@ -303,6 +304,10 @@ Solution* CargoRoute::branch_and_price() {
         }
 
         Solution *sol = new Solution(cargos.size(), target_path, z_value, get_P_value(), get_r_column(), networks->getSea_Air_Route());
+        
+        
+        
+        
         return sol;
     } catch(GRBException e) {
         cout << "Error code = " << e.getErrorCode() << endl;
@@ -358,11 +363,11 @@ void CargoRoute::select_init_path() {
 
 bool CargoRoute::is_path_feasible_for_cargo(Path* path, Cargo* cargo) {
     if(cargo->start_time <= path->get_start_time() && cargo->arrive_time >= path->get_end_time()){
-        if(path->type == onlySea && (cargo->type == only_sea || cargo->type == sea_both)){
+        if(path->type == Path::Sea && (cargo->type == SeaOnly || cargo->type == SeaBoth)){
             return true;
-        }else if(path->type == onlyAir && (cargo->type == only_air || cargo->type == air_both)){
+        }else if(path->type == Path::Air && (cargo->type == AirOnly || cargo->type == AirBoth)){
             return true;
-        }else if(path->type == seaAir && (cargo->type == air_both || cargo->type == sea_both)){
+        }else if(path->type == Path::SeaAir && (cargo->type == AirBoth || cargo->type == SeaBoth)){
             return true;
         }
         return false;
@@ -388,17 +393,9 @@ void CargoRoute::column_generation(GRBModel &model) {
     Path *best_path;
     int iter = 0;
     
-    
-    // TODO: TAST
-    double thres = 0.001;
-    int max_cont_in_thres = 20;
-    
     double previous = 99999;
     
     int cont_in_thres = 0;
-    
-    // Maximum of times of column not being use before delete.
-    int max_not_use_for_column_deletion = 20;
     
     // log_level setting
     // 0: silent
@@ -432,7 +429,7 @@ void CargoRoute::column_generation(GRBModel &model) {
                 }
                 
                 // If column not use for the time being...
-                if ((*not_use_count)[k][path] >= max_not_use_for_column_deletion) {
+                if ((*not_use_count)[k][path] >= COLUMN_GENERATION_MAX_NOT_USE_IN_THRESHOLD) {
                     (*not_use_count)[k][path] = 0;
                     
                     // Erase both from target_path and chosen_paths.
@@ -465,7 +462,7 @@ void CargoRoute::column_generation(GRBModel &model) {
                 }
                 
                 // If column not use for the time being...
-                if ((*not_use_count)[k][path] >= max_not_use_for_column_deletion) {
+                if ((*not_use_count)[k][path] >= COLUMN_GENERATION_MAX_NOT_USE_IN_THRESHOLD) {
                     (*not_use_count)[k][path] = 0;
                     
                     // Erase both from rival_path and chosen_paths.
@@ -501,12 +498,12 @@ void CargoRoute::column_generation(GRBModel &model) {
         double delta = abs(model.get(GRB_DoubleAttr_ObjVal)-previous);
         previous = model.get(GRB_DoubleAttr_ObjVal);
         
-        if (!path_pair.first || path_pair.first->reduced_cost <= 0.0 || cont_in_thres >= max_cont_in_thres) {
+        if (!path_pair.first || path_pair.first->reduced_cost <= 0.0 || cont_in_thres >= COLUMN_GENERATION_MAX_CONTINUE_IN_THRESHOLD) {
             break;
         } else {
             append_column(path_pair.first, path_pair.second);
             
-            if (delta <= thres) {
+            if (delta <= COLUMN_GENERATION_THRESHOLE) {
                 cont_in_thres += 1;
                 cout << iter << " in thres" << endl;
                 
@@ -701,7 +698,7 @@ void CargoRoute::set_constr5(GRBModel &model) {
                 GRBLinExpr lhs = 0;
                 for (int k = 0; k < cargos.size(); k++) {
                     for (int p = 0; p < target_path[k].size(); p++) {
-                        vector<Point> points = target_path[k][p]->points;
+                        vector<Point> points = target_path[k][p]->points();
                         for (int n = 0; n < points.size() - 1; n++) {
                             if (points[n] == cur_point && points[n + 1] == next_point) {
 //                            cout << k << " " << p << " "<< points[n] << cur_point << " "<<  points[n+1] <<  next_point << endl;
@@ -730,7 +727,7 @@ void CargoRoute::set_constr6(GRBModel &model) {
                     GRBLinExpr lhs = 0;
                     for(int k = 0; k < cargos.size(); k++){
                         for(int p = 0; p < target_path[k].size(); p++){
-                            vector<Point> points = target_path[k][p]->points;
+                            vector<Point> points = target_path[k][p]->points();
                             for(int n = 0; n < points.size()-1; n++){
                                 if(points[n] == cur_point && points[n+1] == next_point){
 //                                    cout << k << " " << p << " "<< points[n] << cur_point << " "<<  points[n+1] <<  next_point << endl;
@@ -758,7 +755,7 @@ void CargoRoute::set_constr7(GRBModel &model) {
                     GRBLinExpr lhs = 0;
                     for(int k = 0; k < cargos.size(); k++){
                         for(int p = 0; p < target_path[k].size(); p++){
-                            vector<Point> points = target_path[k][p]->points;
+                            vector<Point> points = target_path[k][p]->points();
                             for(int n = 0; n < points.size()-1; n++){
                                 if(points[n] == cur_point && points[n+1] == next_point){
 //                                    cout << k << " " << p << " "<< points[n] << cur_point << " "<<  points[n+1] <<  next_point << endl;
@@ -903,10 +900,10 @@ void CargoRoute::append_column(Path *best_path, int best_k) {
 
 void CargoRoute::cal_path_reduced_cost(Path* path, int k){
     double reduced_cost = 0;
-    Point *cur,*next;
-    for(int p = 0; p < path->points.size()-1; p++){
-        cur = &path->points[p];
-        next = &path->points[p+1];
+    const Point *cur,*next;
+    for(int p = 0; p < path->points().size()-1; p++){
+        cur = &path->points()[p];
+        next = &path->points()[p+1];
         reduced_cost += arcs[networks->get_node_idx(*cur)][networks->get_node_idx(*next)]->unit_profit +
         arcs[networks->get_node_idx(*cur)][networks->get_node_idx(*next)]->fixed_profit;
     }
@@ -952,10 +949,27 @@ pair<int,int> CargoRoute::find_kp_pair(){
 }
 
 void CargoRoute::find_sea_arcs() {
+    /*SeaNetwork *seaNetwork = networks->getSea_network();
+    for (Ship ship: seaNetwork->getDesignedShips()) {
+        vector<string> nodes = ship.route.nodes;
+        
+        string in_node = nodes.front();
+        for (auto iter = nodes.begin()+1; iter != nodes.end(); ++iter) {
+            string out_node = *iter;
+            
+            Point out_point = Point(0, (int) out_node[0] -65, stoi(out_node.substr(1)));
+            Point in_point = Point(0, (int) in_node[0] -65, stoi(in_node.substr(1)));
+
+            sea_arc_pairs.emplace_back(networks->get_node_idx(out_point), networks->get_node_idx(in_point));
+            
+            in_node = out_node;
+        }
+    }*/
+    
     SeaNetwork *seaNetwork = networks->getSea_network();
     for(int i = 65 ; i < 65+num_nodes ;i++){
         for(int t = 0; t < TOTAL_TIME_SLOT; t++){
-            for(const auto& arc : seaNetwork->nodes[(char) i][t]->out_arcs){
+            for(const auto& arc : seaNetwork->nodes[(char) i][t]->out_arcs) {
                 string out_node = arc->start_node->getName();
                 string in_node = arc->end_node->getName();
                 Point out_point = Point(0, (int) out_node[0] -65, stoi(out_node.substr(1)));
@@ -969,6 +983,25 @@ void CargoRoute::find_sea_arcs() {
 }
 
 void CargoRoute::find_air_arcs() {
+    /*AirNetwork *airNetwork = networks->getAir_network();
+    for (Flight flight: airNetwork->getDesignedFlights()) {
+        for (Route route: flight.routes) {
+            vector<string> nodes = route.nodes;
+            
+            string in_node = nodes.front();
+            for (auto iter = nodes.begin()+1; iter != nodes.end(); ++iter) {
+                string out_node = *iter;
+                
+                Point out_point = Point(0, (int) out_node[0] -65, stoi(out_node.substr(1)));
+                Point in_point = Point(0, (int) in_node[0] -65, stoi(in_node.substr(1)));
+
+                air_arc_pairs.emplace_back(networks->get_node_idx(out_point), networks->get_node_idx(in_point));
+                
+                in_node = out_node;
+            }
+        }
+    }*/
+    
     AirNetwork *airNetwork = networks->getAir_network();
     for(int i = 65 ; i < 65+num_nodes ;i++){
         for(int t = 0; t < TOTAL_TIME_SLOT; t++){
@@ -988,7 +1021,7 @@ void CargoRoute::find_air_arcs() {
 void CargoRoute::arcs_to_file(string data) {
 	ofstream sea_file;
 	sea_file.open(data + "_sea_arcs.csv");
-	for(const auto arc : sea_arc_pairs){
+	for(const auto &arc : sea_arc_pairs){
 
         Point first = networks->idx_to_point(arc.first);
         Point second = networks->idx_to_point(arc.second);
@@ -1002,7 +1035,7 @@ void CargoRoute::arcs_to_file(string data) {
 
 	ofstream air_file;
 	air_file.open(data+"_air_arcs.csv");
-	for(const auto arc : air_arc_pairs){
+	for(const auto &arc : air_arc_pairs){
 
         Point first = networks->idx_to_point(arc.first);
         Point second = networks->idx_to_point(arc.second);
@@ -1019,6 +1052,7 @@ double* CargoRoute::cal_constr1_val() {
     double* val = new double[sea_arc_pairs.size()];
     for(int i = 0; i < sea_arc_pairs.size(); i++){
         val[i] = get_sea_complicate_constr_val(sea_arc_pairs[i].first, sea_arc_pairs[i].second, networks->getSea_network()->getShips()[0].volume_ub);
+        //val[i] = rand()%1000;
     }
 
     return val;
@@ -1028,6 +1062,7 @@ double* CargoRoute::cal_constr2_val() {
     double* val = new double[air_arc_pairs.size()];
     for(int i = 0; i < air_arc_pairs.size(); i++){
         val[i] = get_air_complicate_constr_val(air_arc_pairs[i].first, air_arc_pairs[i].second, networks->getAir_network()->getFlights()[0].volume_ub);
+        //val[i] = rand()%1000;
     }
     return val;
 }
@@ -1036,6 +1071,7 @@ double* CargoRoute::cal_constr3_val() {
     double* val = new double[air_arc_pairs.size()];
     for(int i = 0; i < air_arc_pairs.size(); i++){
         val[i] = get_air_complicate_constr_val(air_arc_pairs[i].first, air_arc_pairs[i].second, networks->getAir_network()->getFlights()[0].weight_ub);
+        //val[i] = rand()%1000;
     }
     return val;
 }
@@ -1047,15 +1083,16 @@ double CargoRoute::get_sea_complicate_constr_val(int start_idx, int end_idx, int
     for(int k = 0; k < cargos.size(); k++){
         for (int p = 0; p < target_path[k].size(); p++) {
             Path* path = target_path[k][p];
-            for(int i = 0; i < path->points.size()-1; i++){
-                int out_point_idx = networks->get_node_idx(path->points[i]);
-                int in_point_idx = networks->get_node_idx(path->points[i+1]);
+            for(int i = 0; i < path->points().size()-1; i++){
+                int out_point_idx = networks->get_node_idx(path->points()[i]);
+                int in_point_idx = networks->get_node_idx(path->points()[i+1]);
                 if(out_point_idx == start_idx && in_point_idx == end_idx){
                     val += cargos[k]->volume * z_value[k][p];
                 }
             }
         }
     }
+    
     //right hand side
     Route route = networks->getSea_network()->getShips()[0].route;
     for(int i = 0; i < route.nodes.size()-1; i++){
@@ -1063,7 +1100,8 @@ double CargoRoute::get_sea_complicate_constr_val(int start_idx, int end_idx, int
         Point in_point = Point(0, (int) route.nodes[i+1][0] - 65 , stoi(route.nodes[i+1].substr(1)));
         int out_point_idx = networks->get_node_idx(out_point);
         int in_point_idx = networks->get_node_idx(in_point);
-        if(out_point_idx == start_idx && in_point_idx == end_idx){
+        // TODO: y?
+        if(out_point_idx == start_idx && in_point_idx == end_idx) {
             val -= ub;
         }
     }
@@ -1078,9 +1116,9 @@ double CargoRoute::get_air_complicate_constr_val(int start_idx, int end_idx, int
     for(int k = 0; k < cargos.size(); k++){
         for (int p = 0; p < target_path[k].size(); p++) {
             Path* path = target_path[k][p];
-            for(int i = 0; i < path->points.size()-1; i++){
-                int out_point_idx = networks->get_node_idx(path->points[i]);
-                int in_point_idx = networks->get_node_idx(path->points[i+1]);
+            for(int i = 0; i < path->points().size()-1; i++){
+                int out_point_idx = networks->get_node_idx(path->points()[i]);
+                int in_point_idx = networks->get_node_idx(path->points()[i+1]);
                 if(out_point_idx == start_idx && in_point_idx == end_idx){
                     val += cargos[k]->volume * z_value[k][p];
                 }
@@ -1110,9 +1148,9 @@ GRBLinExpr CargoRoute::complicate_constr_lhs(int start_idx, int end_idx){
     for(int k = 0; k < cargos.size(); k++){
         for (int p = 0; p < target_path[k].size(); p++) {
             Path* path = target_path[k][p];
-            for(int i = 0; i < path->points.size()-1; i++){
-                int out_point_idx = networks->get_node_idx(path->points[i]);
-                int in_point_idx = networks->get_node_idx(path->points[i+1]);
+            for(int i = 0; i < path->points().size()-1; i++){
+                int out_point_idx = networks->get_node_idx(path->points()[i]);
+                int in_point_idx = networks->get_node_idx(path->points()[i+1]);
                 if(out_point_idx == start_idx && in_point_idx == end_idx){
                     cons += cargos[k]->volume * z[k][p];
                 }
@@ -1167,9 +1205,9 @@ void CargoRoute::show_model_result(GRBModel &model) {
 
 unordered_set<pair<int, int>, pair_hash> CargoRoute::get_arc_set(Path *path) {
     unordered_set<pair<int, int>, pair_hash> arc_set{};
-    for(int i = 0; i < path->points.size()-1; i++){
-        int out_point = networks->get_node_idx(path->points[i]);
-        int in_point = networks->get_node_idx(path->points[i+1]);
+    for(int i = 0; i < path->points().size()-1; i++){
+        int out_point = networks->get_node_idx(path->points()[i]);
+        int in_point = networks->get_node_idx(path->points()[i+1]);
         pair<int, int> arc_pair = pair<int, int>(out_point, in_point);
         arc_set.insert(arc_pair);
     }
@@ -1185,6 +1223,58 @@ double CargoRoute::get_P_value(){
     if(is_designed_route_added == true) {
         if(networks->get_cur_flights().size() <= 2) {
             //first subproblem
+            double sea_cost = networks->getSea_network()->getShips()[0].route.getCost(networks->getSea_network());
+            P_val -= sea_cost;
+            
+            #if LOG_LEVEL >= 3
+            /*cout << "First Subproblem:" << networks->getSea_network()->getShips()[0].route << "Cost: " << sea_cost << endl;*/
+            #endif
+            
+            //second subproblem
+            vector<Route> routes = networks->getAir_network()->getFlights()[0].routes;
+            double air_cost = routes[0].getCost(networks->getAir_network());
+            P_val -= air_cost * networks->getAir_network()->getFlights()[0].freq * TOTAL_WEEK;
+            
+            // TODO: determine log level
+            #if LOG_LEVEL >= 3
+            /*cout << "Second Subproblem:" << routes[0] << "/" << networks->getAir_network()->getFlights()[0].freq
+            << "/" << TOTAL_WEEK << "\n" << "Cost: " << air_cost <<endl;*/
+            #endif
+        }
+    }
+    double total_profit = 0.0;
+    int cargo_size = (int)cargos.size();
+    for (int i = 0; i < cargo_size; ++i) {
+        int j = 0;
+        for (const auto &path: target_path[i]) {
+            
+            Cargo *cargo = cargos[i];
+            
+            double profit = z_value[i][j]*cargo->volume*path->path_profit;
+            
+            cout << *path << profit << endl;
+            total_profit += profit;
+            
+            j++;
+        }
+    }
+    
+    cout << "Total profit: " << total_profit << endl;
+    
+    P_val += total_profit;
+    // What is this?
+    /*if(networks->get_cur_flights().size() <= 2)
+        P_val += 50000 + 487.0 * cargos.size() / 2 * num_nodes;
+    else
+        P_val = (P_val + 10000) * 9.2;*/
+    return P_val;
+}
+
+double CargoRoute::get_original_profit(){
+    /*double profit = 0;
+    if(is_designed_route_added == true) {
+        if(networks->get_cur_flights().size() <= 2) {
+            //first subproblem
             P_val -= networks->getSea_network()->getShips()[0].route.cost;
             //    //second subproblem
             vector<Route> routes = networks->getAir_network()->getFlights()[0].routes;
@@ -1196,7 +1286,9 @@ double CargoRoute::get_P_value(){
         P_val += 50000 + 487.0 * cargos.size() / 2 * num_nodes;
     else
         P_val = (P_val + 10000) * 9.2;
-    return P_val;
+    return P_val;*/
+    
+    return 0;
 }
 
 vector<double> CargoRoute::get_r_column() {
@@ -1215,8 +1307,8 @@ vector<double> CargoRoute::get_r_column() {
     for(int i = 0; i < air_arc_pairs.size(); i++){
         r_column.push_back(cons3_vals[i]);
     }
+    
     return r_column;
-
 }
 
 const vector<pair<int, int>> &CargoRoute::getSea_arc_pairs() const {
@@ -1245,10 +1337,10 @@ void CargoRoute::reset_bp() {
 
     for(auto &path: all_paths){
         path->reduced_cost = 0;
-        Point *cur,*next;
-        for(int p = 0; p < path->points.size()-1; p++){
-            cur = &path->points[p];
-            next = &path->points[p+1];
+        const Point *cur,*next;
+        for(int p = 0; p < path->points().size()-1; p++){
+            cur = &path->points()[p];
+            next = &path->points()[p+1];
             arcs[networks->get_node_idx(*cur)][networks->get_node_idx(*next)]->fixed_profit = 0;
             arcs[networks->get_node_idx(*cur)][networks->get_node_idx(*next)]->fixed_cost = 0;
         }

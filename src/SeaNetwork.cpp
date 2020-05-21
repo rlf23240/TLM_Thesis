@@ -9,11 +9,9 @@
 
 unsigned sea_seed = 0;
 
-Ship::Ship(char start_node, int start_time, int frequency, int cycle_time, int volume_ub) : start_node(start_node),
-                                                                                            start_time(start_time),
-                                                                                            frequency(frequency),
-                                                                                            cycle_time(cycle_time),
-                                                                                            volume_ub(volume_ub) {}
+Ship::Ship(char start_node, int start_time, int frequency, int cycle_time, int volume_ub):
+    start_node(start_node), start_time(start_time), frequency(frequency), cycle_time(cycle_time), volume_ub(volume_ub) {}
+
 SeaNetwork::SeaNetwork() {}
 
 SeaNetwork::SeaNetwork(string data_path, int num_cur_ships, int num_rival_ships) {
@@ -119,8 +117,14 @@ void SeaNetwork::read_sea_routes(string data_path, vector<Ship> &ships) {
 }
 
 void SeaNetwork::run_algo() {
-    for(auto &ship : designed_ships) {
-        Route route = shortest_route(ship.start_node, ship.start_time, ship.start_node, ship.start_time+ship.cycle_time);
+    for(auto &ship: designed_ships) {
+        Route route = shortest_route(
+            ship.start_node,
+            ship.start_time,
+            ship.start_node,
+            ship.start_time+ship.cycle_time
+        );
+        
         ship.route = route;
     }
 }
@@ -185,11 +189,12 @@ void SeaNetwork::forward_update(Route **dp, int node, int time) {
                 Route cur_route = dp[node][time];
                 Route end_route = dp[end_node_idx][end_time];
                 
-                double new_cost = cur_route.cost + arc->cost + arc->fixed_cost + end_node->getCost() * (1 + additional_stay_days);
-                new_cost = MAX(0, new_cost);
+                double new_cost = cur_route.updated_cost + arc->cost + arc->fixed_cost + end_node->getCost() * (1 + additional_stay_days);
+                // TEST: No 0 constrain.
+                // new_cost = MAX(0, new_cost);
 
                 // if yes, replace old route.
-                if (new_cost < end_route.cost) {
+                if (new_cost < end_route.updated_cost) {
                     vector<string> new_nodes;
                     new_nodes.assign(cur_route.nodes.begin(), cur_route.nodes.end());
 

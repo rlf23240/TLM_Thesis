@@ -11,6 +11,7 @@
 
 using namespace std;
 
+class Network;
 
 struct Route{
     Route(const vector<string> &nodes, double cost);
@@ -18,7 +19,9 @@ struct Route{
     Route();
     friend ostream &operator<<(ostream &os, const Route &route);
     vector<string> nodes;
-    double cost = INT_MAX;
+    double updated_cost = INT_MAX;
+    
+    double getCost(Network* network) const;
 };
 
 class Network {

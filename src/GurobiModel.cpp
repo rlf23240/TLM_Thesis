@@ -1,23 +1,27 @@
 //
 // Created by Ashee on 2019/7/16.
 //
+
 #include "GurobiModel.h"
-struct path_hash{
-    size_t operator() (const Path& path) const
-    {
-        int hash = 0;
-        for(const auto& point : path.points){
-            hash += (point.layer + point.node + point.time);
+#include "hash.hpp"
+
+struct path_hash {
+    std::size_t operator() (const Path& path) const {
+        std::size_t hash = 0xFFFFFFFF;
+        for(const auto& point : path.points()){
+            hash = hash_combine(hash, std::hash<int>()(point.layer));
+            hash = hash_combine(hash, std::hash<int>()(point.node));
+            hash = hash_combine(hash, std::hash<int>()(point.time));
         }
 
-        return std::hash<int>()(hash);
+        return hash;
     }
 };
 
 struct path_equal{
 public:
     bool operator()(const Path& lhs, const Path& rhs) const{
-        return lhs.points == rhs.points;
+        return lhs.points() == rhs.points();
     }
 };
 
@@ -114,9 +118,9 @@ void GurobiModel::all_paths_for_GurobiModel(string data) {
     ofstream file;
     file.open(data + "_all_paths.csv");
     for(const Path& path : all_path){
-        for(const auto& point : path.points){
+        for(const auto& point : path.points()){
             file << to_string(point.layer) + (char) (point.node + 65) + to_string(point.time);
-            if(point != path.points.back())  file << ",";
+            if(point != path.points().back())  file << ",";
         }
         file << "\n";
     }

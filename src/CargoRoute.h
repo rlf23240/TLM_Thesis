@@ -18,7 +18,10 @@ class CargoRoute {
 public:
     explicit CargoRoute(string data);
     double getObjVal() const;
+    
     double get_P_value();
+    double get_original_profit();
+    
     vector<double> get_r_column();
     Solution* run_bp();
     void rebuild_entire_network();
@@ -32,6 +35,20 @@ public:
     void out_put_v_value_with_target_path(ostream& os, vector<Path*> *target_path);
 
     Solution* Run_full_model();
+    
+    // Number of sea arcs.
+    int num_sea_arc() {
+        return sea_arc_pairs.size();
+    };
+    
+    // Number of air arcs.
+    int num_air_arc() {
+        return air_arc_pairs.size();
+    };
+    
+    const vector<Cargo*> getCargos() const {
+        return cargos;
+    };
 
 private:
     unsigned int num_nodes;

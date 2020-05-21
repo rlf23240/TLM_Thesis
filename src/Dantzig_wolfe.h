@@ -13,11 +13,22 @@ public:
     explicit Dantzig_wolfe(const CargoRoute &cargoRoute);
     void output_result(string name, double run_time);
     Solution *getBestSol() const;
+    
+    const CargoRoute getCargoRoute();
 private:
     CargoRoute cargoRoute;
+    
+    // Objective value of every run.
     vector<double> P;
+    
+    // Constrain matrix.
     vector<vector<double>> R;
+    
+    // Dual price of constrain sum(lambda) + tau = 1.
     double sigma;
+    
+    vector<double> previous_lambda = vector<double>();
+    
     vector<Solution*> solutions;
     Solution* best_sol = nullptr;
     vector<double> model_result;

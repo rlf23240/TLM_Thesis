@@ -398,16 +398,16 @@ void EntireNetwork::add_virtual_network(string data) {
             if(is_designed_route_added) {
                 if (!nodes[0][i][t]->out_arcs.empty()) {
                     //in arc
-                    arc = new Arc(nodes[layer][i][t], nodes[0][i][t + 1], 0);
+                    arc = new Arc(nodes[layer][i][t], nodes[0][i][t + 1], 0, 0, unload_cost[i]);
                     add_arc(nodes[layer][i][t], nodes[0][i][t + 1], arc);
                     //out arc
-                    arc = new Arc(nodes[0][i][t], nodes[layer][i][t + 1], 0);
+                    arc = new Arc(nodes[0][i][t], nodes[layer][i][t + 1], 0, 0, unload_cost[i]);
                     add_arc(nodes[0][i][t], nodes[layer][i][t + 1], arc);
                 }
                 //from virtual to design flight
                 if (!nodes[1][i][t]->out_arcs.empty()) {
                     //in arc
-                    arc = new Arc(nodes[layer][i][t], nodes[1][i][t], 0);
+                    arc = new Arc(nodes[layer][i][t], nodes[1][i][t], 0, 0, unload_cost[i]);
                     add_arc(nodes[layer][i][t], nodes[1][i][t], arc);
                 }
             }
@@ -415,32 +415,32 @@ void EntireNetwork::add_virtual_network(string data) {
             //from current ship to virtual
             if (!nodes[3][i][t]->out_arcs.empty()) {
                 //in arc
-                arc = new Arc(nodes[layer][i][t], nodes[3][i][t+1],0);
+                arc = new Arc(nodes[layer][i][t], nodes[3][i][t+1], 0, 0, unload_cost[i]);
                 add_arc(nodes[layer][i][t], nodes[3][i][t+1], arc);
                 //out arc
-                arc = new Arc(nodes[3][i][t], nodes[layer][i][t+1],0);
+                arc = new Arc(nodes[3][i][t], nodes[layer][i][t+1], 0, 0, unload_cost[i]);
                 add_arc(nodes[3][i][t], nodes[layer][i][t+1], arc);
             }
             //from current flight to virtual
             if (!nodes[4][i][t]->out_arcs.empty()) {
                 //in arc
-                arc = new Arc(nodes[layer][i][t], nodes[4][i][t],0);
+                arc = new Arc(nodes[layer][i][t], nodes[4][i][t], 0, 0, unload_cost[i]);
                 add_arc(nodes[layer][i][t], nodes[4][i][t], arc);
             }
             //from rival ship to virtual
 
             if (!nodes[5][i][t]->out_arcs.empty()) {
                 //in arc
-                arc = new Arc(nodes[layer][i][t], nodes[5][i][t+1], 0);
+                arc = new Arc(nodes[layer][i][t], nodes[5][i][t+1], 0, 0, unload_cost[i]);
                 add_arc(nodes[layer][i][t], nodes[5][i][t+1], arc);
                 //out arc
-                arc = new Arc(nodes[5][i][t], nodes[layer][i][t+1], 0);
+                arc = new Arc(nodes[5][i][t], nodes[layer][i][t+1], 0, 0, unload_cost[i]);
                 add_arc(nodes[5][i][t], nodes[layer][i][t+1], arc);
             }
             //from rival flight to virtual
             if (!nodes[6][i][t]->out_arcs.empty()) {
                 //in arc
-                arc = new Arc(nodes[layer][i][t], nodes[6][i][t], 0);
+                arc = new Arc(nodes[layer][i][t], nodes[6][i][t], 0, 0, unload_cost[i]);
                 add_arc(nodes[layer][i][t], nodes[6][i][t], arc);
             }
         }
@@ -614,8 +614,8 @@ void EntireNetwork::find_paths_from_single_node(Path path, Point point, int*** v
 }
 
 void EntireNetwork::add_path(Path *path) {
-    Point front = path->points.front();
-    Point back = path->points.back();
+    Point front = path->points().front();
+    Point back = path->points().back();
 
     if(front.node == back.node || back.layer == 2)
         return;
@@ -629,8 +629,8 @@ void EntireNetwork::add_path(Path *path) {
 }
 
 bool EntireNetwork::check_path_feasibility(Path *path) {
-    Point front = path->points.front();
-    Point back = path->points.back();
+    Point front = path->points().front();
+    Point back = path->points().back();
     if(front.node == back.node || back.layer == 2)
         return false;
 
@@ -640,24 +640,24 @@ bool EntireNetwork::check_path_feasibility(Path *path) {
     int previous_virtual_node = -1;
     int previous_layer = -1;
 
-    if(path->points.back().node == (path->points.end()-2)->node)
+    if(path->points().back().node == (path->points().end()-2)->node)
         return false;
 
-    if((path->points[1].layer == 0 || path->points[1].layer == 3 || path->points[1].layer == 5) && (path->points.back().layer == 0 || path->points.back().layer == 3 || path->points.back().layer == 5)){
-        path->type = onlySea;
+    if((path->points()[1].layer == 0 || path->points()[1].layer == 3 || path->points()[1].layer == 5) && (path->points().back().layer == 0 || path->points().back().layer == 3 || path->points().back().layer == 5)){
+        path->type = Path::Sea;
     }
-    else if((path->points[1].layer == 1 || path->points[1].layer == 4 || path->points[1].layer == 6) && (path->points.back().layer == 1 || path->points.back().layer == 4 || path->points.back().layer == 6)) {
-        path->type = onlyAir;
+    else if((path->points()[1].layer == 1 || path->points()[1].layer == 4 || path->points()[1].layer == 6) && (path->points().back().layer == 1 || path->points().back().layer == 4 || path->points().back().layer == 6)) {
+        path->type = Path::Air;
     }
     else{
-        path->type = seaAir;
+        path->type = Path::SeaAir;
     }
     
-    if(path->points[1].layer != path->points.back().layer && (path->points.back().layer == 0 || path->points.back().layer == 3 || path->points.back().layer == 5))
+    if(path->points()[1].layer != path->points().back().layer && (path->points().back().layer == 0 || path->points().back().layer == 3 || path->points().back().layer == 5))
         return false;
 
 
-    for(const auto& point : path->points){
+    for(const auto& point : path->points()){
         // check if this node is visited
         if(visited_nodes.find(point.node) == visited_nodes.end()) {
             visited_nodes.insert(point.node);
@@ -721,7 +721,7 @@ int EntireNetwork::get_node_idx(int layer, int node, int time) {
 }
 
 int EntireNetwork::get_node_idx(Point point) {
-    return point.layer * (num_nodes * TOTAL_TIME_SLOT) + point.node * TOTAL_TIME_SLOT + point.time;;
+    return point.layer * (num_nodes * TOTAL_TIME_SLOT) + point.node * TOTAL_TIME_SLOT + point.time;
 }
 
 Point EntireNetwork::idx_to_point(int idx) {

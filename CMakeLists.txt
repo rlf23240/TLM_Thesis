@@ -16,6 +16,8 @@ set(src_files src/Dantzig_wolfe.cpp
               src/Node.cpp
               src/Node.h
               src/param.h
+              src/hash.hpp
+              src/hash.cpp
               src/AirNetwork.cpp
               src/AirNetwork.h
               src/SeaNetwork.cpp

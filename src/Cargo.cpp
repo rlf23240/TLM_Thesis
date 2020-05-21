@@ -3,7 +3,12 @@
 //
 // Created by Ashee on 2019/6/18.
 //
-enum cargo_type{only_air, only_sea, air_both, sea_both};
+enum cargo_type {
+    AirOnly,
+    SeaOnly,
+    AirBoth,
+    SeaBoth
+};
 
 struct Cargo{
     Cargo(char departure, char destination, int start_time, int arrive_time, int volume, int weight, cargo_type type)

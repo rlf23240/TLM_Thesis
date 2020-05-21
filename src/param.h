@@ -2,8 +2,21 @@
 // Created by Ashee on 2019/5/22.
 //
 #pragma once
+
 #ifndef TLM_THESIS_PARAM_H
 #define TLM_THESIS_PARAM_H
+
+#define LOG_LEVEL LOG_INFO
+
+// Do not print any unecessary information.
+#define LOG_SILENT 0
+// Print errors.
+#define LOG_ERROR 1
+// Print warning and errors.
+#define LOG_WARN 2
+// Print all possible debug information.
+#define LOG_INFO 3
+
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
@@ -45,15 +58,23 @@ static const int FIX_COST_OF_VIRTUAL_ARC = 100;
 
 // TODO: Test this.
 static double MU_THRESHOLD = 0;
-static double DW_STOP_THRESHOLD = 0.1;
 static const int time_limit_for_gurobi = 3600; //second
 static const int NUM_INIT_PATHS = 99999;
 
 // TODO: Test this.
 static int MAX_BP_ITER = 20; // if the number is very big -> useless
+
+// DW iterations.
+static double DW_STOP_THRESHOLD = 0.1;
 static int MAX_DW_ITER = 30; // if the number is very big -> useless
 
 // TODO: Test this.
 static double EPSILON = 0.006; //體積轉體積重量之參數(體積/ epsilon =體積重量)
+
+// Column Generations.
+static double COLUMN_GENERATION_THRESHOLE = 0.001;
+static int COLUMN_GENERATION_MAX_CONTINUE_IN_THRESHOLD = 20;
+// Maximum of times of column not being use before delete.
+static int COLUMN_GENERATION_MAX_NOT_USE_IN_THRESHOLD = 20;
 
 #endif //TLM_THESIS_PARAM_H
