@@ -111,8 +111,6 @@ void EntireNetwork::read_unload_cost_data(string data) {
     file.open(data + "_unload_cost.txt");
 
     string line;
-    getline(file, line);
-
 
     while(getline(file, line)){
         unload_cost.push_back(stoi(line));

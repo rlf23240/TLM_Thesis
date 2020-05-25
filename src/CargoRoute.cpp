@@ -182,7 +182,7 @@ void CargoRoute::cal_path_cost(Path *path) {
         next = &path->points()[p+1];
         double arc_cost = arcs[networks->get_node_idx(current->layer, current->node, current->time)]
         [networks->get_node_idx(next->layer, next->node, next->time)]->getUnitCost();
-        
+                
         // Is this a mistake I accidentally add?
         // if (current->layer == 2)
         cost += arc_cost;
@@ -191,7 +191,7 @@ void CargoRoute::cal_path_cost(Path *path) {
             only_rival = false;
         }
     }
-    
+
     path->path_cost = cost;
     path->last_time = path->points().back().time - path->points().front().time;
     
@@ -621,14 +621,14 @@ void CargoRoute::cal_e() {
         for(int n = 0; n < rival_path[k].size(); n++) {
             sum += exp(v_[k][n]);
         }
+        
         for(int p = 0; p < target_path[k].size(); p++){
             e[k][p] = exp(v[k][p]) / sum ;
-//            cout << e[k][p] << " ";
         }
+        
         for(int n = 0; n < rival_path[k].size(); n++){
             e_[k][n] = exp(v_[k][n]) / sum ;
         }
-//        cout << endl;
     }
 
 }
@@ -650,12 +650,13 @@ void CargoRoute::cal_v() {
             v[k][p] = cargos[k]->alpha * target_path[k][p]->path_cost + cargos[k]->beta * target_path[k][p]->last_time;
             
             //cout << *target_path[k][p];
-            //cout << cargos[k]->alpha << "*" << target_path[k][p]->path_cost << endl;
+            //cout << "target: "<< cargos[k]->alpha << "*" << target_path[k][p]->path_cost << endl;
         }
         
         
         for(int n = 0; n < rival_path[k].size(); n++){
             v_[k][n] = cargos[k]->alpha * rival_path[k][n]->path_cost + cargos[k]->beta * rival_path[k][n]->last_time;
+            //cout << "rival: " << cargos[k]->alpha << "*" << rival_path[k][n]->path_cost << endl;
         }
     }
     

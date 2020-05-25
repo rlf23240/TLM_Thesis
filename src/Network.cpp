@@ -183,7 +183,7 @@ void Network::add_edges() {
             for(int out = 0; out < num_nodes; out++){
                 if(arc_cost[i][out] < INT_MAX && t+time_cost[i][out] < TOTAL_TIME_SLOT){
 //                    cout << (char) (65+i) <<t<< " To " << (char) (65+out)<<t+time_cost[i][out]
-//                    << "  Arc Cost :" <<arc_cost[i][out]<<endl;
+//                    << "   Cost :" <<arc_cost[i][out]<<endl;
                     add_edge(nodes[(char) 'A'+i][t], nodes[(char) 'A'+out][t + time_cost[i][out]], arc_cost[i][out]);
                             // start                  end                                            cost
                 }
