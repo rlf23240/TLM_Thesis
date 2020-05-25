@@ -207,10 +207,7 @@ unordered_map<string, pair<double, double>> run_danzig_wolfe_without_designed(st
 int main() {
     // TODO: Very Important! Change it to accept argv!
     // This is the directory of data. Fill it up before you run.
-    //string base_dir = "/Users/ianwang/Documents/GitHub/TLM_Thesis/";
-    //string base_dir = "/Users/ianwang/Desktop/Z40/";
-    //string base_dir = "/Users/ianwang/Desktop/Z6/";
-    string base_dir = "/Users/ianwang/Documents/GitHub/TLM_Thesis/";
+    string base_dir = "../";
     
     // H: 1000/5000
     // A: inf/10000

@@ -505,10 +505,14 @@ void CargoRoute::column_generation(GRBModel &model) {
             
             if (delta <= COLUMN_GENERATION_THRESHOLE) {
                 cont_in_thres += 1;
-                cout << iter << " in thres" << endl;
+                cout << "iter " << iter << ": in thres " << delta << "/" << COLUMN_GENERATION_THRESHOLE;
+                cout << ", continued " << cont_in_thres << "/" << COLUMN_GENERATION_MAX_CONTINUE_IN_THRESHOLD << " times.";
+                cout << endl;
                 
             } else {
-                cout << iter << " out, max contiune " << cont_in_thres << endl;
+                cout << "iter " << iter << ": out of thres," << delta << "/" << COLUMN_GENERATION_THRESHOLE;
+                cout << ", continued " << cont_in_thres << "/" << COLUMN_GENERATION_MAX_CONTINUE_IN_THRESHOLD << " times.";
+                cout << endl;
                 
                 cont_in_thres = 0;
             }
@@ -521,7 +525,7 @@ void CargoRoute::column_generation(GRBModel &model) {
 }
 
 void CargoRoute::Var_init(GRBModel &model) {
-    for(int k = 0; k< cargos.size(); k++){
+    for(int k = 0; k < cargos.size(); k++){
         for(int p = 0; p < target_path[k].size(); p++){
             z[k].push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
             u[k].push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
@@ -1375,8 +1379,6 @@ Solution* CargoRoute::Run_full_model() {
     u = new vector<GRBVar>[cargos.size()];
     target_path = new vector<Path*>[cargos.size()];
     rival_path = new vector<Path*>[cargos.size()];
-
-
 
     for (int k = 0 ; k < cargos.size(); k++) {
         int departure = cargos[k]->departure - 65;

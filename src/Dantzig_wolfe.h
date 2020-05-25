@@ -19,7 +19,7 @@ private:
     CargoRoute cargoRoute;
     
     // Objective value of every run.
-    vector<double> P;
+    vector<double> P = vector<double>();
     
     // Constrain matrix.
     vector<vector<double>> R;
