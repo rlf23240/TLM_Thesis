@@ -237,7 +237,35 @@ const vector<Ship> &SeaNetwork::getRival_ships() const {
 }
 
 void SeaNetwork::set_designed_ship(Route route) {
-    designed_ships[0].route = route;
+    /*
+     Route(const vector<string> &nodes, double cost);
+     Route(Route route, int gap);
+     Route();
+     friend ostream &operator<<(ostream &os, const Route &route);
+     vector<string> nodes;
+     double updated_cost = INT_MAX;
+     
+     double getCost(Network* network) const;
+     
+     */
+    Ship ship = designed_ships[0];
+    Route cycle_route = Route(route, 0);
+    string last_node = cycle_route.nodes.back();
+    int cycle = 1;
+    int end_time = stoi(last_node.substr(1));
+
+    while (end_time < TOTAL_TIME_SLOT) {
+        Route next_route = Route(route, cycle*ship.cycle_time+1);
+        cycle_route.nodes.insert(cycle_route.nodes.end(),
+                                 next_route.nodes.begin(),
+                                 next_route.nodes.end());
+        
+        last_node = cycle_route.nodes.back();
+        end_time = stoi(last_node.substr(1));
+        cycle += 1;
+    }
+    
+    designed_ships[0].route = cycle_route;
 }
 
 const vector<Ship> &SeaNetwork::getDesignedShips() const {

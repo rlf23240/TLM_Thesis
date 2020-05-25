@@ -103,13 +103,13 @@ void GurobiModel::all_paths_for_GurobiModel(string data) {
 
     unordered_set<Path, path_hash, path_equal> all_path;
 //
-    for(const auto& sea_route : candidate_designed_ship_routes){
-        for(const auto& air_route : candidate_designed_flight_routes){
+    for(const auto& sea_route: candidate_designed_ship_routes){
+        for(const auto& air_route: candidate_designed_flight_routes){
             cargo_route.getNetworks()->set_sea_air_route(*sea_route, *air_route);
             cargo_route.rebuild_entire_network();
 
             vector<Path*> paths = cargo_route.find_all_paths();
-            for(const auto& path : paths){
+            for(const auto& path: paths){
                 all_path.insert(*path);
             }
         }
@@ -117,8 +117,8 @@ void GurobiModel::all_paths_for_GurobiModel(string data) {
 
     ofstream file;
     file.open(data + "_all_paths.csv");
-    for(const Path& path : all_path){
-        for(const auto& point : path.points()){
+    for(const Path& path: all_path){
+        for(const auto& point: path.points()){
             file << to_string(point.layer) + (char) (point.node + 65) + to_string(point.time);
             if(point != path.points().back())  file << ",";
         }

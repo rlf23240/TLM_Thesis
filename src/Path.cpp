@@ -101,7 +101,7 @@ public:
 
     }
 
-    bool is_feasible(){
+    bool is_feasible() {
         if(this->stay_at_virtual > 6)
             return false;
         if(this->length() == 2 && this->points().back().layer == 2)

@@ -99,20 +99,13 @@ void CargoRoute::read_cargo_file(string data) {
 }
 
 void CargoRoute::get_available_path(vector<Path*>** path_categories, vector<Path*>& paths) {
-    unordered_set<pair<char, char>, pair_hash> used_OD;
-    for(auto cargo : cargos){
-        pair<char, char> OD(cargo->departure, cargo->destination);
-
-        if(used_OD.find(OD) == used_OD.end()){ //OD not in the set
-            vector<Path*>  od_available_path = path_categories[(int) cargo->departure - 65][(int) cargo->destination - 65];
-//            cout << od_available_path.size() << endl;
-            paths.insert(paths.end(), od_available_path.begin(), od_available_path.end()); //append available path to paths
-//            cout << paths.size() << " " << cargo->departure << cargo->destination << " " << path_categories[(int) cargo->departure - 65][(int) cargo->destination - 65].size() << endl;
+    for(auto cargo: cargos){
+        vector<Path*>  od_available_path = path_categories[(int) cargo->departure - 65][(int) cargo->destination - 65];
+        for (const auto &path: od_available_path) {
+            if (is_path_feasible_for_cargo(path, cargo)) {
+                paths.push_back(path);
+            }
         }
-        else{
-//            cout << "collision" << endl;
-        }
-        used_OD.insert(OD);
     }
 
     for(int i = 0; i < paths.size(); i++){
@@ -498,7 +491,11 @@ void CargoRoute::column_generation(GRBModel &model) {
         double delta = abs(model.get(GRB_DoubleAttr_ObjVal)-previous);
         previous = model.get(GRB_DoubleAttr_ObjVal);
         
-        if (!path_pair.first || path_pair.first->reduced_cost <= 0.0 || cont_in_thres >= COLUMN_GENERATION_MAX_CONTINUE_IN_THRESHOLD) {
+        if (path_pair.first) {
+            cout << "reduced cost: " << path_pair.first->reduced_cost << endl;
+        }
+        
+        if (!(path_pair.first) || path_pair.first->reduced_cost <= 0.0 || cont_in_thres >= COLUMN_GENERATION_MAX_CONTINUE_IN_THRESHOLD) {
             break;
         } else {
             append_column(path_pair.first, path_pair.second);
@@ -1026,7 +1023,7 @@ void CargoRoute::find_air_arcs() {
 void CargoRoute::arcs_to_file(string data) {
 	ofstream sea_file;
 	sea_file.open(data + "_sea_arcs.csv");
-	for(const auto &arc : sea_arc_pairs){
+	for(const auto &arc: sea_arc_pairs){
 
         Point first = networks->idx_to_point(arc.first);
         Point second = networks->idx_to_point(arc.second);
@@ -1039,8 +1036,8 @@ void CargoRoute::arcs_to_file(string data) {
 	sea_file.close();
 
 	ofstream air_file;
-	air_file.open(data+"_air_arcs.csv");
-	for(const auto &arc : air_arc_pairs){
+	air_file.open(data + "_air_arcs.csv");
+	for(const auto &arc: air_arc_pairs){
 
         Point first = networks->idx_to_point(arc.first);
         Point second = networks->idx_to_point(arc.second);

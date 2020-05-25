@@ -602,7 +602,7 @@ void EntireNetwork::find_paths_from_single_node(Path path, Point point, int*** v
     visited[point.layer][point.node][point.time] = 1;
 
     add_path(new Path(path));
-    for(auto* out_arc : cur_node->out_arcs){
+    for(auto* out_arc: cur_node->out_arcs){
         auto next_point = Point(out_arc->end_node->getName());
         path.push_point(next_point);
         if (path.is_feasible() && visited[next_point.layer][next_point.node][next_point.time] == 0)
