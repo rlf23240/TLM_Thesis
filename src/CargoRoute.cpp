@@ -2,10 +2,12 @@
 // Created by Ashee on 2019/6/27.
 //
 
-#include "CargoRoute.h"
-#include "hash.hpp"
-
 #include <cstdlib>
+
+#include "hash.hpp"
+#include "CargoRoute.h"
+
+#define COLUMN_GENERATIONS_LOG(LOG_COMMAND) TLMLOG("Column Generations", LOG_COMMAND)
 
 //Can't use pair as element in set without this struct
 struct pair_hash {
@@ -389,19 +391,11 @@ void CargoRoute::column_generation(GRBModel &model) {
     double previous = 99999;
     
     int cont_in_thres = 0;
-    
-    // log_level setting
-    // 0: silent
-    // 1: show k, p and not use count.
-    // 2: show k, p, not use count and path detail.
-    int log_level = 2;
         
     while (true) {
         LP_relaxation(model);
         update_arcs();
-        
-        cout << "Start column usage and deletion checking with log level " << log_level << "." << endl;
-        
+                
         for (int k = 0; k < cargos.size(); ++k) {
             for (int p = 0; p < target_path[k].size(); ++p) {
                 Path *path = target_path[k][p];
@@ -413,13 +407,12 @@ void CargoRoute::column_generation(GRBModel &model) {
                     (*not_use_count)[k][path] = 0;
                 }
                 
+                #ifdef DEBUG_COLUMN_GENERATIONS
                 
-                if (log_level >= 1) {
-                    cout << "Current column (" << "Non-rival, " << k << ", " << p << ") havn't been use for " << (*not_use_count)[k][path] << " times." << endl;
-                    if (log_level >= 2) {
-                        cout << *path << endl;
-                    }
-                }
+                COLUMN_GENERATIONS_LOG("Current column (" << "Non-rival, " << k << ", " << p << ") havn't been use for " << (*not_use_count)[k][path] << " times.");
+                COLUMN_GENERATIONS_LOG(*path);
+                
+                #endif
                 
                 // If column not use for the time being...
                 if ((*not_use_count)[k][path] >= COLUMN_GENERATION_MAX_NOT_USE_IN_THRESHOLD) {
@@ -447,12 +440,12 @@ void CargoRoute::column_generation(GRBModel &model) {
                     (*not_use_count)[k][path] = 0;
                 }
                 
-                if (log_level >= 1) {
-                    cout << "Current column (Rival, " << k << ", " << p << ") havn't been use for " << (*not_use_count)[k][path] << " times." << endl;
-                    if (log_level >= 2) {
-                        cout << *path << endl;
-                    }
-                }
+                #ifdef DEBUG_COLUMN_GENERATIONS
+                
+                COLUMN_GENERATIONS_LOG("Current column (Rival, " << k << ", " << p << ") havn't been use for " << (*not_use_count)[k][path] << " times.");
+                COLUMN_GENERATIONS_LOG(*path);
+                
+                #endif
                 
                 // If column not use for the time being...
                 if ((*not_use_count)[k][path] >= COLUMN_GENERATION_MAX_NOT_USE_IN_THRESHOLD) {
@@ -491,9 +484,11 @@ void CargoRoute::column_generation(GRBModel &model) {
         double delta = abs(model.get(GRB_DoubleAttr_ObjVal)-previous);
         previous = model.get(GRB_DoubleAttr_ObjVal);
         
+        #ifdef DEBUG_COLUMN_GENERATIONS_REDUCED_COST
         if (path_pair.first) {
-            cout << "reduced cost: " << path_pair.first->reduced_cost << endl;
+            COLUMN_GENERATIONS_LOG("Selected path reduced cost: " << path_pair.first->reduced_cost);
         }
+        #endif
         
         if (!(path_pair.first) || path_pair.first->reduced_cost <= 0.0 || cont_in_thres >= COLUMN_GENERATION_MAX_CONTINUE_IN_THRESHOLD) {
             break;
@@ -502,23 +497,32 @@ void CargoRoute::column_generation(GRBModel &model) {
             
             if (delta <= COLUMN_GENERATION_THRESHOLE) {
                 cont_in_thres += 1;
-                cout << "iter " << iter << ": in thres " << delta << "/" << COLUMN_GENERATION_THRESHOLE;
-                cout << ", continued " << cont_in_thres << "/" << COLUMN_GENERATION_MAX_CONTINUE_IN_THRESHOLD << " times.";
-                cout << endl;
+                
+                #ifdef DEBUG_COLUMN_GENERATIONS_COLUMN_DELETIONS
+                COLUMN_GENERATIONS_LOG("Iter " << iter << ": in thres " << delta << "/" << COLUMN_GENERATION_THRESHOLE);
+                COLUMN_GENERATIONS_LOG("Continued " << cont_in_thres << "/" << COLUMN_GENERATION_MAX_CONTINUE_IN_THRESHOLD << " times.");
+                #endif
                 
             } else {
-                cout << "iter " << iter << ": out of thres," << delta << "/" << COLUMN_GENERATION_THRESHOLE;
-                cout << ", continued " << cont_in_thres << "/" << COLUMN_GENERATION_MAX_CONTINUE_IN_THRESHOLD << " times.";
-                cout << endl;
+                #ifdef DEBUG_COLUMN_GENERATIONS_COLUMN_DELETIONS
+                COLUMN_GENERATIONS_LOG("Iter " << iter << ": out of thres," << delta << "/" << COLUMN_GENERATION_THRESHOLE);
+                COLUMN_GENERATIONS_LOG("Continued " << cont_in_thres << "/" << COLUMN_GENERATION_MAX_CONTINUE_IN_THRESHOLD << " times.");
+                #endif
                 
                 cont_in_thres = 0;
             }
         }
-
-        cout << best_path->reduced_cost << " " << *best_path;
-        cout << "Iter : " << iter << " Obj : " << model.get(GRB_DoubleAttr_ObjVal) << endl;
+        #ifdef DEBUG_COLUMN_GENERATIONS_OBJ
+        COLUMN_GENERATIONS_LOG("Iter : " << iter << " Obj : " << model.get(GRB_DoubleAttr_ObjVal));
+        #endif
+        
+        #ifdef DEBUG_COLUMN_GENERATIONS_REDUCED_COST
+        COLUMN_GENERATIONS_LOG("Best path reduced cost:" << best_path->reduced_cost << " " << *best_path);
+        #endif
+        
         iter++;
     }
+    
 }
 
 void CargoRoute::Var_init(GRBModel &model) {
@@ -1228,8 +1232,8 @@ double CargoRoute::get_P_value(){
             double sea_cost = networks->getSea_network()->getShips()[0].route.getCost(networks->getSea_network());
             P_val -= sea_cost;
             
-            #if LOG_LEVEL >= 3
-            /*cout << "First Subproblem:" << networks->getSea_network()->getShips()[0].route << "Cost: " << sea_cost << endl;*/
+            #ifdef DEBUG_SUBPROBLEMS_ONE
+            TLMLOG("Subproblem 2", networks->getSea_network()->getShips()[0].route << "Cost: " << sea_cost);
             #endif
             
             //second subproblem
@@ -1237,10 +1241,9 @@ double CargoRoute::get_P_value(){
             double air_cost = routes[0].getCost(networks->getAir_network());
             P_val -= air_cost * networks->getAir_network()->getFlights()[0].freq * TOTAL_WEEK;
             
-            // TODO: determine log level
-            #if LOG_LEVEL >= 3
-            /*cout << "Second Subproblem:" << routes[0] << "/" << networks->getAir_network()->getFlights()[0].freq
-            << "/" << TOTAL_WEEK << "\n" << "Cost: " << air_cost <<endl;*/
+            #ifdef DEBUG_SUBPROBLEMS_TWO
+            TLMLOG("Subproblem 2", routes[0] << "/" << networks->getAir_network()->getFlights()[0].freq
+                   << "/" << TOTAL_WEEK << "\n" << "Cost: " << air_cost);
             #endif
         }
     }
@@ -1254,14 +1257,19 @@ double CargoRoute::get_P_value(){
             
             double profit = z_value[i][j]*cargo->volume*path->path_profit;
             
-            cout << *path << profit << endl;
             total_profit += profit;
             
             j++;
+            
+            #ifdef DEBUG_SUBPROBLEMS_PROFIT
+            TLMLOG("Porfit calculations", *path << profit);
+            #endif
         }
     }
     
-    cout << "Total profit: " << total_profit << endl;
+    #ifdef DEBUG_SUBPROBLEMS_PROFIT
+    TLMLOG("Porfit calculations", "Total profit: " << total_profit);
+    #endif
     
     P_val += total_profit;
     // What is this?

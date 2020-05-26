@@ -8,6 +8,8 @@
 #include "param.h"
 #include "CargoRoute.h"
 
+#define DW_ITER_LOG(LOG_COMMAND) TLMLOG("DW Iter", LOG_COMMAND)
+
 class Dantzig_wolfe {
 public:
     explicit Dantzig_wolfe(const CargoRoute &cargoRoute);

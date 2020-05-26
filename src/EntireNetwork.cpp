@@ -13,6 +13,7 @@ EntireNetwork::EntireNetwork(string data) {
     read_unload_cost_data(data);
     read_unit_profit_data(data);
     read_unit_cost_data(data);
+    
     cout << "===========AIR===========" << endl;
     air_network = new AirNetwork(data + "_air", num_cur_flights, num_cur_ships);
     cout << "===========SEA===========" << endl;
@@ -41,9 +42,12 @@ EntireNetwork::EntireNetwork(string data) {
 EntireNetwork::EntireNetwork() = default;
 
 void EntireNetwork::rebuild_networks() {
-
-    cout << air_network->getFlights()[0].routes[0];
-    cout << sea_network->getShips()[0].route;
+    
+    #ifdef DEBUG_SUBPROBLEMS_ROUTE_BUILD
+    TLMLOG("Route Constructions", "Rebuild networks.");
+    TLMLOG(NULL, air_network->getFlights()[0].routes[0]);
+    TLMLOG(NULL, sea_network->getShips()[0].route);
+    #endif
 
     create_networks(data_str);
     find_all_paths();

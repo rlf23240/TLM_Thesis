@@ -9,7 +9,11 @@ Dantzig_wolfe::Dantzig_wolfe(const CargoRoute &cargoRoute): cargoRoute(cargoRout
     Solution* sol;
 
     sol = this->cargoRoute.run_bp();
-    cout << *sol;
+    
+    #ifdef DEBUG_DW_ITER
+    DW_ITER_LOG(*sol);
+    #endif
+    
     P.push_back(sol->P);
         
     append_R_column(sol->r);
@@ -17,16 +21,25 @@ Dantzig_wolfe::Dantzig_wolfe(const CargoRoute &cargoRoute): cargoRoute(cargoRout
     update_arc_by_pi(shadow_price);
     solutions.push_back(sol);
     
-    cout <<  "dual: ";
+    #ifdef DEBUG_DW_ITER_DUAL_VALUES
+    DW_ITER_LOG("dual: ");
+    
+    stringstream dual_debug_ss;
     for (auto p: shadow_price) {
-        cout << p << ",";
+        dual_debug_ss << p << ",";
     }
-    cout << endl;
+    dual_debug_ss << endl;
+    
+    TLMLOG(NULL, dual_debug_ss.str());
+    #endif
 
     while(true) {
         sol = this->cargoRoute.run_bp();
 
-        cout << *sol;
+        #ifdef DEBUG_DW_ITER
+        DW_ITER_LOG(*sol);
+        #endif
+        
         if(end_condition(shadow_price)){
             break;
         }
@@ -36,11 +49,17 @@ Dantzig_wolfe::Dantzig_wolfe(const CargoRoute &cargoRoute): cargoRoute(cargoRout
         append_R_column(this->cargoRoute.get_r_column());
         shadow_price = Run_Dantzig_wolfe();
         
-        cout <<  "dual: ";
+        #ifdef DEBUG_DW_ITER_DUAL_VALUES
+        DW_ITER_LOG("dual: ");
+        
+        stringstream dual_debug_ss;
         for (auto p: shadow_price) {
-            cout << p << ",";
+            dual_debug_ss << p << ",";
         }
-        cout << endl;
+        dual_debug_ss << endl;
+        
+        TLMLOG(NULL, dual_debug_ss.str());
+        #endif
         
         update_arc_by_pi(shadow_price);
         solutions.push_back(sol);
@@ -123,50 +142,73 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
         }
 
         sigma = model.getConstrByName("lambda_w").get(GRB_DoubleAttr_Pi);
-
-        #if LOG_LEVEL>=LOG_INFO
-        cout << "v : ";
-        for(int i = 0; i < m ; i++){
-            cout << v[i].get(GRB_DoubleAttr_X) << " ";
-        }
-        cout << endl;
         
-        cout << "w : " << w.get(GRB_DoubleAttr_X) << endl;
-        cout << "sigma : " << sigma << endl;
-
-        cout << " R\tShadow Price : " << endl;
-        for (int i = 0; i < m; ++i) {
-            for (int j = 0; j < n; ++j) {
-                cout << R[i][j] << "\t" ;
-            }
-            cout << endl;
+        double improvement = 0.0;
+        if (!model_result.empty()) {
+            improvement = (model.get(GRB_DoubleAttr_ObjVal) - model_result.back()) / model_result.back();
         }
+        
+        if(!model_result.empty() && improvement > DW_STOP_THRESHOLD){
+            stop_iter = 0;
+        }
+        model_result.push_back(model.get(GRB_DoubleAttr_ObjVal));
+        
+        #ifdef DEBUG_DW_ITER
+            DW_ITER_LOG("Stop iter: " << stop_iter << "/" << MAX_DW_ITER);
+            DW_ITER_LOG("Improvment: " << improvement*100.0 << "%/" << DW_STOP_THRESHOLD << "%");
+        #endif
+
+        #ifdef DEBUG_DW_ITER_THETA_AND_SIGMA
+            DW_ITER_LOG("v :");
+        
+            stringstream v_debug_ss;
+            for(int i = 0; i < m ; i++){
+                v_debug_ss << v[i].get(GRB_DoubleAttr_X) << " ";
+            }
+            v_debug_ss << endl;
+            TLMLOG(NULL, v_debug_ss.str());
+            
+            DW_ITER_LOG("w : " << w.get(GRB_DoubleAttr_X));
+            DW_ITER_LOG("sigma : " << sigma);
         #endif
         
+        #ifdef DEBUG_DW_ITER_R_MATRIX
+            DW_ITER_LOG("R\tShadow Price: ");
+            stringstream r_matrix_debug_ss;
+            for (int i = 0; i < m; ++i) {
+                for (int j = 0; j < n; ++j) {
+                    r_matrix_debug_ss << R[i][j] << "\t";
+                }
+                r_matrix_debug_ss << endl;
+            }
         
-        cout << "lambda : " ;
-        for(int i = 0; i < n; i++) {
-            cout << lambda[i].get(GRB_DoubleAttr_X) << " ";
-        }
-        cout << endl;
+            TLMLOG(NULL, r_matrix_debug_ss.str());
+        #endif
+        
+        #ifdef DEBUG_DW_ITER_LAMBDA
+            DW_ITER_LOG("lambda: ");
+        
+            stringstream lambda_debug_ss;
+            for(int i = 0; i < n; i++) {
+                lambda_debug_ss << lambda[i].get(GRB_DoubleAttr_X) << " ";
+            }
+            TLMLOG(NULL, lambda_debug_ss.str());
+        #endif
         
         previous_lambda = vector<double>();
         for(int i = 0; i < n; i++) {
             previous_lambda.push_back(lambda[i].get(GRB_DoubleAttr_X));
         }
         
-        
-        cout << "P : " ;
-        for (double i: P) {
-            cout << i << " " ;
-        }
-        
-        cout << endl << "iter : " << stop_iter << endl;
-
-        if(!model_result.empty() && (model.get(GRB_DoubleAttr_ObjVal) - model_result.back()) / model_result.back() > DW_STOP_THRESHOLD){
-            stop_iter = 0;
-        }
-        model_result.push_back(model.get(GRB_DoubleAttr_ObjVal));
+        #ifdef DEBUG_DW_ITER_PI
+            DW_ITER_LOG("P: ");
+            
+            stringstream pi_debug_ss;
+            for (double i: P) {
+                pi_debug_ss << i << " " ;
+            }
+            pi_debug_ss << endl;
+        #endif
 
         return pi;
 

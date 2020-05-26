@@ -7,7 +7,12 @@ set(CMAKE_CXX_STANDARD 17)
 #include_directories(googletest/googletest/include)
 #include_directories(googletest/googlemock/include)
 
-set(src_files src/Dantzig_wolfe.cpp
+set(src_files src/param.h
+              src/hash.hpp
+              src/hash.cpp
+              src/TLMLogger.hpp
+              src/TLMLogger.cpp
+              src/Dantzig_wolfe.cpp
               src/Dantzig_wolfe.h
               src/GurobiModel.cpp
               src/GurobiModel.h
@@ -15,9 +20,6 @@ set(src_files src/Dantzig_wolfe.cpp
               src/Network.h
               src/Node.cpp
               src/Node.h
-              src/param.h
-              src/hash.hpp
-              src/hash.cpp
               src/AirNetwork.cpp
               src/AirNetwork.h
               src/SeaNetwork.cpp

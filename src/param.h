@@ -34,7 +34,47 @@
 #include <time.h>
 #include <numeric>
 #include <iterator>
+
 #include "Path.cpp"
+
+/// Debug log output settings.
+/// Comment out specific option to disable corresponding debug output.
+
+/// Global debug mode enable.
+#define DEBUG_MODE
+#include "TLMLogger.hpp"
+
+/// DW iteration debug mode.
+#define DEBUG_DW_ITER
+
+/// DW iteration debug output options.
+#ifdef DEBUG_DW_ITER
+    #define DEBUG_DW_ITER_R_MATRIX
+    #define DEBUG_DW_ITER_THETA_AND_SIGMA
+    #define DEBUG_DW_ITER_LAMBDA
+    #define DEBUG_DW_ITER_PI
+    #define DEBUG_DW_ITER_DUAL_VALUES
+#endif
+
+/// Column generation debug mode.
+#define DEBUG_COLUMN_GENERATIONS
+
+/// Column generation debug output options.
+#ifdef DEBUG_COLUMN_GENERATIONS
+    #define DEBUG_COLUMN_GENERATIONS_REDUCED_COST
+    #define DEBUG_COLUMN_GENERATIONS_COLUMN_DELETIONS
+#endif
+
+/// Subproblems debug mode.
+#define DEBUG_SUBPROBLEMS
+
+/// Subproblem debug output options.
+#ifdef DEBUG_SUBPROBLEMS
+    #define DEBUG_SUBPROBLEMS_ROUTE_BUILD
+    #define DEBUG_SUBPROBLEMS_ONE
+    #define DEBUG_SUBPROBLEMS_TWO
+    #define DEBUG_SUBPROBLEMS_PROFIT
+#endif
 
 extern bool is_designed_route_added;
 extern bool iter_added;

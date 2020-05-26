@@ -7,4 +7,4 @@ Route : B8->B9->D15->D16->D17->D18->D19->D20->D21->D22->B29->B30-><		updated cos
 Route : A3->D5->C6->A8-><		updated cost : -1.08e+17
 Route : A9->D11->C12->A14-><		updated cost : -1.08e+17
 Route : A15->D17->C18->A20-><		updated cost : -1.08e+17
-Run time : 3.35073 sec. 
+Run time : 2.26523 sec. 
