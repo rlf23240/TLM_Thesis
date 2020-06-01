@@ -140,15 +140,15 @@ Route SeaNetwork::shortest_route(char start_node_ch, int start_time, char end_no
     
     Node* start_node = nodes[start_node_ch][start_time];
     // Ship should stay on harbor at least 1 turn before the departure.
-    Node* additional_stay_node = nodes[start_node_ch][start_time+1];
+    //Node* additional_stay_node = nodes[start_node_ch][start_time+1];
     
-    Arc* additional_stay_arc = start_node->arc_to(additional_stay_node);
+    //Arc* additional_stay_arc = start_node->arc_to(additional_stay_node);
 
     vector<string> init_node = vector<string>();
     init_node.push_back(start_node_ch + to_string(start_time));
-    init_node.push_back(start_node_ch + to_string(start_time+1));
+    //init_node.push_back(start_node_ch + to_string(start_time+1));
     
-    int init_cost = 2*stop_cost[start_node_idx] + additional_stay_arc->cost + additional_stay_arc->fixed_cost;
+    int init_cost = /*2**/stop_cost[start_node_idx] /*+ additional_stay_arc->cost + additional_stay_arc->fixed_cost*/;
 
     dp[start_node_idx][start_time] = Route(init_node, init_cost);
     forward_update(dp, start_node_idx, start_time);
@@ -171,7 +171,7 @@ Route SeaNetwork::shortest_route(char start_node_ch, int start_time, char end_no
 }
 
 void SeaNetwork::forward_update(Route **dp, int node, int time) {
-    char node_char = (char) ('A' + node) ;
+    char node_char = (char) ('A' + node);
     Node* cur_node = nodes[node_char][time];
 
     for (auto& arc: cur_node->out_arcs){

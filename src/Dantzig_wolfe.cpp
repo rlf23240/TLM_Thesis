@@ -211,6 +211,13 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
         
             TLMLOG(NULL, pi_debug_ss.str());
         #endif
+        
+        #ifdef DEBUG_DW_ITER_SOL
+            for (int i = 0; i < solutions.size(); ++i) {
+                cout << i << endl;
+                cout << *(solutions[i]) << endl;
+            }
+        #endif
 
         return pi;
 

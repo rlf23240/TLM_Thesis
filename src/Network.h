@@ -14,7 +14,7 @@ using namespace std;
 class Network;
 
 struct Route{
-    Route(const vector<string> &nodes, double cost);
+    Route(const vector<string> &nodes, double updated_cost);
     Route(Route route, int gap);
     Route();
     friend ostream &operator<<(ostream &os, const Route &route);

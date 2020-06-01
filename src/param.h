@@ -43,6 +43,7 @@
     #define DEBUG_DW_ITER_LAMBDA
     #define DEBUG_DW_ITER_SOL_OBJS
     //#define DEBUG_DW_ITER_DUAL_VALUES
+    #define DEBUG_DW_ITER_SOL
 #endif
 
 /// Column generation debug mode.
