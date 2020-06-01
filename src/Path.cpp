@@ -102,12 +102,13 @@ public:
     }
 
     bool is_feasible() {
-        if(this->stay_at_virtual > 6)
-            return false;
+        // TODO: Wierd condition?
+        /*if(this->stay_at_virtual > 6)
+            return false;*/
         if(this->length() == 2 && this->points().back().layer == 2)
             return false;
-        if(this->length() >= 15)
-            return false;
+        /*if(this->length() >= 15)
+            return false;*/
         if(enter_virtual_twice == true) {
             return false;
         }

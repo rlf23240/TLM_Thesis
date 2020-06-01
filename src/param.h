@@ -6,17 +6,6 @@
 #ifndef TLM_THESIS_PARAM_H
 #define TLM_THESIS_PARAM_H
 
-#define LOG_LEVEL LOG_INFO
-
-// Do not print any unecessary information.
-#define LOG_SILENT 0
-// Print errors.
-#define LOG_ERROR 1
-// Print warning and errors.
-#define LOG_WARN 2
-// Print all possible debug information.
-#define LOG_INFO 3
-
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
@@ -49,11 +38,11 @@
 
 /// DW iteration debug output options.
 #ifdef DEBUG_DW_ITER
-    #define DEBUG_DW_ITER_R_MATRIX
+    //#define DEBUG_DW_ITER_R_MATRIX
     #define DEBUG_DW_ITER_THETA_AND_SIGMA
     #define DEBUG_DW_ITER_LAMBDA
-    #define DEBUG_DW_ITER_PI
-    #define DEBUG_DW_ITER_DUAL_VALUES
+    #define DEBUG_DW_ITER_SOL_OBJS
+    //#define DEBUG_DW_ITER_DUAL_VALUES
 #endif
 
 /// Column generation debug mode.
@@ -63,6 +52,7 @@
 #ifdef DEBUG_COLUMN_GENERATIONS
     #define DEBUG_COLUMN_GENERATIONS_REDUCED_COST
     #define DEBUG_COLUMN_GENERATIONS_COLUMN_DELETIONS
+    #define DEBUG_COLUMN_GENERATIONS_OBJ
 #endif
 
 /// Subproblems debug mode.

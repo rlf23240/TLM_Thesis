@@ -5,11 +5,21 @@
 // Created by Ashee on 2019/7/16.
 //
 #include "param.h"
+#include "hash.hpp"
 #include "Network.h"
 
 struct Solution{
-    Solution(int cargo_size, vector<Path *> *target_path, vector<double> *z_value, double P, vector<double> r,  vector<Route> seaAirRoutes)
-            : P(P), r(std::move(r)), sea_air_routes(seaAirRoutes) {
+    Solution(int cargo_size,
+             vector<Path *> *target_path,
+             vector<double> *z_value,
+             double P,
+             vector<double> r,
+             unordered_map<pair<int, int>, bool, pair_hash> arc_usage_in_design,
+             vector<Route> seaAirRoutes):
+    P(P),
+    arc_usage_in_design(std::move(arc_usage_in_design)),
+    r(std::move(r)),
+    sea_air_routes(seaAirRoutes) {
         // copy solution
         this->cargo_size = cargo_size;
         this->target_path = new vector<Path*>[cargo_size];
@@ -70,6 +80,9 @@ struct Solution{
     vector<Path*>* target_path = NULL;
     vector<double>* z_value = NULL;
     vector<Route> sea_air_routes{};
+    
+    unordered_map<pair<int, int>, bool, pair_hash> arc_usage_in_design = {};
+    
     int cargo_size;
     double P{};
     vector<double> r;

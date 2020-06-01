@@ -26,7 +26,7 @@ struct Arc{
     Arc(Node *start_node, Node *end_node, int cost, int volume_ub, int weight_ub, double unit_profit, double unitCost);
 
     double get_reduced_cost();
-    void minus_fixed_profit(double fixed_profit);
+    void minus_fixed_profit(int k, double fixed_profit);
     void minus_fixed_cost(double fixed_profit);
 
     Node* start_node;
@@ -39,7 +39,7 @@ struct Arc{
 
     double getUnitCost() const;
 
-    double fixed_profit = 0;
+    vector<double> fixed_profits;
     double fixed_cost = 0;
 
 };

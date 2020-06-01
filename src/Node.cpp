@@ -31,8 +31,8 @@ Arc::Arc(Node *start_node, Node *end_node, int cost, int volume_ub, int weight_u
 }
 
 
-void Arc::minus_fixed_profit(double pi) {
-    Arc::fixed_profit -= pi;
+void Arc::minus_fixed_profit(int k, double pi) {
+    fixed_profits[k] -= pi;
 }
 
 void Arc::minus_fixed_cost(double pi) {

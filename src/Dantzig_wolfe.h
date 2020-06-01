@@ -37,6 +37,7 @@ private:
     int stop_iter = 1;
     void append_R_column(vector<double> r_column);
     vector<double> Run_Dantzig_wolfe();
+    void resolve_lambda();
     void Final_result();
     void update_arc_by_pi(vector<double> pi);
     bool end_condition(vector<double> pi);

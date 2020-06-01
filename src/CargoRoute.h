@@ -23,6 +23,8 @@ public:
     double get_original_profit();
     
     vector<double> get_r_column();
+    unordered_map<pair<int, int>, bool, pair_hash> get_arc_usage_in_design();
+    
     Solution* run_bp();
     void rebuild_entire_network();
     const vector<pair<int, int>> &getSea_arc_pairs() const;
@@ -83,10 +85,11 @@ private:
     void read_cargo_file(string data);
     void get_available_path(vector<Path*>** path_categories, vector<Path*>& paths);
     //void cal_paths_profit();
-    double cal_path_profit(Path* path, Cargo *cargo);
+    double cal_path_profit(int cargo_index, Path* path, Cargo *cargo);
     void cal_paths_cost();
     void cal_path_cost(Path* path);
-    void cal_path_reduced_cost(Path* path, int k);
+    void cal_target_path_reduced_cost(Path* path, int cargo_index);
+    void cal_rival_path_reduced_cost(Path* path, int cargo_index);
     Solution* branch_and_price();
     void bp_init(GRBModel &model);
     void select_init_path();
@@ -110,7 +113,8 @@ private:
     void set_complicate_constr2(GRBModel &model);
     void set_complicate_constr3(GRBModel &model);
     void update_arcs();
-    pair<Path*, int> select_most_profit_path();
+    pair<Path*, int> select_most_profit_target_path();
+    pair<Path*, int> select_most_profit_rival_path();
     void append_column(Path* best_path, int best_k);
     bool is_integral();
     void set_integer(GRBModel &model);
@@ -124,8 +128,10 @@ private:
     double* cal_constr3_val();
     unordered_set<pair<int, int>, pair_hash> get_arc_set(Path* path);
     double get_sea_complicate_constr_val(int start_idx, int end_idx, int ub);
-    double get_air_complicate_constr_val(int start_idx, int end_idx, int ub);
-    GRBLinExpr complicate_constr_lhs(int start_idx, int end_idx);
+    double get_air_complicate_constr_val_volume(int start_idx, int end_idx, int ub);
+    double get_air_complicate_constr_val_weight(int start_idx, int end_idx, int ub);
+    GRBLinExpr complicate_constr_lhs_volume(int start_idx, int end_idx);
+    GRBLinExpr complicate_constr_lhs_weight(int start_idx, int end_idx);
     double complicate_sea_rhs(int start_idx, int end_idx, int ub);
     double complicate_air_rhs(int start_idx, int end_idx, int ub);
     void reset_bp();
