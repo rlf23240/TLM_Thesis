@@ -187,41 +187,39 @@ void CargoRoute::cal_path_cost(Path *path) {
 }
 
 Solution* CargoRoute::branch_and_price() {
-    try{
-        GRBEnv env = GRBEnv();
-        GRBModel model = GRBModel(env);
-        model.set(GRB_IntParam_OutputFlag, false);
-        //initialize
-        z = new vector<GRBVar>[cargos.size()];
-        z_ = new vector<GRBVar>[cargos.size()];
-        u = new vector<GRBVar>[cargos.size()];
-        
-        if (target_path != NULL) {
-            delete[] target_path;
-        }
-        
-        if (rival_path != NULL) {
-            delete[] rival_path;
-        }
-        
-        target_path = new vector<Path *>[cargos.size()];
-        rival_path = new vector<Path *>[cargos.size()];
-        chosen_paths = new unordered_set<int>[cargos.size()];
-        not_use_count = new vector<unordered_map<Path*, int>>(cargos.size(), unordered_map<Path*, int>());
-
-        bp_init(model);
-        priority_queue<BB_node> bb_pool;
-        BB_node::cargo_size = cargos.size();
-        bb_pool.push(BB_node(
-            model.get(GRB_DoubleAttr_ObjVal),
-            target_path,
-            rival_path,
-            chosen_paths,
-            not_use_count,
-            integer_set
-        ));
-        int iter = 0;
-        while (!bb_pool.empty()) {
+    GRBEnv env = GRBEnv();
+    GRBModel model = GRBModel(env);
+    model.set(GRB_IntParam_OutputFlag, true);
+    //initialize
+    z = new vector<GRBVar>[cargos.size()];
+    z_ = new vector<GRBVar>[cargos.size()];
+    u = new vector<GRBVar>[cargos.size()];
+    
+    if (target_path != NULL) {
+        delete[] target_path;
+    }
+    
+    if (rival_path != NULL) {
+        delete[] rival_path;
+    }
+    
+    target_path = new vector<Path *>[cargos.size()];
+    rival_path = new vector<Path *>[cargos.size()];
+    chosen_paths = new unordered_set<int>[cargos.size()];
+    not_use_count = new vector<unordered_map<Path*, int>>(cargos.size(), unordered_map<Path*, int>());
+    
+    bp_init(model);
+    priority_queue<BB_node> bb_pool;
+    BB_node::cargo_size = cargos.size();
+    bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal),
+                         target_path,
+                         rival_path,
+                         chosen_paths,
+                         not_use_count,
+                         integer_set));
+    int iter = 0;
+    while (!bb_pool.empty()) {
+        try {
             cout << "BP_iter : " << iter << endl;
             if (iter > MAX_BP_ITER) {
                 set_all_u_integer(model, u);
@@ -234,7 +232,7 @@ Solution* CargoRoute::branch_and_price() {
                 bb_pool.pop();
                 continue;
             }
-
+            
             target_path = bb_pool.top().getTargetPath();
             rival_path = bb_pool.top().getRivalPath();
             chosen_paths = bb_pool.top().getChosenPaths();
@@ -242,75 +240,80 @@ Solution* CargoRoute::branch_and_price() {
             
             #pragma mark Column Deletion
             not_use_count = bb_pool.top().getNotUseCount();
-
+            
             bb_pool.pop();
             column_generation(model);
             show_model_result(model);
             if (is_integral()) break;
-
+            
             pair<int, int> kp_pair = find_kp_pair();
-
+            
             //branching
             integer_set[kp_pair.first][kp_pair.second] = false;
             LP_relaxation(model);
-            bb_pool.push(BB_node(
-                model.get(GRB_DoubleAttr_ObjVal),
-                target_path,
-                rival_path,
-                chosen_paths,
-                not_use_count,
-                integer_set
-            ));
+            bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal),
+                                 target_path,
+                                 rival_path,
+                                 chosen_paths,
+                                 not_use_count,
+                                 integer_set));
+            
             if (is_integral() && incumbent < model.get(GRB_DoubleAttr_ObjVal))
                 incumbent = model.get(GRB_DoubleAttr_ObjVal);
-
+            
             integer_set[kp_pair.first][kp_pair.second] = true;
             LP_relaxation(model);
-            bb_pool.push(
-                BB_node(model.get(GRB_DoubleAttr_ObjVal),
-                target_path,
-                rival_path,
-                chosen_paths,
-                not_use_count,
-                integer_set
-            ));
+            bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal),
+                                 target_path,
+                                 rival_path,
+                                 chosen_paths,
+                                 not_use_count,
+                                 integer_set));
+            
             if (is_integral() && incumbent < model.get(GRB_DoubleAttr_ObjVal))
                 incumbent = model.get(GRB_DoubleAttr_ObjVal);
+            
+        } catch(GRBException e) {
+            cout << "Error code = " << e.getErrorCode() << endl;
+            cout << e.getMessage() << endl;
+            
+            cout << "Infeasible solution. Node discarded." << endl;
+            cout << "bb size: " << bb_pool.size() <<endl;
+            
+            iter++;
+        } catch(...) {
+            cout << "Exception during optimization" << endl;
+            
+            iter++;
         }
-
-        objVal = model.get(GRB_DoubleAttr_ObjVal);
-//        for(auto  &k : integer_set){
-//            for(auto &p : integer_set[k.first]){
-//                cout << k.first << " " << p.first << " " << p.second <<endl;
-//            }
-//        }
-        z_value = new vector<double>[cargos.size()];
-        for (int k = 0; k < cargos.size(); k++) {
-            for (int p = 0; p < target_path[k].size(); p++) {
-                z_value[k].push_back(z[k][p].get(GRB_DoubleAttr_X));
-            }
-        }
-        
-        // Determine which arc is on designed path.
-        
-
-        Solution *sol = new Solution(cargos.size(),
-                                     target_path,
-                                     z_value,
-                                     get_P_value(),
-                                     get_r_column(),
-                                     get_arc_usage_in_design(),
-                                     networks->getSea_Air_Route());
-        
-        
-        return sol;
-    } catch(GRBException e) {
-        cout << "Error code = " << e.getErrorCode() << endl;
-        cout << e.getMessage() << endl;
-    } catch(...) {
-        cout << "Exception during optimization" << endl;
     }
-    return nullptr;
+    
+    objVal = model.get(GRB_DoubleAttr_ObjVal);
+    
+    //        for(auto  &k : integer_set){
+    //            for(auto &p : integer_set[k.first]){
+    //                cout << k.first << " " << p.first << " " << p.second <<endl;
+    //            }
+    //        }
+    
+    z_value = new vector<double>[cargos.size()];
+    for (int k = 0; k < cargos.size(); k++) {
+        for (int p = 0; p < target_path[k].size(); p++) {
+            z_value[k].push_back(z[k][p].get(GRB_DoubleAttr_X));
+        }
+    }
+    
+    Solution *sol = new Solution(cargos.size(),
+                                 target_path,
+                                 z_value,
+                                 get_P_value(),
+                                 get_r_column(),
+                                 get_arc_usage_in_design(),
+                                 networks->getSea_Air_Route());
+    
+    
+    return sol;
+
 }
 
 void CargoRoute::bp_init(GRBModel &model) {
@@ -390,6 +393,74 @@ void CargoRoute::LP_relaxation(GRBModel &model) {
     Constr_init(model);
 
     model.optimize();
+    
+    for (int k = 0; k < cargos.size(); ++k) {
+        for (int p = 0; p < target_path[k].size(); ++p) {
+            Path *path = target_path[k][p];
+            
+            // Check column usage.
+            if (z[k][p].get(GRB_DoubleAttr_X) == 0) {
+                (*not_use_count)[k][path] += 1;
+            } else {
+                (*not_use_count)[k][path] = 0;
+            }
+            
+            
+            #ifdef DEBUG_COLUMN_GENERATIONS
+            
+            COLUMN_GENERATIONS_LOG("Current column (" << "Non-rival, " << k << ", " << p << ") havn't been use for " << (*not_use_count)[k][path] << " times.");
+            COLUMN_GENERATIONS_LOG(*path);
+            
+            #endif
+            
+            // If column not use for the time being...
+            if ((*not_use_count)[k][path] >= COLUMN_GENERATION_MAX_NOT_USE_IN_THRESHOLD) {
+                (*not_use_count)[k][path] = 0;
+                
+                // Erase both from target_path and chosen_paths.
+                target_path[k].erase(target_path[k].begin() + p);
+                p -= 1;
+                
+                auto iter = chosen_paths[k].find(path->index);
+                if (iter != chosen_paths[k].end()) {
+                    chosen_paths[k].erase(iter);
+                }
+            }
+        }
+        
+        // And do it again for rival_path
+        for (int p = 0; p < rival_path[k].size(); ++p) {
+            Path *path = rival_path[k][p];
+            
+            // Check column usage.
+            if (z_[k][p].get(GRB_DoubleAttr_X) == 0) {
+                (*not_use_count)[k][path] += 1;
+            } else {
+                (*not_use_count)[k][path] = 0;
+            }
+            
+            #ifdef DEBUG_COLUMN_GENERATIONS
+            
+            COLUMN_GENERATIONS_LOG("Current column (Rival, " << k << ", " << p << ") havn't been use for " << (*not_use_count)[k][path] << " times.");
+            COLUMN_GENERATIONS_LOG(*path);
+            
+            #endif
+            
+            // If column not use for the time being...
+            if ((*not_use_count)[k][path] >= COLUMN_GENERATION_MAX_NOT_USE_IN_THRESHOLD) {
+                (*not_use_count)[k][path] = 0;
+                
+                // Erase both from rival_path and chosen_paths.
+                rival_path[k].erase(rival_path[k].begin() + p);
+                p -= 1;
+                
+                auto iter = chosen_paths[k].find(path->index);
+                if (iter != chosen_paths[k].end()) {
+                    chosen_paths[k].erase(iter);
+                }
+            }
+        }
+    }
 }
 
 void CargoRoute::column_generation(GRBModel &model) {
@@ -404,74 +475,7 @@ void CargoRoute::column_generation(GRBModel &model) {
     while (true) {
         LP_relaxation(model);
         update_arcs();
-                
-        for (int k = 0; k < cargos.size(); ++k) {
-            for (int p = 0; p < target_path[k].size(); ++p) {
-                Path *path = target_path[k][p];
-                
-                // Check column usage.
-                if (z[k][p].get(GRB_DoubleAttr_X) == 0) {
-                    (*not_use_count)[k][path] += 1;
-                } else {
-                    (*not_use_count)[k][path] = 0;
-                }
-                
-                #ifdef DEBUG_COLUMN_GENERATIONS
-                
-                COLUMN_GENERATIONS_LOG("Current column (" << "Non-rival, " << k << ", " << p << ") havn't been use for " << (*not_use_count)[k][path] << " times.");
-                COLUMN_GENERATIONS_LOG(*path);
-                
-                #endif
-                
-                // If column not use for the time being...
-                if ((*not_use_count)[k][path] >= COLUMN_GENERATION_MAX_NOT_USE_IN_THRESHOLD) {
-                    (*not_use_count)[k][path] = 0;
-                    
-                    // Erase both from target_path and chosen_paths.
-                    target_path[k].erase(target_path[k].begin() + p);
-                    for (auto iter = chosen_paths[k].begin(); iter != chosen_paths[k].end(); ++iter) {
-                        if ((*iter) == path->index) {
-                            chosen_paths[k].erase(iter);
-                            break;
-                        }
-                    }
-                }
-            }
-            
-            // And do it again for rival_path
-            for (int p = 0; p < rival_path[k].size(); ++p) {
-                Path *path = rival_path[k][p];
-                
-                // Check column usage.
-                if (z_[k][p].get(GRB_DoubleAttr_X) == 0) {
-                    (*not_use_count)[k][path] += 1;
-                } else {
-                    (*not_use_count)[k][path] = 0;
-                }
-                
-                #ifdef DEBUG_COLUMN_GENERATIONS
-                
-                COLUMN_GENERATIONS_LOG("Current column (Rival, " << k << ", " << p << ") havn't been use for " << (*not_use_count)[k][path] << " times.");
-                COLUMN_GENERATIONS_LOG(*path);
-                
-                #endif
-                
-                // If column not use for the time being...
-                if ((*not_use_count)[k][path] >= COLUMN_GENERATION_MAX_NOT_USE_IN_THRESHOLD) {
-                    (*not_use_count)[k][path] = 0;
-                    
-                    // Erase both from rival_path and chosen_paths.
-                    rival_path[k].erase(rival_path[k].begin() + p);
-                    for (auto iter = chosen_paths[k].begin(); iter != chosen_paths[k].end(); ++iter) {
-                        if ((*iter) == path->index) {
-                            chosen_paths[k].erase(iter);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        
+                        
         //double thres = (iter_added == true) ? -100: 0;
         //if(not_col_deletion == true && thres < 0) thres += 10;
         
