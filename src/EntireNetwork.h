@@ -58,7 +58,7 @@ private :
     void add_arc(Node* out, Node* in, Arc* arc);
     void find_all_paths();
     void find_paths_from_single_node(Path path, Point point, int*** color);
-    void add_path(Path* path);
+    void add_path(Path path);
     bool check_path_feasibility(Path* path);
     
     int*** create_3d_array(int x, int y, int z);
@@ -69,7 +69,7 @@ private :
     SeaNetwork *sea_network = NULL;
 
     vector<Path*> all_paths;
-    vector<Path*>** paths_categories;
+    vector<Path*>** paths_categories = NULL;
     vector<int> unload_cost;
 
     vector<vector<double>> air_profit;

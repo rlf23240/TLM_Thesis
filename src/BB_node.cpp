@@ -5,11 +5,11 @@
 #include "BB_node.h"
 
 BB_node::BB_node(double obj,
-        vector<Path *> *target_path,
-        vector<Path *> *rival_path,
-        unordered_set<int> *chosen_paths,
-        vector<unordered_map<Path*, int>>* not_use_count,
-        unordered_map<int, unordered_map <int, bool>> integer_set){
+                 vector<Path *> *target_path,
+                 vector<Path *> *rival_path,
+                 unordered_set<int> *chosen_paths,
+                 vector<unordered_map<Path*, int>>* not_use_count,
+                 unordered_map<int, unordered_map <Path*, bool>> integer_set){
     this->obj = obj;
 //    this->integer_set = integer_set;
 
@@ -68,7 +68,7 @@ unordered_set<int> *BB_node::getChosenPaths() const {
     return chosen_paths;
 }
 
-const unordered_map<int, unordered_map<int, bool>> &BB_node::getIntegerSet() const {
+const unordered_map<int, unordered_map<Path*, bool>> &BB_node::getIntegerSet() const {
     return integer_set;
 }
 
@@ -81,7 +81,8 @@ vector<unordered_map<Path*, int>>* BB_node::getNotUseCount() const {
 }
 
 BB_node::~BB_node() {
-    /*delete target_path;
-    delete rival_path;
-    delete chosen_paths;*/
+    /*delete[] target_path;
+    delete[] rival_path;
+    delete[] chosen_paths;
+    delete not_use_count;*/
 }

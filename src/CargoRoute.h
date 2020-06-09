@@ -34,7 +34,7 @@ public:
     void arcs_to_file(string data);
     
     void out_put_v_value(ostream& os);
-    void out_put_v_value_with_target_path(ostream& os, vector<Path*> *target_path);
+    void out_put_v_value_with_path(ostream& os, vector<Path*> *target_path, vector<Path*> *rival_path);
 
     Solution* Run_full_model();
     
@@ -58,6 +58,8 @@ private:
     vector<Cargo*> cargos;
     vector<Path*> all_paths;
     EntireNetwork* networks;
+    
+    int bp_iter = 0;
 
     vector<Path*>** path_categories = NULL;
     vector<Path*>* target_path = NULL;
@@ -66,9 +68,10 @@ private:
     #pragma mark Column Deletion
     // I know this is bed idea to put this, don't complain!
     vector<unordered_map<Path*, int>>* not_use_count = NULL;
+    void column_deletion(GRBModel &model);
     
     unordered_set<int>* chosen_paths;
-    unordered_map<int, unordered_map <int, bool>> integer_set;
+    unordered_map<int, unordered_map <Path*, bool>> integer_set;
 
     vector<GRBVar> *z, *z_, *u;
     vector<double> *z_value;

@@ -17,14 +17,14 @@ private:
     vector<unordered_map<Path*, int>>* not_use_count = NULL;
     
     unordered_set<int>* chosen_paths;
-    unordered_map<int, unordered_map <int, bool>> integer_set;
+    unordered_map<int, unordered_map <Path*, bool>> integer_set;
 public:
     BB_node(double obj,
             vector<Path *> *target_path,
             vector<Path *> *rival_path,
             unordered_set<int> *chosen_paths,
             vector<unordered_map<Path*, int>>* not_use_count,
-            unordered_map<int,unordered_map<int, bool>> integer_set);
+            unordered_map<int,unordered_map<Path*, bool>> integer_set);
     
     ~BB_node();
 
@@ -44,7 +44,7 @@ public:
 
     unordered_set<int> *getChosenPaths() const;
 
-    const unordered_map<int, unordered_map<int, bool>> &getIntegerSet() const;
+    const unordered_map<int, unordered_map<Path*, bool>> &getIntegerSet() const;
 
     double getObj() const;
 

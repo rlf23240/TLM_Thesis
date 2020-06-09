@@ -67,6 +67,13 @@
     #define DEBUG_SUBPROBLEMS_PROFIT
 #endif
 
+//#define DEBUG_GUROBI
+
+#ifdef DEBUG_GUROBI
+    #define DEBUG_GUROBI_BP
+    #define DEBUG_GUROBI_DW
+#endif
+
 extern bool is_designed_route_added;
 extern bool iter_added;
 extern bool not_col_deletion;

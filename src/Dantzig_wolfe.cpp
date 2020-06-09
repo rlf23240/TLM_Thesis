@@ -84,6 +84,12 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
         GRBEnv env = GRBEnv();
         GRBModel model = GRBModel(env);
         
+        #ifdef DEBUG_GUROBI_DW
+            model.set(GRB_IntParam_OutputFlag, true);
+        #else
+            model.set(GRB_IntParam_OutputFlag, false);
+        #endif
+        
         // Size of column.
         int n = (int)P.size();
         
@@ -522,7 +528,9 @@ void Dantzig_wolfe::output_result(string name, double run_time) {
     fstream v_profile;
     v_profile.open(name+"_v_profile.txt", ios::out);
     
-    cargoRoute.out_put_v_value_with_target_path(v_profile, best_sol->target_path);
+    cargoRoute.out_put_v_value_with_path(v_profile,
+                                         best_sol->target_path,
+                                         best_sol->rival_path);
     
     v_profile.close();
 }

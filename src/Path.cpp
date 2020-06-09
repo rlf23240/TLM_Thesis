@@ -38,6 +38,7 @@ public:
         _points.assign(path.points().begin(), path.points().end());
         this->stay_at_virtual = path.stay_at_virtual;
         this->virtual_entry_time = path.virtual_entry_time;
+        this->index = path.index;
     }
 
     Path(Point start_point){

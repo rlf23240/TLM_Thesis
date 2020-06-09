@@ -11,6 +11,7 @@
 struct Solution{
     Solution(int cargo_size,
              vector<Path *> *target_path,
+             vector<Path *> *rival_path,
              vector<double> *z_value,
              double P,
              vector<double> r,
@@ -23,13 +24,21 @@ struct Solution{
         // copy solution
         this->cargo_size = cargo_size;
         this->target_path = new vector<Path*>[cargo_size];
+        this->rival_path = new vector<Path*>[cargo_size];
         
         this->z_value = new vector<double>[cargo_size];
 
         for(int k = 0; k < cargo_size; k++){
            // TODO: Check this if need deep copy or not?
+            // Deep copy all path or it will all be release before next run.
+            for (const auto &path: target_path[k]) {
+                this->target_path[k].push_back(new Path(*path));
+            }
             
-            this->target_path[k].assign(target_path[k].begin(), target_path[k].end());
+            for (const auto &path: rival_path[k]) {
+                this->rival_path[k].push_back(new Path(*path));
+            }
+            
             this->z_value[k].assign(z_value[k].begin(), z_value[k].end());
         }
     }
@@ -78,6 +87,7 @@ struct Solution{
 
 
     vector<Path*>* target_path = NULL;
+    vector<Path*>* rival_path = NULL;
     vector<double>* z_value = NULL;
     vector<Route> sea_air_routes{};
     

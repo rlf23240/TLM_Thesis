@@ -44,9 +44,9 @@ EntireNetwork::EntireNetwork() = default;
 void EntireNetwork::rebuild_networks() {
     
     #ifdef DEBUG_SUBPROBLEMS_ROUTE_BUILD
-    TLMLOG("Route Constructions", "Rebuild networks.");
-    TLMLOG(NULL, air_network->getFlights()[0].routes[0]);
-    TLMLOG(NULL, sea_network->getShips()[0].route);
+        TLMLOG("Route Constructions", "Rebuild networks.");
+        TLMLOG(NULL, air_network->getFlights()[0].routes[0]);
+        TLMLOG(NULL, sea_network->getShips()[0].route);
     #endif
 
     create_networks(data_str);
@@ -582,6 +582,18 @@ void EntireNetwork::add_rival_flights() {
 }
 
 void EntireNetwork::find_all_paths() {
+    if (paths_categories != NULL) {
+        for(int i = 0; i < num_nodes; i++) {
+            for (int j = 0; j < num_nodes; j++){
+                for (const auto &path: paths_categories[i][j]) {
+                    delete path;
+                }
+            }
+            delete[] paths_categories[i];
+        }
+        delete[] paths_categories;
+    }
+    
     paths_categories = new vector<Path*>*[num_nodes];
     for(int i = 0; i < num_nodes; i++)
         paths_categories[i] = new vector<Path*>[num_nodes];
@@ -604,8 +616,8 @@ void EntireNetwork::find_paths_from_single_node(Path path, Point point, int*** v
 
     Node* cur_node = nodes[point.layer][point.node][point.time];
     visited[point.layer][point.node][point.time] = 1;
-
-    add_path(new Path(path));
+    
+    add_path(path);
     for(auto* out_arc: cur_node->out_arcs){
         auto next_point = Point(out_arc->end_node->getName());
         path.push_point(next_point);
@@ -615,18 +627,22 @@ void EntireNetwork::find_paths_from_single_node(Path path, Point point, int*** v
     }
 }
 
-void EntireNetwork::add_path(Path *path) {
-    Point front = path->points().front();
-    Point back = path->points().back();
+void EntireNetwork::add_path(Path path) {
+    Point front = path.points().front();
+    Point back = path.points().back();
 
-    if(front.node == back.node || back.layer == 2)
+    if(front.node == back.node || back.layer == 2) {
         return;
-
-//    cout << front.node << back.node << endl;
-
-    if(check_path_feasibility(path)) {
-        all_paths.push_back(path);
-        paths_categories[front.node][back.node].push_back(path);
+    }
+    
+    // Deep copy.
+    Path *new_path = new Path(path);
+        
+    if(check_path_feasibility(new_path)) {
+        all_paths.push_back(new_path);
+        paths_categories[front.node][back.node].push_back(new_path);
+    } else {
+        delete new_path;
     }
 }
 
