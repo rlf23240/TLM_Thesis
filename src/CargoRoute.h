@@ -30,7 +30,7 @@ public:
     const vector<pair<int, int>> &getSea_arc_pairs() const;
     const vector<pair<int, int>> &getAir_arc_pairs() const;
     EntireNetwork *getNetworks();
-    vector<Path *> find_all_paths();
+    const vector<Path *>& find_all_paths();
     void arcs_to_file(string data);
     
     void out_put_v_value(ostream& os);
@@ -67,11 +67,11 @@ private:
     
     #pragma mark Column Deletion
     // I know this is bed idea to put this, don't complain!
-    vector<unordered_map<Path*, int>>* not_use_count = NULL;
+    vector<unordered_map<Path, int>>* not_use_count = NULL;
     void column_deletion(GRBModel &model);
     
     unordered_set<int>* chosen_paths;
-    unordered_map<int, unordered_map <Path*, bool>> integer_set;
+    unordered_map<int, unordered_map <Path, bool>> integer_set;
 
     vector<GRBVar> *z, *z_, *u;
     vector<double> *z_value;

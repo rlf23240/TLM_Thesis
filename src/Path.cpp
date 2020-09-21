@@ -4,8 +4,9 @@
 
 #include <ostream>
 #include <iostream>
+#include <vector>
 #include "Point.cpp"
-#include "vector"
+#include "hash.hpp"
 
 class Path {
 public:
@@ -38,7 +39,16 @@ public:
         _points.assign(path.points().begin(), path.points().end());
         this->stay_at_virtual = path.stay_at_virtual;
         this->virtual_entry_time = path.virtual_entry_time;
+        this->enter_virtual_twice = path.enter_virtual_twice;
         this->index = path.index;
+        this->original_path_cost = path.original_path_cost;
+        this->path_cost = path.path_cost;
+        this->last_time = path.last_time;
+        this->path_profit = path.path_profit;
+        this->pi = path.pi;
+        this->reduced_cost = path.reduced_cost;
+        this->only_rival = path.only_rival;
+        this->type = path.type;
     }
 
     Path(Point start_point){
@@ -57,7 +67,7 @@ public:
 
     friend std::ostream &operator<<(std::ostream &os, const Path &path) {
         os << "Path :" ;
-        for(auto point : path.points()){
+        for(const auto &point: path.points()){
             os << point << "->";
         }
         os << "<" << std::endl;
@@ -138,5 +148,36 @@ public:
     
     double fixed_profit(){
         return path_profit + pi;
+    }
+};
+
+// Default hashing.
+template<> struct std::hash<Path> {
+    std::size_t operator() (const Path& path) const {
+        std::size_t hash = 0xFFFFFFFF;
+        for(const auto& point: path.points()){
+            hash = hash_combine(hash, std::hash<int>()(point.layer));
+            hash = hash_combine(hash, std::hash<int>()(point.node));
+            hash = hash_combine(hash, std::hash<int>()(point.time));
+        }
+
+        return hash;
+    }
+};
+
+// Default comparison.
+//
+// Use for `set`.
+// TODO: Maybe we need more accurate comparison?
+template<> struct std::less<Path> {
+    bool operator()(const Path& lhs, const Path& rhs) const {
+        return lhs.points() == rhs.points();
+    }
+};
+
+struct path_equal{
+public:
+    bool operator()(const Path& lhs, const Path& rhs) const {
+        return lhs.points() == rhs.points();
     }
 };

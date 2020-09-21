@@ -5,26 +5,6 @@
 #include "GurobiModel.h"
 #include "hash.hpp"
 
-struct path_hash {
-    std::size_t operator() (const Path& path) const {
-        std::size_t hash = 0xFFFFFFFF;
-        for(const auto& point : path.points()){
-            hash = hash_combine(hash, std::hash<int>()(point.layer));
-            hash = hash_combine(hash, std::hash<int>()(point.node));
-            hash = hash_combine(hash, std::hash<int>()(point.time));
-        }
-
-        return hash;
-    }
-};
-
-struct path_equal{
-public:
-    bool operator()(const Path& lhs, const Path& rhs) const{
-        return lhs.points() == rhs.points();
-    }
-};
-
 GurobiModel::GurobiModel(string data){
 //    all_paths_for_GurobiModel(data);
 ////    Run_GurobiModel(data);
@@ -101,16 +81,16 @@ void GurobiModel::all_paths_for_GurobiModel(string data) {
         cout << *route ;
     }*/
 
-    unordered_set<Path, path_hash, path_equal> all_path;
+    unordered_set<Path> all_path;
 //
     for(const auto& sea_route: candidate_designed_ship_routes){
         for(const auto& air_route: candidate_designed_flight_routes){
             cargo_route.getNetworks()->set_sea_air_route(*sea_route, *air_route);
             cargo_route.rebuild_entire_network();
-
+            
             vector<Path*> paths = cargo_route.find_all_paths();
             for(const auto& path: paths){
-                all_path.insert(*path);
+                all_path.insert(Path(*path));
             }
         }
     }

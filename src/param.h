@@ -67,8 +67,10 @@
     #define DEBUG_SUBPROBLEMS_PROFIT
 #endif
 
+/// Gurobi debug mode.
 //#define DEBUG_GUROBI
 
+/// Gurobi debug output options.
 #ifdef DEBUG_GUROBI
     #define DEBUG_GUROBI_BP
     #define DEBUG_GUROBI_DW
@@ -77,6 +79,8 @@
 extern bool is_designed_route_added;
 extern bool iter_added;
 extern bool not_col_deletion;
+
+static const double M_value = 1e15;
 
 static const double  AIR_TRANS_COST_MULTIPLIER = 0.17;
 static const double  SEA_TRANS_COST_MULTIPLIER = 13.4;
@@ -87,7 +91,7 @@ static const int  AIR_ARC_COST_MULTIPLIER = 45;
 
 static const int  SEA_ARC_COST_MULTIPLIER = 112;
 static const int TIME_SLOT_A_DAY = 3;
-static const int TOTAL_WEEK = 4;
+static const int TOTAL_WEEK = 10;
 static const int TIME_PERIOD = TOTAL_WEEK * 7;  //days
 static const unsigned int TOTAL_TIME_SLOT = TIME_PERIOD * TIME_SLOT_A_DAY;
 
@@ -112,6 +116,11 @@ static double EPSILON = 0.006; //體積轉體積重量之參數(體積/ epsilon 
 // Column Generations.
 static double COLUMN_GENERATION_THRESHOLE = 0.001;
 static int COLUMN_GENERATION_MAX_CONTINUE_IN_THRESHOLD = 20;
+
+// Column deletion is WIP. Enable it may cause a lot of bug. Use with causion.
+// Note that even you disable this option, usage statics will still execute for debug reason.
+//#define ENABLE_COLUMN_DELETION
+
 // Maximum of times of column not being use before delete.
 static int COLUMN_GENERATION_MAX_NOT_USE_IN_THRESHOLD = 20;
 

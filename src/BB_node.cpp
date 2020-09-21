@@ -8,15 +8,15 @@ BB_node::BB_node(double obj,
                  vector<Path *> *target_path,
                  vector<Path *> *rival_path,
                  unordered_set<int> *chosen_paths,
-                 vector<unordered_map<Path*, int>>* not_use_count,
-                 unordered_map<int, unordered_map <Path*, bool>> integer_set){
+                 vector<unordered_map<Path, int>>* not_use_count,
+                 unordered_map<int, unordered_map<Path, bool>> integer_set){
     this->obj = obj;
 //    this->integer_set = integer_set;
 
     this->target_path = new vector<Path*>[cargo_size];
     this->rival_path = new vector<Path*>[cargo_size];
     this->chosen_paths = new unordered_set<int>[cargo_size];
-    this->not_use_count = new vector<unordered_map<Path*, int>>(cargo_size, unordered_map<Path*, int>());
+    this->not_use_count = new vector<unordered_map<Path, int>>(cargo_size, unordered_map<Path, int>());
     
     for(int k = 0; k < cargo_size; k++){
         // TODO: Check if this need deep copy or not!
@@ -29,12 +29,13 @@ BB_node::BB_node(double obj,
             this->not_use_count->at(k)[key_value_pair.first] = key_value_pair.second;
         }
     }
-
-    for(auto &k : integer_set){
+    
+    this->integer_set = integer_set;
+    /*for(auto &k : integer_set){
         for(auto &p : integer_set[k.first]){
             this->integer_set[k.first][p.first] = p.second;
         }
-    }
+    }*/
 
 }
 
@@ -68,7 +69,7 @@ unordered_set<int> *BB_node::getChosenPaths() const {
     return chosen_paths;
 }
 
-const unordered_map<int, unordered_map<Path*, bool>> &BB_node::getIntegerSet() const {
+const unordered_map<int, unordered_map<Path, bool>> &BB_node::getIntegerSet() const {
     return integer_set;
 }
 
@@ -76,7 +77,7 @@ double BB_node::getObj() const {
     return obj;
 }
     
-vector<unordered_map<Path*, int>>* BB_node::getNotUseCount() const {
+vector<unordered_map<Path, int>>* BB_node::getNotUseCount() const {
     return not_use_count;
 }
 

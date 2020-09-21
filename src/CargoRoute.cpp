@@ -182,7 +182,7 @@ void CargoRoute::cal_path_cost(Path *path) {
 
     path->path_cost = cost;
     path->last_time = path->points().back().time - path->points().front().time;
-    
+        
     path->only_rival = only_rival;
 }
 
@@ -204,7 +204,7 @@ Solution* CargoRoute::branch_and_price() {
     target_path = new vector<Path *>[cargos.size()];
     rival_path = new vector<Path *>[cargos.size()];
     chosen_paths = new unordered_set<int>[cargos.size()];
-    not_use_count = new vector<unordered_map<Path*, int>>(cargos.size(), unordered_map<Path*, int>());
+    not_use_count = new vector<unordered_map<Path, int>>(cargos.size(), unordered_map<Path, int>());
     
     bp_init(model);
     priority_queue<BB_node> bb_pool;
@@ -224,7 +224,8 @@ Solution* CargoRoute::branch_and_price() {
         
         try {
             if (bp_iter > MAX_BP_ITER) {
-                set_all_u_integer(model, u);
+                //bp_iter = 0;
+                //set_all_u_integer(model, u);
                 LP_relaxation(model);
                 break;
             }
@@ -259,12 +260,14 @@ Solution* CargoRoute::branch_and_price() {
             show_model_result(model);
             if (is_integral()) break;
             
+            #ifdef ENABLE_COLUMN_DELETION
             column_deletion(model);
+            #endif
             
             pair<int, int> kp_pair = find_kp_pair();
             
             //branching
-            integer_set[kp_pair.first][target_path[kp_pair.first][kp_pair.second]] = false;
+            integer_set[kp_pair.first][Path(*(target_path[kp_pair.first][kp_pair.second]))] = false;
             LP_relaxation(model);
             bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal),
                                  target_path,
@@ -276,7 +279,7 @@ Solution* CargoRoute::branch_and_price() {
             if (is_integral() && incumbent < model.get(GRB_DoubleAttr_ObjVal))
                 incumbent = model.get(GRB_DoubleAttr_ObjVal);
             
-            integer_set[kp_pair.first][target_path[kp_pair.first][kp_pair.second]] = true;
+            integer_set[kp_pair.first][Path(*(target_path[kp_pair.first][kp_pair.second]))] = true;
             LP_relaxation(model);
             bb_pool.push(BB_node(model.get(GRB_DoubleAttr_ObjVal),
                                  target_path,
@@ -325,7 +328,6 @@ Solution* CargoRoute::branch_and_price() {
     
     
     return sol;
-
 }
 
 void CargoRoute::bp_init(GRBModel &model) {
@@ -413,14 +415,14 @@ void CargoRoute::LP_relaxation(GRBModel &model) {
             
             // Check column usage.
             if (z[k][p].get(GRB_DoubleAttr_X) == 0) {
-                (*not_use_count)[k][path] += 1;
+                (*not_use_count)[k][*path] += 1;
             } else {
-                (*not_use_count)[k][path] = 0;
+                (*not_use_count)[k][*path] = 0;
             }
             
             #ifdef DEBUG_COLUMN_GENERATIONS
             
-            COLUMN_GENERATIONS_LOG("Current column (" << "Non-rival, " << k << ", " << p << ") havn't been use for " << (*not_use_count)[k][path] << " times.");
+            COLUMN_GENERATIONS_LOG("Current column (" << "Non-rival, " << k << ", " << p << ") havn't been use for " << (*not_use_count)[k][*path] << " times.");
             COLUMN_GENERATIONS_LOG(*path);
             
             #endif
@@ -432,14 +434,14 @@ void CargoRoute::LP_relaxation(GRBModel &model) {
             
             // Check column usage.
             if (z_[k][n].get(GRB_DoubleAttr_X) == 0) {
-                (*not_use_count)[k][path] += 1;
+                (*not_use_count)[k][*path] += 1;
             } else {
-                (*not_use_count)[k][path] = 0;
+                (*not_use_count)[k][*path] = 0;
             }
             
             #ifdef DEBUG_COLUMN_GENERATIONS
             
-            COLUMN_GENERATIONS_LOG("Current column (Rival, " << k << ", " << n << ") havn't been use for " << (*not_use_count)[k][path] << " times.");
+            COLUMN_GENERATIONS_LOG("Current column (Rival, " << k << ", " << n << ") havn't been use for " << (*not_use_count)[k][*path] << " times.");
             COLUMN_GENERATIONS_LOG(*path);
             
             #endif
@@ -453,14 +455,14 @@ void CargoRoute::column_deletion(GRBModel &model) {
             Path *path = target_path[k][p];
 
             // If column not use for the time being...
-            if ((*not_use_count)[k][path] >= COLUMN_GENERATION_MAX_NOT_USE_IN_THRESHOLD) {
-                (*not_use_count)[k][path] = 0;
+            if ((*not_use_count)[k][*path] >= COLUMN_GENERATION_MAX_NOT_USE_IN_THRESHOLD) {
+                (*not_use_count)[k][*path] = 0;
                 
                 // Erase both from target_path and chosen_paths.
                 target_path[k].erase(target_path[k].begin() + p);
                 u[k].erase(u[k].begin() + p);
                 
-                integer_set[k].erase(path);
+                integer_set[k].erase(*path);
 
                 p -= 1;
                 
@@ -473,8 +475,8 @@ void CargoRoute::column_deletion(GRBModel &model) {
             Path *path = rival_path[k][n];
             
             // If column not use for the time being...
-            if ((*not_use_count)[k][path] >= COLUMN_GENERATION_MAX_NOT_USE_IN_THRESHOLD) {
-                (*not_use_count)[k][path] = 0;
+            if ((*not_use_count)[k][*path] >= COLUMN_GENERATION_MAX_NOT_USE_IN_THRESHOLD) {
+                (*not_use_count)[k][*path] = 0;
                 
                 // Erase both from rival_path and chosen_paths.
                 rival_path[k].erase(rival_path[k].begin() + n);
@@ -571,8 +573,15 @@ void CargoRoute::Var_init(GRBModel &model) {
     for(int k = 0; k < cargos.size(); k++){
         for(int p = 0; p < target_path[k].size(); p++){
             z[k].push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
-            u[k].push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
+            //u[k].push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
+            
+            if (bp_iter > MAX_BP_ITER) {
+                u[k].push_back(model.addVar(0.0, 1.0, 0.0, GRB_BINARY));
+            } else {
+                u[k].push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
+            }
         }
+        
         for(int n = 0; n < rival_path[k].size(); n++){
             z_[k].push_back(model.addVar(0.0, 1.0, 0.0, GRB_CONTINUOUS));
         }
@@ -585,7 +594,7 @@ void CargoRoute::Obj_init(GRBModel &model) {
         for (int p = 0; p < target_path[k].size(); p++) {
             
             double target_path_profit = cal_path_profit(k, target_path[k][p], cargos[k]);
-            
+                        
             obj += z[k][p] * cargos[k]->volume * target_path_profit;
             
             //cout << "PATH_PROFIT(" << k << "," << p<< "): " << target_path[k][p]->path_profit << endl;
@@ -664,7 +673,7 @@ void CargoRoute::cal_e() {
         for(int n = 0; n < rival_path[k].size(); n++) {
             sum += exp(v_[k][n]);
         }
-        
+                
         for(int p = 0; p < target_path[k].size(); p++){
             e[k][p] = exp(v[k][p]) / sum ;
         }
@@ -686,7 +695,6 @@ void CargoRoute::cal_v() {
         v_[k] = new double[rival_path[k].size()];
     }
     
-    
     for(int k = 0; k < cargos.size(); k++){
         for(int p = 0; p < target_path[k].size(); p++){
             v[k][p] = cargos[k]->alpha * target_path[k][p]->path_cost + cargos[k]->beta * target_path[k][p]->last_time;
@@ -695,9 +703,9 @@ void CargoRoute::cal_v() {
             //cout << "target: "<< cargos[k]->alpha << "*" << target_path[k][p]->path_cost << endl;
         }
         
-        
         for(int n = 0; n < rival_path[k].size(); n++){
             v_[k][n] = cargos[k]->alpha * rival_path[k][n]->path_cost + cargos[k]->beta * rival_path[k][n]->last_time;
+            
             //cout << "rival: " << cargos[k]->alpha << "*" << rival_path[k][n]->path_cost << endl;
         }
     }
@@ -858,7 +866,7 @@ void CargoRoute::set_integer(GRBModel &model) {
         for (int p = 0; p < target_path[k].size(); p++){
             Path *path = target_path[k][p];
             
-            auto iter = integer_set[k].find(path);
+            auto iter = integer_set[k].find(*path);
             if (iter != integer_set[k].end()) {
                 model.addConstr(u[k][p] == (*iter).second);
             }
@@ -871,11 +879,11 @@ void CargoRoute::set_all_u_integer(GRBModel &model, vector<GRBVar> *u) {
         for (int p = 0; p < target_path[k].size(); p++){
             Path *path = target_path[k][p];
             
-            if (integer_set[k].find(path) == integer_set[k].end()) {
+            if (integer_set[k].find(*path) == integer_set[k].end()) {
                 if (u[k][p].get(GRB_DoubleAttr_X) > MU_THRESHOLD) {
-                    integer_set[k][path] = true;
+                    integer_set[k][Path(*path)] = true;
                 } else {
-                    integer_set[k][path] = false;
+                    integer_set[k][Path(*path)] = false;
                 }
             }
         }
@@ -1647,9 +1655,7 @@ Solution* CargoRoute::Run_full_model() {
             }
         }
     }
-
-
-
+    
     try {
         GRBEnv env = GRBEnv();
         GRBModel model = GRBModel(env);
@@ -1692,9 +1698,13 @@ Solution* CargoRoute::Run_full_model() {
     return 0;
 }
 
-vector<Path *> CargoRoute::find_all_paths() {
+const vector<Path *>& CargoRoute::find_all_paths() {
+    // TODO: Check wheather this is a valid operation.
+    all_paths.clear();
+    
     path_categories = networks->getPaths_categories();
     get_available_path(path_categories, all_paths);
+    
     return all_paths;
 }
 

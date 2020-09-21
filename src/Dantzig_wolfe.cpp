@@ -98,7 +98,7 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
         int m = (int)R.size();
         cout << "m : " << m << endl;
         
-        double bigM = 1e15;
+        double bigM = M_value;
 
         auto * lambda = new GRBVar[n];
         auto * v = new GRBVar[m];
@@ -269,7 +269,7 @@ void Dantzig_wolfe::resolve_lambda() {
         int m = (int)R.size();
         cout << "m : " << m << endl;
         
-        double bigM = 1e15;
+        double bigM = M_value;
 
         auto * lambda = new GRBVar[n];
         auto * v = new GRBVar[m];
