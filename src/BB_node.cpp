@@ -7,7 +7,7 @@
 BB_node::BB_node(double obj,
                  vector<Path *> *target_path,
                  vector<Path *> *rival_path,
-                 unordered_set<int> *chosen_paths,
+                 vector<unordered_set<Path*>> chosen_paths,
                  vector<unordered_map<Path, int>>* not_use_count,
                  unordered_map<int, unordered_map<Path, bool>> integer_set){
     this->obj = obj;
@@ -15,7 +15,7 @@ BB_node::BB_node(double obj,
 
     this->target_path = new vector<Path*>[cargo_size];
     this->rival_path = new vector<Path*>[cargo_size];
-    this->chosen_paths = new unordered_set<int>[cargo_size];
+    this->chosen_paths = vector<unordered_set<Path*>>(cargo_size);
     this->not_use_count = new vector<unordered_map<Path, int>>(cargo_size, unordered_map<Path, int>());
     
     for(int k = 0; k < cargo_size; k++){
@@ -65,7 +65,7 @@ vector<Path *> *BB_node::getRivalPath() const {
     return rival_path;
 }
 
-unordered_set<int> *BB_node::getChosenPaths() const {
+vector<unordered_set<Path*>> BB_node::getChosenPaths() const {
     return chosen_paths;
 }
 

@@ -35,7 +35,9 @@ set(src_files src/param.h
               src/BB_node.h
               src/Solution.cpp
               src/Dijkstra.h
-              src/Dijkstra.cpp)
+              src/Dijkstra.cpp
+              src/BPGurobiModelSolution.hpp
+              src/BPGurobiModelSolution.cpp)
 
 add_executable(TLM_Thesis main.cpp ${src_files})
 add_executable(Model model.cpp)

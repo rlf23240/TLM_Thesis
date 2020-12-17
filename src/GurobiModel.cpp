@@ -38,7 +38,7 @@ void GurobiModel::Run_GurobiModel(string data) {
             cargo_route.getNetworks()->set_sea_air_route(*sea_route, *air_route);
             cargo_route.rebuild_entire_network();
 
-            Solution *result = cargo_route.Run_full_model();
+            Solution *result = nullptr;//cargo_route.Run_full_model();
             if (!best || result->P > best->P)
               best = result;
             cout << count++ << endl;
@@ -71,43 +71,40 @@ void GurobiModel::all_paths_for_GurobiModel(string data) {
 
     vector<Route*> candidate_designed_flight_routes = air_network->find_all_routes();
     vector<Route*> candidate_designed_ship_routes = sea_network->find_all_routes();
-    /*cout  << candidate_designed_ship_routes.size()<<endl;
-    cout  << candidate_designed_flight_routes.size() << endl;
-
-    for(const auto& route : candidate_designed_ship_routes){
-        cout << *route ;
-    }
-    for(const auto& route : candidate_designed_flight_routes){
-        cout << *route ;
-    }*/
-
-    unordered_set<Path> all_path;
-//
+    
+    int file_seq_number = 0;
     for(const auto& sea_route: candidate_designed_ship_routes){
         for(const auto& air_route: candidate_designed_flight_routes){
             cargo_route.getNetworks()->set_sea_air_route(*sea_route, *air_route);
             cargo_route.rebuild_entire_network();
             
             vector<Path*> paths = cargo_route.find_all_paths();
-            for(const auto& path: paths){
-                all_path.insert(Path(*path));
-            }
+            export_paths(data + "_all_paths.csv", file_seq_number++, paths);
         }
     }
-
-    ofstream file;
-    file.open(data + "_all_paths.csv");
-    for(const Path& path: all_path){
-        for(const auto& point: path.points()){
-            file << to_string(point.layer) + (char) (point.node + 65) + to_string(point.time);
-            if(point != path.points().back())  file << ",";
-        }
-        file << "\n";
-    }
-    file.close();
-    cout << all_path.size();
 }
 
 Solution *GurobiModel::getBestSol() const {
     return best_sol;
+}
+
+void GurobiModel::export_paths(string file_path_prefix,
+                               int sequence_number,
+                               const vector<Path*>& paths) {
+    string file_path = file_path_prefix + ".part" + to_string(sequence_number);
+    
+    ofstream file;
+    file.open(file_path);
+    for(auto path: paths){
+        for(const auto& point: path->points()){
+            file << to_string(point.layer) + (char) (point.node + 65) + to_string(point.time);
+            if(point != path->points().back()) {
+                file << ",";
+            }
+        }
+        file << "\n";
+    }
+    file.close();
+    
+    cout << "Export " << paths.size() << " pathes to " << file_path << endl;
 }

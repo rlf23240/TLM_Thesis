@@ -25,6 +25,7 @@
 #include <iterator>
 
 #include "Path.cpp"
+#include "Cargo.cpp"
 
 /// Debug log output settings.
 /// Comment out specific option to disable corresponding debug output.
@@ -119,7 +120,7 @@ static int COLUMN_GENERATION_MAX_CONTINUE_IN_THRESHOLD = 20;
 
 // Column deletion is WIP. Enable it may cause a lot of bug. Use with causion.
 // Note that even you disable this option, usage statics will still execute for debug reason.
-//#define ENABLE_COLUMN_DELETION
+#define ENABLE_COLUMN_DELETION
 
 // Maximum of times of column not being use before delete.
 static int COLUMN_GENERATION_MAX_NOT_USE_IN_THRESHOLD = 20;

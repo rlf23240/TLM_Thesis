@@ -42,7 +42,6 @@ EntireNetwork::EntireNetwork(string data) {
 EntireNetwork::EntireNetwork() = default;
 
 void EntireNetwork::rebuild_networks() {
-    
     #ifdef DEBUG_SUBPROBLEMS_ROUTE_BUILD
         TLMLOG("Route Constructions", "Rebuild networks.");
         TLMLOG(NULL, air_network->getFlights()[0].routes[0]);
@@ -51,13 +50,15 @@ void EntireNetwork::rebuild_networks() {
 
     create_networks(data_str);
     find_all_paths();
-
+    
+    #ifdef DEBUG_SUBPROBLEMS_ROUTE_BUILD
     for(int i = 0; i < num_nodes; i++){
         for(int j = 0; j < num_nodes; j++) {
             cout << paths_categories[i][j].size() << "\t";
         }
         cout << endl;
     }
+    #endif
 }
 
 // 何これ？
@@ -80,6 +81,22 @@ void EntireNetwork::set_sea_air_route(Route sea_route, Route air_route) {
 }
 
 void EntireNetwork::create_networks(string data) {
+    for (const auto& pairs: arcs) {
+        for (const auto& pair: pairs.second) {
+            delete pair.second;
+        }
+    }
+    arcs = unordered_map<int, unordered_map<int, Arc*>>();
+    
+    for (const auto& layer: nodes) {
+        for (const auto& nodes: layer) {
+            for (const auto& node: nodes) {
+                delete node;
+            }
+        }
+    }
+    nodes = vector<vector<vector<Node*>>>(num_layers);
+    
     if(is_designed_route_added) {
         add_designed_ships(); //layer 0
         add_designed_flights(); //layer 1
@@ -122,8 +139,8 @@ void EntireNetwork::read_unload_cost_data(string data) {
 }
 
 void EntireNetwork::read_unit_profit_data(string data) {
-    air_profit =  vector<vector<double>>{num_nodes};
-    sea_profit =  vector<vector<double>>{num_nodes};
+    air_profit = vector<vector<double>>{num_nodes};
+    sea_profit = vector<vector<double>>{num_nodes};
 
     fstream air_file,sea_file;
     air_file.open(data + "_air_profit.txt");
@@ -262,8 +279,12 @@ void EntireNetwork::add_designed_ships() {
                 Node *start_node = nodes[0][(int) start_node_char - 65][start_node_time];
                 Node *end_node = nodes[0][(int) end_node_char - 65][end_node_time];
 
-                Arc *arc = new Arc(start_node, end_node, arc_cost[(int) start_node_char - 65][(int) end_node_char - 65],
-                                   ship.volume_ub, sea_profit[(int) start_node_char - 65][(int) end_node_char - 65], sea_cost[(int) start_node_char - 65][(int) end_node_char - 65]);
+                Arc *arc = new Arc(start_node,
+                                   end_node,
+                                   arc_cost[(int) start_node_char - 65][(int) end_node_char - 65],
+                                   ship.volume_ub,
+                                   sea_profit[(int) start_node_char - 65][(int) end_node_char - 65],
+                                   sea_cost[(int) start_node_char - 65][(int) end_node_char - 65]);
                 add_arc(start_node, end_node, arc);
             }
         }
@@ -305,8 +326,7 @@ void EntireNetwork::add_designed_flights() {
                                        flight.weight_ub,
                                        // unit profit
                                        air_profit[(int) start_node_char - 65][(int) end_node_char - 65],
-                                       air_cost[(int) start_node_char - 65][(int) end_node_char - 65]
-                                       );
+                                       air_cost[(int) start_node_char - 65][(int) end_node_char - 65]);
 
                     add_arc(start_node, end_node, arc);
                 }
@@ -364,8 +384,12 @@ void EntireNetwork::add_current_ships() {
                 Node *start_node = nodes[layer][(int) start_node_char - 65][start_node_time];
                 Node *end_node = nodes[layer][(int) end_node_char - 65][end_node_time];
 
-                Arc *arc = new Arc(start_node, end_node, arc_cost[(int) start_node_char - 65][(int) end_node_char - 65],
-                                   ship.volume_ub, sea_profit[(int) start_node_char - 65][(int) end_node_char - 65], sea_cost[(int) start_node_char - 65][(int) end_node_char - 65]);
+                Arc *arc = new Arc(start_node,
+                                   end_node,
+                                   arc_cost[(int) start_node_char - 65][(int) end_node_char - 65],
+                                   ship.volume_ub,
+                                   sea_profit[(int) start_node_char - 65][(int) end_node_char - 65],
+                                   sea_cost[(int) start_node_char - 65][(int) end_node_char - 65]);
                 add_arc(start_node, end_node, arc);
             }
         }
@@ -452,15 +476,17 @@ void EntireNetwork::add_virtual_network(string data) {
 void EntireNetwork::add_arc(Node *out, Node *in, Arc *arc) {
     int out_node_idx = get_node_idx(out->getLayer(), out->getNode(), out->getTime());
     int in_node_idx = get_node_idx(in->getLayer(), in->getNode(), in->getTime());
+        
 //    cout << out->getName() << " " << out_node_idx << " " << in->getName() << " " << in_node_idx << endl;
-    if(arcs[out_node_idx][in_node_idx]){  // if two arcs are in the same place
+    if (arcs[out_node_idx][in_node_idx]) {  // if two arcs are in the same place
         arcs[out_node_idx][in_node_idx]->weight_ub += arc->weight_ub;
         arcs[out_node_idx][in_node_idx]->volume_ub += arc->volume_ub;
-    }else {
+        delete arc;
+    } else {
         arcs[out_node_idx][in_node_idx] = arc;
+        out->out_arcs.push_back(arc);
+        in->in_arcs.push_back(arc);
     }
-    out->out_arcs.push_back(arc);
-    in->in_arcs.push_back(arc);
 }
 
 void EntireNetwork::add_current_flights() {
@@ -582,21 +608,18 @@ void EntireNetwork::add_rival_flights() {
 }
 
 void EntireNetwork::find_all_paths() {
-    if (paths_categories != NULL) {
-        for(int i = 0; i < num_nodes; i++) {
-            for (int j = 0; j < num_nodes; j++){
-                for (const auto &path: paths_categories[i][j]) {
-                    delete path;
-                }
+    for(auto paths: paths_categories) {
+        for(auto paths: paths) {
+            for(auto path: paths) {
+                delete path;
             }
-            delete[] paths_categories[i];
         }
-        delete[] paths_categories;
     }
     
-    paths_categories = new vector<Path*>*[num_nodes];
-    for(int i = 0; i < num_nodes; i++)
-        paths_categories[i] = new vector<Path*>[num_nodes];
+    paths_categories = vector<vector<vector<Path*>>>(num_nodes);
+    for(int i = 0; i < num_nodes; i++) {
+        paths_categories[i] = vector<vector<Path*>>(num_nodes);
+    }
 
     for(int l = 0; l < 1; l++) {
         for (int n = 0; n < num_nodes; n++) {
@@ -613,12 +636,11 @@ void EntireNetwork::find_all_paths() {
 }
 
 void EntireNetwork::find_paths_from_single_node(Path path, Point point, int*** visited) {
-
     Node* cur_node = nodes[point.layer][point.node][point.time];
     visited[point.layer][point.node][point.time] = 1;
     
     add_path(path);
-    for(auto* out_arc: cur_node->out_arcs){
+    for(auto* out_arc: cur_node->out_arcs) {
         auto next_point = Point(out_arc->end_node->getName());
         path.push_point(next_point);
         if (path.is_feasible() && visited[next_point.layer][next_point.node][next_point.time] == 0)
@@ -706,6 +728,7 @@ int ***EntireNetwork::create_3d_array(int x, int y, int z) {
         for (int j = 0; j < y; ++j)
             arr[i][j] = new int[z];
     }
+    
     for(int i = 0; i < x; i++){
         for(int j = 0; j < y ; j++){
             for(int k = 0; k < z; k++){
@@ -726,7 +749,7 @@ void EntireNetwork::release_3d_array(int ***array, unsigned int sx, unsigned int
     delete[] array;
 }
 
-vector<Path *> **EntireNetwork::getPaths_categories() const {
+const vector<vector<vector<Path*>>>& EntireNetwork::getPaths_categories() const {
     return paths_categories;
 }
 
@@ -749,8 +772,33 @@ Point EntireNetwork::idx_to_point(int idx) {
     return Point(layer, node, time);
 }
 
-const unordered_map<int, unordered_map<int, Arc *>> &EntireNetwork::getArcs() const {
+const unordered_map<int, unordered_map<int, Arc *>>& EntireNetwork::getArcs() const {
     return arcs;
+}
+
+Arc* EntireNetwork::getArc(int node_idx1, int node_idx2) {
+    if(arcs.find(node_idx1) != arcs.end() &&
+       arcs[node_idx1].find(node_idx2) != arcs[node_idx1].end()) {
+        return arcs[node_idx1][node_idx2];
+    }
+    return NULL;
+}
+
+Arc* EntireNetwork::getArc(int start_layer,
+                           int start_node,
+                           int start_time,
+                           int end_layer,
+                           int end_node,
+                           int end_time) {
+    int start_node_idx = get_node_idx(start_layer, start_node, start_time);
+    int end_node_idx = get_node_idx(end_layer, end_node, end_time);
+    
+    return getArc(start_node_idx, end_node_idx);
+}
+
+Arc* EntireNetwork::getArc(Point point1, Point point2) {
+    return getArc(point1.layer, point1.node, point1.time,
+                  point2.layer, point2.node, point2.time);
 }
 
 vector<Flight> EntireNetwork::get_cur_flights() {

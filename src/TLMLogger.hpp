@@ -51,9 +51,9 @@ class TLMLogger {
     #define TLMLOG(TAG, LOG_COMMAND) \
         (TAG!=NULL)?(TLMLogger::shared()->os<<"["<<TAG<<"] "<<LOG_COMMAND<<endl): \
               (TLMLogger::shared()->os<<LOG_COMMAND)
-    #else
-        #define TLMLOG(TAG, LOG_COMMAND)
-    #endif
+#else
+    #define TLMLOG(TAG, LOG_COMMAND)
+#endif
 };
 
 #endif /* TLMLogger_hpp */

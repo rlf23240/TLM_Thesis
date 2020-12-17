@@ -24,12 +24,24 @@ public:
     //void generate_new_routes();
     void set_sea_air_route(Route sea_route, Route air_route);
     void rebuild_networks();
-    vector<Path *> **getPaths_categories() const;
+    
+    const vector<vector<vector<Path*>>>& getPaths_categories() const;
+    
+    const unordered_map<int, unordered_map<int, Arc *>>& getArcs() const;
+    Arc* getArc(int node_idx1, int node_idx2);
+    Arc* getArc(int start_layer,
+                int start_node,
+                int start_time,
+                int end_layer,
+                int end_node,
+                int end_time);
+    Arc* getArc(Point point1, Point point2);
+    
     unsigned int getNumNodes() const;
     int get_node_idx(int layer, int node, int time);
     int get_node_idx(Point point);
     Point idx_to_point(int idx);
-    const unordered_map<int, unordered_map<int, Arc *>> &getArcs() const;
+    
     vector<Flight> get_cur_flights();
     vector<Ship> get_cur_ships();
     AirNetwork* getAir_network();
@@ -37,7 +49,6 @@ public:
     vector<Route> getSea_Air_Route();
     void setAir_network(AirNetwork* air_network);
     void setSea_network(SeaNetwork* sea_network);
-    unordered_map<int, unordered_map<int, Arc*>> arcs;
 
 private :
     void create_networks(string data);
@@ -69,8 +80,10 @@ private :
     SeaNetwork *sea_network = NULL;
 
     vector<Path*> all_paths;
-    vector<Path*>** paths_categories = NULL;
+    vector<vector<vector<Path*>>> paths_categories;
     vector<int> unload_cost;
+    
+    unordered_map<int, unordered_map<int, Arc*>> arcs;
 
     vector<vector<double>> air_profit;
     vector<vector<double>> sea_profit;
@@ -82,7 +95,7 @@ private :
     int num_layers = 7;
     vector<Route*> candidate_designed_flight_routes;
     vector<Route*> candidate_designed_ship_routes;
-    vector<vector<Node*>>* nodes = new vector<vector<Node*>>[num_layers]; //total 7 time space network
+    vector<vector<vector<Node*>>> nodes = vector<vector<vector<Node*>>>(num_layers); //total 7 time space network
 };
 
 

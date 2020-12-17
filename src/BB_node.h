@@ -5,6 +5,8 @@
 #ifndef TLM_THESIS_BB_NODE_H
 #define TLM_THESIS_BB_NODE_H
 
+#include <unordered_set>
+
 #include "param.h"
 
 class BB_node {
@@ -16,13 +18,13 @@ private:
 #pragma mark Column Deletion
     vector<unordered_map<Path, int>>* not_use_count = NULL;
     
-    unordered_set<int>* chosen_paths;
+    vector<unordered_set<Path*>> chosen_paths;
     unordered_map<int, unordered_map<Path, bool>> integer_set;
 public:
     BB_node(double obj,
             vector<Path *> *target_path,
             vector<Path *> *rival_path,
-            unordered_set<int> *chosen_paths,
+            vector<unordered_set<Path*>> chosen_paths,
             vector<unordered_map<Path, int>>* not_use_count,
             unordered_map<int, unordered_map<Path, bool>> integer_set);
     
@@ -42,7 +44,7 @@ public:
     
     vector<unordered_map<Path, int>>* getNotUseCount() const;
 
-    unordered_set<int> *getChosenPaths() const;
+    vector<unordered_set<Path*>> getChosenPaths() const;
 
     const unordered_map<int, unordered_map<Path, bool>> &getIntegerSet() const;
 

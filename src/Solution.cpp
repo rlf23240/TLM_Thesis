@@ -12,7 +12,7 @@ struct Solution{
     Solution(int cargo_size,
              vector<Path *> *target_path,
              vector<Path *> *rival_path,
-             vector<double> *z_value,
+             vector<unordered_map<Path, double>> z_value,
              double P,
              vector<double> r,
              unordered_map<pair<int, int>, bool, pair_hash> arc_usage_in_design,
@@ -33,13 +33,12 @@ struct Solution{
             // Deep copy all path or it will all be release before next run.
             for (const auto &path: target_path[k]) {
                 this->target_path[k].push_back(new Path(*path));
+                this->z_value[k].push_back(z_value[k][*path]);
             }
             
             for (const auto &path: rival_path[k]) {
                 this->rival_path[k].push_back(new Path(*path));
             }
-            
-            this->z_value[k].assign(z_value[k].begin(), z_value[k].end());
         }
     }
     

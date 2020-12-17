@@ -172,12 +172,13 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
         #ifdef DEBUG_DW_ITER_THETA_AND_SIGMA
             DW_ITER_LOG("v :");
         
-            stringstream v_debug_ss;
+            //stringstream v_debug_ss;
             for(int i = 0; i < m ; i++){
-                v_debug_ss << v[i].get(GRB_DoubleAttr_X) << " ";
+                //v_debug_ss << v[i].get(GRB_DoubleAttr_X) << " ";
+                //TLMLOG(NULL, v[i].get(GRB_DoubleAttr_X) << " ");
+                cout << v[i].get(GRB_DoubleAttr_X);
             }
-            v_debug_ss << endl;
-            TLMLOG(NULL, v_debug_ss.str());
+            //TLMLOG(NULL, endl);
             
             DW_ITER_LOG("w : " << w.get(GRB_DoubleAttr_X));
             DW_ITER_LOG("sigma : " << sigma);
@@ -203,6 +204,8 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
             for(int i = 0; i < n; i++) {
                 lambda_debug_ss << lambda[i].get(GRB_DoubleAttr_X) << " ";
             }
+            lambda_debug_ss << endl;
+            
             TLMLOG(NULL, lambda_debug_ss.str());
         #endif
         
@@ -234,6 +237,7 @@ vector<double> Dantzig_wolfe::Run_Dantzig_wolfe() {
     catch (...) {
         cout << "Exception during optimization" << endl;
     }
+    
     return vector<double>{};
 }
 
@@ -403,7 +407,7 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
     
     // Volume upperbound of ship. Use for update fixed cost.
     double sea_volume_ub = sea_network->getDesignedShips()[0].volume_ub;
-    
+        
     for(int i = 0; i < sea_arc_pair.size(); i++){
         if(pi[i] != 0){
             int start_idx = sea_arc_pair[i].first;
@@ -420,8 +424,9 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
             for (int k = 0; k < cargos.size(); ++k) {
                 double volume_k = cargos[k]->volume;
                 
-                if(networks->arcs.find(start_idx) != networks->arcs.end() && networks->arcs[start_idx].find(end_idx) != networks->arcs[start_idx].end()){ //found arc in entirenetwork
-                    networks->arcs[start_idx][end_idx]->minus_fixed_profit(k, volume_k*pi[i]); //update profit
+                Arc* arc = networks->getArc(start_idx, end_idx);
+                if (arc != NULL) {
+                    arc->minus_fixed_profit(k, volume_k*pi[i]); //update profit
                 }
             }
         }
@@ -452,10 +457,9 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
                 double volume_k = cargos[k]->volume;
                 
                 //found arc in entirenetwork
-                if(networks->arcs.find(start_idx) != networks->arcs.end() && networks->arcs[start_idx].find(end_idx) != networks->arcs[start_idx].end()) {
-                    
-                    //update profit
-                    networks->arcs[start_idx][end_idx]->minus_fixed_profit(k, volume_k*pi[sea_arc_pair.size() + i]);
+                Arc* arc = networks->getArc(start_idx, end_idx);
+                if (arc != NULL) {
+                    arc->minus_fixed_profit(k, volume_k*pi[sea_arc_pair.size() + i]);
                 }
             }
             
@@ -480,8 +484,10 @@ void Dantzig_wolfe::update_arc_by_pi(vector<double> pi) {
                 double weight_k = cargos[k]->weight;
                 
                 //found arc in entirenetwork
-                if(networks->arcs.find(start_idx) != networks->arcs.end() && networks->arcs[start_idx].find(end_idx) != networks->arcs[start_idx].end()){
-                    networks->arcs[start_idx][end_idx]->minus_fixed_profit(k, weight_k*pi[sea_arc_pair.size() + air_arc_pair.size() + i]); //update profit
+                Arc* arc = networks->getArc(start_idx, end_idx);
+                if (arc != NULL) {
+                    //update profit
+                    arc->minus_fixed_profit(k, weight_k*pi[sea_arc_pair.size() + air_arc_pair.size() + i]);
                 }
             }
         }

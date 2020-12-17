@@ -5,12 +5,14 @@
 #ifndef TLM_THESIS_CARGOROUTE_H
 #define TLM_THESIS_CARGOROUTE_H
 
-#include "Cargo.cpp"
+#include <map>
+
 #include "EntireNetwork.h"
 #include "BB_node.h"
 #include "Solution.cpp"
 #include "param.h"
 #include "gurobi_c++.h"
+#include "BPGurobiModelSolution.hpp"
 
 struct pair_hash;
 
@@ -36,7 +38,7 @@ public:
     void out_put_v_value(ostream& os);
     void out_put_v_value_with_path(ostream& os, vector<Path*> *target_path, vector<Path*> *rival_path);
 
-    Solution* Run_full_model();
+    //Solution* Run_full_model();
     
     // Number of sea arcs.
     int num_sea_arc() {
@@ -54,39 +56,41 @@ public:
 
 private:
     unsigned int num_nodes;
-    double **e, **e_, **v, **v_;
+    vector<unordered_map<Path, double>> e, e_, v, v_;
     vector<Cargo*> cargos;
     vector<Path*> all_paths;
     EntireNetwork* networks;
     
     int bp_iter = 0;
 
-    vector<Path*>** path_categories = NULL;
+    vector<vector<vector<Path*>>> path_categories;
     vector<Path*>* target_path = NULL;
     vector<Path*>* rival_path = NULL;
     
     #pragma mark Column Deletion
     // I know this is bed idea to put this, don't complain!
     vector<unordered_map<Path, int>>* not_use_count = NULL;
-    void column_deletion(GRBModel &model);
     
-    unordered_set<int>* chosen_paths;
+    void column_deletion();
+    
+    vector<unordered_set<Path*>> chosen_paths;
     unordered_map<int, unordered_map <Path, bool>> integer_set;
-
-    vector<GRBVar> *z, *z_, *u;
-    vector<double> *z_value;
-    GRBConstr* cons1;
-    vector<GRBConstr> *cons2, *cons3, *cons4;
-    unordered_map<int, unordered_map<int, GRBConstr>> cons5, cons6, cons7;
+    
+    // Gurobi variables.
+    vector<unordered_map<Path, GRBVar>> z, z_, u;
+    
+    BPGurobiModelSolution model_solution;
+    
+    vector<GRBConstr> cons1;
+    vector<unordered_map<Path, GRBConstr>> cons2, cons3, cons4;
+    map<int, map<int, GRBConstr>> cons5, cons6, cons7;
     double incumbent = 0;
-    double objVal;
 
     vector<pair<int, int>> sea_arc_pairs;
     vector<pair<int, int>> air_arc_pairs;
 
-    unordered_map<int, unordered_map<int, Arc*>> arcs;
     void read_cargo_file(string data);
-    void get_available_path(vector<Path*>** path_categories, vector<Path*>& paths);
+    void get_available_path(vector<vector<vector<Path*>>> path_categories, vector<Path*>& paths);
     //void cal_paths_profit();
     double cal_path_profit(int cargo_index, Path* path, Cargo *cargo);
     void cal_paths_cost();
@@ -94,35 +98,41 @@ private:
     void cal_target_path_reduced_cost(Path* path, int cargo_index);
     void cal_rival_path_reduced_cost(Path* path, int cargo_index);
     Solution* branch_and_price();
-    void bp_init(GRBModel &model);
+    void bp_init();
     void select_init_path();
     bool is_path_feasible_for_cargo(Path* path, Cargo* cargo);
-    void LP_relaxation(GRBModel &model);
-    void column_generation(GRBModel &model);
+    
+    void LP_relaxation();
+    void column_generation();
+    
     void Var_init(GRBModel &model);
     void Obj_init(GRBModel &model);
     void Constr_init(GRBModel &model);
+    
     void set_constrs(GRBModel &model);
     void set_constr1(GRBModel &model);
     void set_constr2(GRBModel &model);
+    
     void cal_e();
     void cal_v();
+    
     void set_constr3(GRBModel &model);
     void set_constr4(GRBModel &model);
     void set_constr5(GRBModel &model);
     void set_constr6(GRBModel &model);
     void set_constr7(GRBModel &model);
+    
     void set_complicate_constr1(GRBModel &model);
     void set_complicate_constr2(GRBModel &model);
     void set_complicate_constr3(GRBModel &model);
+    
     void update_arcs();
     pair<Path*, int> select_most_profit_target_path();
     pair<Path*, int> select_most_profit_rival_path();
     void append_column(Path* best_path, int best_k);
-    bool is_integral();
     void set_integer(GRBModel &model);
-    void set_all_u_integer(GRBModel &model, vector<GRBVar> *u);
-    pair<int,int> find_kp_pair();
+    void set_all_u_integer();
+    pair<int, Path*> find_kp_pair();
 
     void find_sea_arcs();
     void find_air_arcs();
@@ -140,7 +150,7 @@ private:
     void reset_bp();
 
 
-    void show_model_result(GRBModel &model);
+    void show_model_result();
 };
 
 
