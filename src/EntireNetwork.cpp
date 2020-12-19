@@ -471,6 +471,8 @@ void EntireNetwork::add_virtual_network(string data) {
             }
         }
     }
+    
+    delete[] virtual_node_cost;
 }
 
 void EntireNetwork::add_arc(Node *out, Node *in, Arc *arc) {
@@ -661,7 +663,6 @@ void EntireNetwork::add_path(Path path) {
     Path *new_path = new Path(path);
         
     if(check_path_feasibility(new_path)) {
-        all_paths.push_back(new_path);
         paths_categories[front.node][back.node].push_back(new_path);
     } else {
         delete new_path;

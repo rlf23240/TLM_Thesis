@@ -22,8 +22,8 @@ private:
     vector<Route*> all_ship_routes;
     vector<Route*> all_flight_routes;
     
-    void export_paths(string file_path_prefix,
-                      int sequence_number,
+    void create_export_dest(string file_path);
+    void export_paths(string file_path,
                       const vector<Path*>& path);
 };
 

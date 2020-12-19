@@ -79,7 +79,6 @@ private :
     AirNetwork *air_network = NULL;
     SeaNetwork *sea_network = NULL;
 
-    vector<Path*> all_paths;
     vector<vector<vector<Path*>>> paths_categories;
     vector<int> unload_cost;
     
